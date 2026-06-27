@@ -1,0 +1,57 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+
+export const Route = createFileRoute("/_authenticated/admin/agents")({
+  component: AdminAgents,
+});
+
+function AdminAgents() {
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["admin-agents"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+  const setStatus = async (id: string, status: "active" | "suspended") => {
+    const { error } = await supabase.from("profiles").update({ status }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Agent ${status}`);
+    qc.invalidateQueries({ queryKey: ["admin-agents"] });
+  };
+  const del = async (id: string) => {
+    if (!confirm("Delete this agent and all their data?")) return;
+    const { error } = await supabase.from("profiles").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Deleted");
+    qc.invalidateQueries({ queryKey: ["admin-agents"] });
+  };
+  return (
+    <div className="space-y-3">
+      {data?.map((a) => (
+        <div key={a.id} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
+          {a.profile_photo_url ? (
+            <img src={a.profile_photo_url} alt="" className="h-12 w-12 rounded-full object-cover" />
+          ) : (
+            <span className="grid h-12 w-12 place-items-center rounded-full bg-brand font-bold text-brand-foreground">{a.full_name.charAt(0) || "?"}</span>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="truncate font-semibold">{a.full_name || "—"}</p>
+            <p className="truncate text-sm text-muted-foreground">{a.email} · {a.agency_name || "No agency"}</p>
+          </div>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.status === "active" ? "bg-brand/10 text-brand" : "bg-destructive/10 text-destructive"}`}>{a.status}</span>
+          {a.status === "active" ? (
+            <Button variant="outline" size="sm" className="rounded-full" onClick={() => setStatus(a.id, "suspended")}>Suspend</Button>
+          ) : (
+            <Button variant="outline" size="sm" className="rounded-full" onClick={() => setStatus(a.id, "active")}>Reactivate</Button>
+          )}
+          <Button variant="outline" size="sm" className="rounded-full text-destructive" onClick={() => del(a.id)}>Delete</Button>
+        </div>
+      ))}
+    </div>
+  );
+}
