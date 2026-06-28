@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,12 @@ function AdminListings() {
       return data ?? [];
     },
   });
+  useEffect(() => {
+    const ch = supabase.channel("admin-listings")
+      .on("postgres_changes", { event: "*", schema: "public", table: "properties" }, () => qc.invalidateQueries({ queryKey: ["admin-listings"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
   const del = async (id: string) => {
     if (!confirm("Delete this listing?")) return;
     const { error } = await supabase.from("properties").delete().eq("id", id);
