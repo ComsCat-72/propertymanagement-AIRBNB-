@@ -10,6 +10,21 @@ import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
 import cityAsset from "@/assets/city-isometric.png.asset.json";
 
+function HeroSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
+  return (
+    <div className="flex flex-1 flex-col justify-center px-3 py-1.5">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="-ml-0.5 mt-0.5 w-full cursor-pointer appearance-none bg-transparent text-sm font-semibold text-foreground outline-none"
+      >
+        {options.map((o) => <option key={o} value={o === "Any" ? "" : o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
