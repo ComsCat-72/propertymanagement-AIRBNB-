@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import cityAsset from "@/assets/city-isometric.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,10 +24,11 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [category, setCategory] = useState<CategoryId>("all");
+  const [location, setLocation] = useState("USA");
   const [city, setCity] = useState("");
-  const [type, setType] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  const [priceRange, setPriceRange] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["properties", "home", category],
@@ -61,45 +62,64 @@ function Index() {
     },
   });
 
+  // Realtime: refresh on any property/profile change
+  useEffect(() => {
+    const channel = supabase
+      .channel("home-properties")
+      .on("postgres_changes", { event: "*", schema: "public", table: "properties" }, () => {
+        qc.invalidateQueries({ queryKey: ["properties"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+        qc.invalidateQueries({ queryKey: ["properties"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
+
   const search = () => {
+    const maxPrice = priceRange ? priceRange.split("-").pop()?.replace(/\D/g, "") ?? "" : "";
     navigate({
       to: "/properties",
-      search: { city, type, maxPrice } as never,
+      search: { city, type: "", maxPrice } as never,
     });
   };
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-brand to-brand/70 text-brand-foreground">
-        <div className="mx-auto max-w-[1760px] px-6 py-16 lg:px-10 lg:py-24">
-          <div className="max-w-2xl">
-            <p className="mb-3 inline-block rounded-full bg-gold/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-foreground">Loyality Real 250</p>
-            <h1 className="text-4xl font-extrabold leading-tight md:text-6xl">Find a place where you belong.</h1>
-            <p className="mt-4 text-lg opacity-90">Discover handpicked homes, apartments, land, and commercial spaces — for sale or rent.</p>
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-[#eaf7ee] via-[#f3fbf2] to-[#e8f5ff]">
+        <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(26,92,56,0.15),transparent_45%),radial-gradient(circle_at_80%_60%,rgba(201,168,76,0.18),transparent_50%)]" />
+        <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 py-16 lg:grid-cols-[1.05fr_1fr] lg:gap-6 lg:px-10 lg:py-24">
+          <div>
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-foreground/80">Build your dream with us</p>
+            <h1 className="font-display text-5xl font-extrabold leading-[1.02] tracking-tight text-foreground md:text-6xl lg:text-7xl">
+              Find<br />Your Best<br />Smart<br />Real Estate
+            </h1>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
+              Find a home or space from our search bar. Enter your specific location,
+              property type and price range.
+            </p>
+
+            <div className="mt-8 flex max-w-xl items-stretch gap-2 rounded-2xl border border-border bg-background p-2 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.15)]">
+              <HeroSelect label="Location" value={location} onChange={setLocation} options={["USA", "Canada", "UK", "UAE"]} />
+              <div className="w-px self-stretch bg-border" />
+              <HeroSelect label="City" value={city} onChange={setCity} options={["Any", "Baltimore", "New York", "Los Angeles", "Chicago", "Miami"]} />
+              <div className="w-px self-stretch bg-border" />
+              <HeroSelect label="Price" value={priceRange} onChange={setPriceRange} options={["Any", "$ 0 - 2k", "$ 2k - 8k", "$ 8k - 20k", "$ 20k+"]} />
+              <Button onClick={search} aria-label="Search" className="grid h-auto w-14 shrink-0 place-items-center rounded-xl bg-foreground text-background hover:bg-foreground/90">
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
-          <div className="mt-10 rounded-3xl border border-white/20 bg-background p-3 text-foreground shadow-2xl md:flex md:items-center md:gap-2 md:rounded-full md:p-2">
-            <div className="flex-1 px-4 py-2">
-              <label className="block text-[11px] font-bold uppercase tracking-wider">Location</label>
-              <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City or area" className="h-7 border-0 p-0 text-sm shadow-none focus-visible:ring-0" />
-            </div>
-            <div className="hidden h-10 w-px bg-border md:block" />
-            <div className="flex-1 px-4 py-2">
-              <label className="block text-[11px] font-bold uppercase tracking-wider">Type</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} className="w-full bg-transparent text-sm font-medium outline-none">
-                <option value="">Any</option>
-                <option value="sale">For Sale</option>
-                <option value="rent">For Rent</option>
-              </select>
-            </div>
-            <div className="hidden h-10 w-px bg-border md:block" />
-            <div className="flex-1 px-4 py-2">
-              <label className="block text-[11px] font-bold uppercase tracking-wider">Max price</label>
-              <Input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Any" className="h-7 border-0 p-0 text-sm shadow-none focus-visible:ring-0" />
-            </div>
-            <Button onClick={search} className="mt-3 h-12 w-full rounded-full bg-brand font-semibold text-brand-foreground hover:bg-brand/90 md:mt-0 md:w-auto md:px-6">
-              <Search className="mr-2 h-4 w-4" /> Search
-            </Button>
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 -z-10 rounded-full bg-gradient-to-tr from-brand/15 to-gold/15 blur-3xl" />
+            <img
+              src={cityAsset.url}
+              alt="Isometric city illustration"
+              className="h-auto w-full max-w-[560px] object-contain drop-shadow-[0_25px_45px_rgba(15,40,25,0.18)]"
+            />
           </div>
         </div>
       </section>
