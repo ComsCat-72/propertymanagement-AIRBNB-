@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Upload, X } from "lucide-react";
@@ -54,6 +54,17 @@ function ListingsPage() {
       return data ?? [];
     },
   });
+
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`my-listings-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "properties", filter: `agent_id=eq.${user.id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["my-listings", user.id] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, qc]);
 
   const upload = async (files: FileList | null) => {
     if (!files || !user) return;
