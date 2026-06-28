@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,14 +14,20 @@ function AdminAgents() {
   const { data } = useQuery({
     queryKey: ["admin-agents"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase.from("profiles").select("*").order("status", { ascending: true }).order("created_at", { ascending: false });
       return data ?? [];
     },
   });
+  useEffect(() => {
+    const ch = supabase.channel("admin-agents")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => qc.invalidateQueries({ queryKey: ["admin-agents"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
   const setStatus = async (id: string, status: "active" | "suspended") => {
     const { error } = await supabase.from("profiles").update({ status }).eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success(`Agent ${status}`);
+    toast.success(status === "active" ? "Agent approved" : "Agent suspended");
     qc.invalidateQueries({ queryKey: ["admin-agents"] });
   };
   const del = async (id: string) => {
@@ -47,7 +54,7 @@ function AdminAgents() {
           {a.status === "active" ? (
             <Button variant="outline" size="sm" className="rounded-full" onClick={() => setStatus(a.id, "suspended")}>Suspend</Button>
           ) : (
-            <Button variant="outline" size="sm" className="rounded-full" onClick={() => setStatus(a.id, "active")}>Reactivate</Button>
+            <Button size="sm" className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90" onClick={() => setStatus(a.id, "active")}>Approve</Button>
           )}
           <Button variant="outline" size="sm" className="rounded-full text-destructive" onClick={() => del(a.id)}>Delete</Button>
         </div>
