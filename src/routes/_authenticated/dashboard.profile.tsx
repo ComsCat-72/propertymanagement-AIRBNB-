@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/profile")({
 
 function ProfilePage() {
   const { profile, refresh } = useAuth();
-  const [f, setF] = useState({ full_name: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "" });
+  const [f, setF] = useState({ full_name: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "", achievements: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,13 +25,14 @@ function ProfilePage() {
       agency_name: profile.agency_name || "",
       bio: profile.bio || "",
       profile_photo_url: profile.profile_photo_url || "",
+      achievements: (profile as { achievements?: string }).achievements || "",
     });
   }, [profile]);
 
   const save = async () => {
     if (!profile) return;
     setLoading(true);
-    const { error } = await supabase.from("profiles").update(f).eq("id", profile.id);
+    const { error } = await supabase.from("profiles").update(f as never).eq("id", profile.id);
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Profile updated");
@@ -47,6 +48,7 @@ function ProfilePage() {
         <div className="md:col-span-2"><Label>Office address</Label><Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} className="mt-1 rounded-xl" /></div>
         <div className="md:col-span-2"><Label>Profile photo URL</Label><Input value={f.profile_photo_url} onChange={(e) => setF({ ...f, profile_photo_url: e.target.value })} className="mt-1 rounded-xl" /></div>
         <div className="md:col-span-2"><Label>Bio</Label><Textarea rows={4} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} className="mt-1 rounded-xl" /></div>
+        <div className="md:col-span-2"><Label>Achievements & awards</Label><Textarea rows={4} value={f.achievements} onChange={(e) => setF({ ...f, achievements: e.target.value })} placeholder="Top seller 2025, 100+ successful deals…" className="mt-1 rounded-xl" /></div>
       </div>
       <Button onClick={save} disabled={loading} className="mt-6 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">{loading ? "Saving…" : "Save changes"}</Button>
     </div>

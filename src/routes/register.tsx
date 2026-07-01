@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Upload } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +18,7 @@ const schema = z.object({
   address: z.string().trim().max(200),
   agency_name: z.string().trim().max(120),
   bio: z.string().trim().max(800),
-  profile_photo_url: z.string().trim().max(500),
+  profile_photo_url: z.string().trim().min(1, "Please upload a profile photo").max(500),
 });
 
 export const Route = createFileRoute("/register")({
@@ -31,9 +32,21 @@ function RegisterPage() {
     full_name: "", email: "", password: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "",
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
+
+  const uploadPhoto = async (file: File) => {
+    setUploading(true);
+    const path = `signup/${crypto.randomUUID()}-${file.name}`;
+    const { error } = await supabase.storage.from("property-images").upload(path, file);
+    if (error) { toast.error(error.message); setUploading(false); return; }
+    const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);
+    if (data?.signedUrl) setForm((f) => ({ ...f, profile_photo_url: data.signedUrl }));
+    setUploading(false);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,13 +80,32 @@ function RegisterPage() {
         <h1 className="text-3xl font-bold">Become a LoyalityReal250 agent</h1>
         <p className="mt-1 text-sm text-muted-foreground">Create your agent account and start listing properties.</p>
         <form onSubmit={submit} className="mt-8 grid gap-4 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <Label>Profile photo *</Label>
+            <div className="mt-2 flex items-center gap-4">
+              {form.profile_photo_url ? (
+                <img src={form.profile_photo_url} alt="" className="h-20 w-20 rounded-full object-cover" />
+              ) : (
+                <span className="grid h-20 w-20 place-items-center rounded-full bg-muted text-muted-foreground">?</span>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])}
+              />
+              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} className="rounded-full">
+                <Upload className="mr-2 h-4 w-4" />{uploading ? "Uploading…" : form.profile_photo_url ? "Change photo" : "Upload photo"}
+              </Button>
+            </div>
+          </div>
           <div className="md:col-span-2"><Label>Full name *</Label><Input required value={form.full_name} onChange={set("full_name")} className="mt-1 rounded-xl" /></div>
           <div><Label>Email *</Label><Input type="email" required value={form.email} onChange={set("email")} className="mt-1 rounded-xl" /></div>
           <div><Label>Password *</Label><Input type="password" required value={form.password} onChange={set("password")} className="mt-1 rounded-xl" /></div>
           <div><Label>Phone</Label><Input value={form.phone} onChange={set("phone")} className="mt-1 rounded-xl" /></div>
           <div><Label>Agency name</Label><Input value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label>Office address</Label><Input value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
-          <div className="md:col-span-2"><Label>Profile photo URL</Label><Input value={form.profile_photo_url} onChange={set("profile_photo_url")} placeholder="https://…" className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label>Bio</Label><Textarea value={form.bio} onChange={set("bio")} rows={4} className="mt-1 rounded-xl" /></div>
           <Button disabled={loading} type="submit" className="md:col-span-2 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
             {loading ? "Creating…" : "Create agent account"}

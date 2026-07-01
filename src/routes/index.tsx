@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
@@ -130,6 +130,12 @@ function Index() {
 
           <div className="relative flex items-center justify-center">
             <div className="absolute inset-0 -z-10 rounded-full bg-gradient-to-tr from-brand/15 to-gold/15 blur-3xl" />
+            <div className="absolute left-4 top-6 z-10 flex items-center gap-2 rounded-full bg-background/95 px-4 py-2 shadow-lg backdrop-blur">
+              <Star className="h-4 w-4 fill-[#00b67a] text-[#00b67a]" />
+              <span className="text-sm font-semibold">Trustpilot</span>
+              <span className="text-sm font-bold">4.5</span>
+              <Star className="h-4 w-4 fill-[#00b67a] text-[#00b67a]" />
+            </div>
             <img
               src={cityAsset.url}
               alt="Isometric city illustration"
