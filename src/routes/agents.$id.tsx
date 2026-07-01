@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, Mail, MapPin, Building2, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/agents/$id")({
 
 function AgentDetail() {
   const { id } = Route.useParams();
+  const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["agent", id],
     queryFn: async () => {
@@ -21,6 +23,19 @@ function AgentDetail() {
       return { agent, listings: (listings ?? []) as unknown as PropertyCardData[] };
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`agent-${id}-realtime`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "properties", filter: `agent_id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["agent", id] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["agent", id] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, qc]);
 
   if (!data?.agent) return <SiteShell><div className="p-10">Agent not found.</div></SiteShell>;
   const a = data.agent;

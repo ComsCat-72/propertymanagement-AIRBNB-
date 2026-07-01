@@ -1,26 +1,57 @@
 import { useEffect, useState } from "react";
-import { Cookie, X } from "lucide-react";
+import { Cookie, X, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const KEY = "lr250-cookie-consent";
+export const COOKIE_KEY = "lr250-cookie-consent";
+export type CookieConsent = "accepted" | "declined";
+
+export function getCookieConsent(): CookieConsent | null {
+  try { return (localStorage.getItem(COOKIE_KEY) as CookieConsent | null) ?? null; } catch { return null; }
+}
+
+export function setCookieConsent(v: CookieConsent | null) {
+  try {
+    if (v === null) localStorage.removeItem(COOKIE_KEY);
+    else localStorage.setItem(COOKIE_KEY, v);
+    window.dispatchEvent(new CustomEvent("lr250:cookie-consent", { detail: v }));
+  } catch { /* ignore */ }
+}
+
+/** Small floating badge (bottom-left) that lets the user re-open the banner
+ *  after they've already decided. Persists their preference forever via localStorage. */
+function ConsentBadge({ current, onOpen }: { current: CookieConsent; onOpen: () => void }) {
+  return (
+    <button
+      onClick={onOpen}
+      aria-label="Cookie preferences"
+      className="fixed bottom-4 left-4 z-[55] flex items-center gap-2 rounded-full border border-border bg-background/95 px-3 py-2 text-xs font-semibold shadow-lg backdrop-blur hover:bg-muted"
+    >
+      <Settings2 className="h-3.5 w-3.5 text-brand" />
+      Cookies: {current === "accepted" ? <span className="text-brand">On</span> : <span className="text-muted-foreground">Off</span>}
+    </button>
+  );
+}
 
 export function CookieBanner() {
+  const [consent, setConsent] = useState<CookieConsent | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(KEY)) setOpen(true);
-    } catch {
-      /* ignore */
-    }
+    const c = getCookieConsent();
+    setConsent(c);
+    if (!c) setOpen(true);
+    const onChange = (e: Event) => setConsent((e as CustomEvent<CookieConsent | null>).detail ?? null);
+    window.addEventListener("lr250:cookie-consent", onChange);
+    return () => window.removeEventListener("lr250:cookie-consent", onChange);
   }, []);
 
-  const decide = (v: "accepted" | "declined") => {
-    try { localStorage.setItem(KEY, v); } catch { /* ignore */ }
+  const decide = (v: CookieConsent) => {
+    setCookieConsent(v);
+    setConsent(v);
     setOpen(false);
   };
 
-  if (!open) return null;
+  if (!open) return consent ? <ConsentBadge current={consent} onOpen={() => setOpen(true)} /> : null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[60] px-4 pb-4">
