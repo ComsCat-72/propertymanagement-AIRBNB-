@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Cookie, X, Check, Ban, Settings2 } from "lucide-react";
+import { Cookie, X, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const COOKIE_KEY = "lr250-cookie-consent";
