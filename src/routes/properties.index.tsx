@@ -96,6 +96,8 @@ function PropertiesPage() {
             <option value="land">Land</option>
             <option value="commercial">Commercial</option>
             <option value="villa">Villa</option>
+            <option value="car">Car</option>
+            <option value="motorcycle">Motorcycle</option>
           </select>
           <Input placeholder="Min $" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="rounded-full" />
           <Input placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="rounded-full" />
