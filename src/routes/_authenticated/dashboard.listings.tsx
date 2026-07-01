@@ -102,8 +102,8 @@ function ListingsPage() {
       status: form.status,
     };
     const { error } = form.id
-      ? await supabase.from("properties").update(payload).eq("id", form.id)
-      : await supabase.from("properties").insert(payload);
+      ? await supabase.from("properties").update(payload as never).eq("id", form.id)
+      : await supabase.from("properties").insert(payload as never);
     if (error) { toast.error(error.message); return; }
     toast.success(form.id ? "Listing updated" : "Listing created");
     setOpen(false);

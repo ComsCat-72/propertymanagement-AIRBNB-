@@ -56,7 +56,7 @@ function Index() {
         .limit(20);
       if (category !== "all") {
         if (category === "sale" || category === "rent") q = q.eq("property_type", category);
-        else q = q.eq("category", category);
+        else q = q.eq("category", category as never);
       }
       const { data, error } = await q;
       if (error) throw error;
