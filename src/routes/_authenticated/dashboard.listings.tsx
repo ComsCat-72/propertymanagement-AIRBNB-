@@ -22,7 +22,7 @@ type Form = {
   description: string;
   price: string;
   property_type: "sale" | "rent";
-  category: "house" | "apartment" | "land" | "commercial" | "villa";
+  category: "house" | "apartment" | "land" | "commercial" | "villa" | "car" | "motorcycle";
   location: string;
   city: string;
   bedrooms: string;
@@ -102,8 +102,8 @@ function ListingsPage() {
       status: form.status,
     };
     const { error } = form.id
-      ? await supabase.from("properties").update(payload).eq("id", form.id)
-      : await supabase.from("properties").insert(payload);
+      ? await supabase.from("properties").update(payload as never).eq("id", form.id)
+      : await supabase.from("properties").insert(payload as never);
     if (error) { toast.error(error.message); return; }
     toast.success(form.id ? "Listing updated" : "Listing created");
     setOpen(false);
@@ -155,7 +155,7 @@ function ListingsPage() {
               </div>
               <div><Label>Category</Label>
                 <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as never })}>
-                  <option value="house">House</option><option value="apartment">Apartment</option><option value="land">Land</option><option value="commercial">Commercial</option><option value="villa">Villa</option>
+                  <option value="house">House</option><option value="apartment">Apartment</option><option value="land">Land</option><option value="commercial">Commercial</option><option value="villa">Villa</option><option value="car">Car</option><option value="motorcycle">Motorcycle</option>
                 </select>
               </div>
               <div><Label>Status</Label>

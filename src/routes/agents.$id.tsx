@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Phone, Mail, MapPin, Building2 } from "lucide-react";
+import { Phone, Mail, MapPin, Building2, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
@@ -46,6 +46,13 @@ function AgentDetail() {
             </div>
           </div>
         </div>
+
+        {(a as { achievements?: string }).achievements && (
+          <div className="mt-6 rounded-3xl border border-border bg-card p-6">
+            <h2 className="flex items-center gap-2 text-lg font-bold"><Award className="h-5 w-5 text-gold" /> Achievements</h2>
+            <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{(a as { achievements: string }).achievements}</p>
+          </div>
+        )}
 
         <h2 className="mt-10 text-2xl font-bold">Listings by {a.full_name}</h2>
         {data.listings.length === 0 ? (

@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          achievements: string
           address: string | null
           agency_name: string | null
           bio: string | null
@@ -29,6 +30,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          achievements?: string
           address?: string | null
           agency_name?: string | null
           bio?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          achievements?: string
           address?: string | null
           agency_name?: string | null
           bio?: string | null
@@ -164,7 +167,14 @@ export type Database = {
     Enums: {
       account_status: "active" | "suspended"
       app_role: "admin" | "agent"
-      property_category: "house" | "apartment" | "land" | "commercial" | "villa"
+      property_category:
+        | "house"
+        | "apartment"
+        | "land"
+        | "commercial"
+        | "villa"
+        | "car"
+        | "motorcycle"
       property_status: "active" | "sold" | "rented"
       property_type: "sale" | "rent"
     }
@@ -296,7 +306,15 @@ export const Constants = {
     Enums: {
       account_status: ["active", "suspended"],
       app_role: ["admin", "agent"],
-      property_category: ["house", "apartment", "land", "commercial", "villa"],
+      property_category: [
+        "house",
+        "apartment",
+        "land",
+        "commercial",
+        "villa",
+        "car",
+        "motorcycle",
+      ],
       property_status: ["active", "sold", "rented"],
       property_type: ["sale", "rent"],
     },
