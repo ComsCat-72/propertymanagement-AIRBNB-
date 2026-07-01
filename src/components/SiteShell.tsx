@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import { CookieBanner } from "./CookieBanner";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <CookieBanner />
     </div>
   );
 }

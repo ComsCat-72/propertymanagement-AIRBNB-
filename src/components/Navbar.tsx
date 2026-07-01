@@ -38,7 +38,7 @@ export function Navbar() {
 
         <nav className="flex shrink-0 items-center gap-2">
           <Link to="/properties" className="hidden rounded-full px-4 py-2 text-sm font-semibold hover:bg-muted lg:inline-block">Browse</Link>
-          <Link to="/agents" className="hidden rounded-full px-4 py-2 text-sm font-semibold hover:bg-muted lg:inline-block">Agents</Link>
+          <Link to="/agents" className="hidden rounded-full px-4 py-2 text-sm font-semibold hover:bg-muted lg:inline-block">Find an Agent</Link>
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

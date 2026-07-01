@@ -1,4 +1,4 @@
-import { Home, Building2, Trees, Briefcase, Castle, Tag, KeyRound, LayoutGrid } from "lucide-react";
+import { Home, Building2, Trees, Briefcase, Castle, Tag, KeyRound, LayoutGrid, Car, Bike } from "lucide-react";
 
 export const CATEGORIES = [
   { id: "all", label: "All", icon: LayoutGrid },
@@ -7,6 +7,8 @@ export const CATEGORIES = [
   { id: "land", label: "Land", icon: Trees },
   { id: "commercial", label: "Commercial", icon: Briefcase },
   { id: "villa", label: "Villa", icon: Castle },
+  { id: "car", label: "Cars", icon: Car },
+  { id: "motorcycle", label: "Motorcycles", icon: Bike },
   { id: "sale", label: "For Sale", icon: Tag },
   { id: "rent", label: "For Rent", icon: KeyRound },
 ] as const;
