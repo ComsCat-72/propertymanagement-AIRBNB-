@@ -1,18 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, MapPin, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AgentsSearch {
   q: string;
   city: string;
   agency: string;
-  page: number;
 }
 const PAGE_SIZE = 12;
 
@@ -22,7 +20,6 @@ export const Route = createFileRoute("/agents/")({
     q: (s.q as string) || "",
     city: (s.city as string) || "",
     agency: (s.agency as string) || "",
-    page: Math.max(1, parseInt((s.page as string) || "1", 10) || 1),
   }),
   component: AgentsPage,
 });
@@ -31,9 +28,9 @@ function AgentsPage() {
   const qc = useQueryClient();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { q, city, agency, page } = search;
+  const { q, city, agency } = search;
   const setSearch = (patch: Partial<AgentsSearch>) =>
-    navigate({ search: (prev: AgentsSearch) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
+    navigate({ search: (prev: AgentsSearch) => ({ ...prev, ...patch }) });
 
   const { data, isLoading } = useQuery({
     queryKey: ["agents-directory"],
@@ -66,17 +63,32 @@ function AgentsPage() {
     [data],
   );
 
-  const filtered = (data ?? []).filter((a) => {
+  const filtered = useMemo(() => (data ?? []).filter((a) => {
     const needle = q.trim().toLowerCase();
     if (needle && !`${a.full_name} ${a.agency_name ?? ""} ${a.bio ?? ""}`.toLowerCase().includes(needle)) return false;
     if (city && a.address !== city) return false;
     if (agency && a.agency_name !== agency) return false;
     return true;
-  });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageRows = filtered.slice(start, start + PAGE_SIZE);
+  }), [data, q, city, agency]);
+
+  // Incremental reveal (infinite scroll) over the filtered set.
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  useEffect(() => { setVisible(PAGE_SIZE); }, [q, city, agency, data]);
+  const pageRows = filtered.slice(0, visible);
+  const hasMore = visible < filtered.length;
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        setVisible((v) => v + PAGE_SIZE);
+      }
+    }, { rootMargin: "500px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore]);
 
   return (
     <SiteShell>
@@ -145,12 +157,9 @@ function AgentsPage() {
         </div>
         )}
 
-        {filtered.length > PAGE_SIZE && (
-          <div className="mt-10 flex items-center justify-center gap-2">
-            <Button variant="outline" className="rounded-full" disabled={currentPage <= 1} onClick={() => setSearch({ page: currentPage - 1 })}>Previous</Button>
-            <span className="text-sm">Page {currentPage} of {totalPages}</span>
-            <Button variant="outline" className="rounded-full" disabled={currentPage >= totalPages} onClick={() => setSearch({ page: currentPage + 1 })}>Next</Button>
-          </div>
+        <div ref={sentinelRef} className="h-10" />
+        {!hasMore && filtered.length > PAGE_SIZE && (
+          <p className="mt-4 text-center text-xs text-muted-foreground">You've reached the end.</p>
         )}
       </div>
     </SiteShell>
