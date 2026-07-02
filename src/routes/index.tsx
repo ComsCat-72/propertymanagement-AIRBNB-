@@ -2,29 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, Play } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import heroHouse from "@/assets/hero-house.png.asset.json";
-
-function HeroSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
-  return (
-    <div className="flex flex-1 flex-col justify-center px-4 py-2">
-      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="-ml-0.5 mt-0.5 w-full cursor-pointer appearance-none bg-transparent text-sm font-semibold text-foreground outline-none"
-      >
-        {options.map((o) => <option key={o} value={o === "Any" ? "" : o}>{o}</option>)}
-      </select>
-    </div>
-  );
-}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,9 +26,6 @@ function Index() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [category, setCategory] = useState<CategoryId>("all");
-  const [location, setLocation] = useState("USA");
-  const [city, setCity] = useState("");
-  const [priceRange, setPriceRange] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["properties", "home", category],
@@ -94,58 +75,60 @@ function Index() {
     };
   }, [qc]);
 
-  const search = () => {
-    const maxPrice = priceRange ? priceRange.split("-").pop()?.replace(/\D/g, "") ?? "" : "";
-    navigate({
-      to: "/properties",
-      search: { city, type: "", maxPrice } as never,
-    });
-  };
+  const explore = () => navigate({ to: "/properties", search: {} as never });
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden border-b border-border bg-background">
-        <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-8 px-6 pb-32 pt-12 md:pb-40 lg:grid-cols-[1.05fr_1fr] lg:gap-6 lg:px-10 lg:pt-20">
-          <div className="relative z-10">
-            <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-7xl">
-              Gateway to<br />
-              <span className="font-extrabold">Dream Homes</span>
-            </h1>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-              Discover a curated collection of dream homes at your fingertips, simplified and personalized.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button onClick={search} className="h-12 rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:bg-foreground/90">
-                Discover Now
-              </Button>
-              <button type="button" className="flex items-center gap-3 text-sm font-semibold text-foreground">
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-border bg-background shadow-sm">
-                  <Play className="h-4 w-4 fill-foreground text-foreground" />
-                </span>
-                Watch Demo
-              </button>
+      <section className="relative isolate overflow-hidden bg-[#05060f] text-white">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(96,80,220,0.45),transparent_65%)]" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-[45%] bg-[radial-gradient(ellipse_at_left,rgba(40,80,220,0.35),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[45%] bg-[radial-gradient(ellipse_at_right,rgba(40,80,220,0.35),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.15] [background-image:radial-gradient(circle_at_1px_1px,#fff_1px,transparent_0)] [background-size:28px_28px]" />
+
+        <div className="relative mx-auto flex max-w-[1280px] flex-col items-center px-6 pb-24 pt-20 text-center lg:pt-28">
+          <button
+            onClick={explore}
+            className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-1.5 pr-5 text-xs font-medium text-white/80 backdrop-blur transition hover:bg-white/[0.08]"
+          >
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-white shadow-[0_8px_24px_-6px_rgba(37,99,235,0.7)]">
+              Book a tour <ArrowRight className="h-3 w-3" />
+            </span>
+            Free consultation call
+          </button>
+
+          <h1 className="mt-8 max-w-4xl font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
+            Gateway to <br />
+            <span className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">Dream Homes</span>
+          </h1>
+          <p className="mt-6 max-w-lg text-base text-white/60">
+            Curated properties for sale and rent — modern, verified, and personalized to you.
+          </p>
+
+          <Button
+            onClick={explore}
+            className="mt-10 h-12 rounded-full bg-blue-600 px-8 text-sm font-semibold text-white shadow-[0_20px_50px_-15px_rgba(37,99,235,0.8)] hover:bg-blue-500"
+          >
+            Explore Homes
+          </Button>
+
+          <div className="mt-10 flex flex-col items-center gap-1.5">
+            <div className="flex gap-1 text-yellow-400">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="h-4 w-4 fill-current" />
+              ))}
             </div>
+            <p className="text-sm text-white/70">4.9/5 From 3,602 Customers</p>
           </div>
 
-          <div className="relative flex items-center justify-center lg:justify-end">
-            <img
-              src={heroHouse.url}
-              alt="Modern two-story home"
-              className="h-auto w-full max-w-[620px] object-contain"
-            />
-          </div>
-        </div>
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-6 pb-6 lg:px-10">
-          <div className="pointer-events-auto flex w-full max-w-[1180px] items-stretch gap-1 rounded-2xl border border-border bg-background p-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.25)]">
-            <HeroSelect label="⌖ Location" value={location} onChange={setLocation} options={["USA", "Canada", "UK", "UAE"]} />
-            <div className="w-px self-stretch bg-border" />
-            <HeroSelect label="⌂ Property Type" value={city} onChange={setCity} options={["Any", "House", "Apartment", "Villa", "Land", "Commercial"]} />
-            <div className="w-px self-stretch bg-border" />
-            <HeroSelect label="$ Price Range" value={priceRange} onChange={setPriceRange} options={["Any", "$ 0 - 2k", "$ 2k - 8k", "$ 8k - 20k", "$ 20k+"]} />
-            <Button onClick={search} aria-label="Search" className="grid h-auto w-14 shrink-0 place-items-center rounded-xl bg-foreground text-background hover:bg-foreground/90">
-              <Search className="h-5 w-5" />
-            </Button>
+          <div className="mt-10 grid w-full max-w-3xl grid-cols-3 gap-2 sm:grid-cols-6">
+            {["Kigali", "Nairobi", "Lagos", "Dubai", "London", "New York"].map((c) => (
+              <span
+                key={c}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-xs font-medium text-white/70 backdrop-blur"
+              >
+                {c}
+              </span>
+            ))}
           </div>
         </div>
       </section>
