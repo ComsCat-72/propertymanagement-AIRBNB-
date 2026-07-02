@@ -33,7 +33,7 @@ function AgentsPage() {
   const navigate = Route.useNavigate();
   const { q, city, agency, page } = search;
   const setSearch = (patch: Partial<AgentsSearch>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
+    navigate({ search: (prev: AgentsSearch) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
 
   const { data, isLoading } = useQuery({
     queryKey: ["agents-directory"],
