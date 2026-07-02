@@ -6,6 +6,7 @@ import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SearchParams {
   city?: string;
@@ -121,7 +122,11 @@ function PropertiesPage() {
         {isLoading ? (
           <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
             ))}
           </div>
         ) : data && data.rows.length > 0 ? (

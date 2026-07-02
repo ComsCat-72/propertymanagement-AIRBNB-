@@ -2,18 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, Star } from "lucide-react";
+import { Search, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
-import cityAsset from "@/assets/city-isometric.png.asset.json";
+import { Skeleton } from "@/components/ui/skeleton";
+import heroHouse from "@/assets/hero-house.png.asset.json";
 
 function HeroSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
   return (
-    <div className="flex flex-1 flex-col justify-center px-3 py-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+    <div className="flex flex-1 flex-col justify-center px-4 py-2">
+      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -103,44 +104,48 @@ function Index() {
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-[#eaf7ee] via-[#f3fbf2] to-[#e8f5ff]">
-        <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_20%_20%,rgba(26,92,56,0.15),transparent_45%),radial-gradient(circle_at_80%_60%,rgba(201,168,76,0.18),transparent_50%)]" />
-        <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-6 py-16 lg:grid-cols-[1.05fr_1fr] lg:gap-6 lg:px-10 lg:py-24">
-          <div>
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-foreground/80">Build your dream with us</p>
-            <h1 className="font-display text-5xl font-extrabold leading-[1.02] tracking-tight text-foreground md:text-6xl lg:text-7xl">
-              Find<br />Your Best<br />Smart<br />Real Estate
+      <section className="relative overflow-hidden border-b border-border bg-background">
+        <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-8 px-6 pb-32 pt-12 md:pb-40 lg:grid-cols-[1.05fr_1fr] lg:gap-6 lg:px-10 lg:pt-20">
+          <div className="relative z-10">
+            <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-7xl">
+              Gateway to<br />
+              <span className="font-extrabold">Dream Homes</span>
             </h1>
             <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-              Find a home or space from our search bar. Enter your specific location,
-              property type and price range.
+              Discover a curated collection of dream homes at your fingertips, simplified and personalized.
             </p>
-
-            <div className="mt-8 flex max-w-xl items-stretch gap-2 rounded-2xl border border-border bg-background p-2 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.15)]">
-              <HeroSelect label="Location" value={location} onChange={setLocation} options={["USA", "Canada", "UK", "UAE"]} />
-              <div className="w-px self-stretch bg-border" />
-              <HeroSelect label="City" value={city} onChange={setCity} options={["Any", "Baltimore", "New York", "Los Angeles", "Chicago", "Miami"]} />
-              <div className="w-px self-stretch bg-border" />
-              <HeroSelect label="Price" value={priceRange} onChange={setPriceRange} options={["Any", "$ 0 - 2k", "$ 2k - 8k", "$ 8k - 20k", "$ 20k+"]} />
-              <Button onClick={search} aria-label="Search" className="grid h-auto w-14 shrink-0 place-items-center rounded-xl bg-foreground text-background hover:bg-foreground/90">
-                <Search className="h-5 w-5" />
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button onClick={search} className="h-12 rounded-full bg-foreground px-7 text-sm font-semibold text-background hover:bg-foreground/90">
+                Discover Now
               </Button>
+              <button type="button" className="flex items-center gap-3 text-sm font-semibold text-foreground">
+                <span className="grid h-11 w-11 place-items-center rounded-full border border-border bg-background shadow-sm">
+                  <Play className="h-4 w-4 fill-foreground text-foreground" />
+                </span>
+                Watch Demo
+              </button>
             </div>
           </div>
 
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-0 -z-10 rounded-full bg-gradient-to-tr from-brand/15 to-gold/15 blur-3xl" />
-            <div className="absolute left-4 top-6 z-10 flex items-center gap-2 rounded-full bg-background/95 px-4 py-2 shadow-lg backdrop-blur">
-              <Star className="h-4 w-4 fill-[#00b67a] text-[#00b67a]" />
-              <span className="text-sm font-semibold">Trustpilot</span>
-              <span className="text-sm font-bold">4.5</span>
-              <Star className="h-4 w-4 fill-[#00b67a] text-[#00b67a]" />
-            </div>
+          <div className="relative flex items-center justify-center lg:justify-end">
             <img
-              src={cityAsset.url}
-              alt="Isometric city illustration"
-              className="h-auto w-full max-w-[560px] object-contain drop-shadow-[0_25px_45px_rgba(15,40,25,0.18)]"
+              src={heroHouse.url}
+              alt="Modern two-story home"
+              className="h-auto w-full max-w-[620px] object-contain"
             />
+          </div>
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-6 pb-6 lg:px-10">
+          <div className="pointer-events-auto flex w-full max-w-[1180px] items-stretch gap-1 rounded-2xl border border-border bg-background p-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.25)]">
+            <HeroSelect label="⌖ Location" value={location} onChange={setLocation} options={["USA", "Canada", "UK", "UAE"]} />
+            <div className="w-px self-stretch bg-border" />
+            <HeroSelect label="⌂ Property Type" value={city} onChange={setCity} options={["Any", "House", "Apartment", "Villa", "Land", "Commercial"]} />
+            <div className="w-px self-stretch bg-border" />
+            <HeroSelect label="$ Price Range" value={priceRange} onChange={setPriceRange} options={["Any", "$ 0 - 2k", "$ 2k - 8k", "$ 8k - 20k", "$ 20k+"]} />
+            <Button onClick={search} aria-label="Search" className="grid h-auto w-14 shrink-0 place-items-center rounded-xl bg-foreground text-background hover:bg-foreground/90">
+              <Search className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
@@ -167,9 +172,9 @@ function Index() {
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="space-y-3">
-                <div className="aspect-[4/3] w-full animate-pulse rounded-2xl bg-muted" />
-                <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
-                <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+                <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
               </div>
             ))}
           </div>
