@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, Mail, MapPin, Building2, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/agents/$id")({
   component: AgentDetail,
 });
+
+const LISTING_PAGE_SIZE = 6;
 
 function AgentDetail() {
   const { id } = Route.useParams();
@@ -16,19 +19,42 @@ function AgentDetail() {
   const { data } = useQuery({
     queryKey: ["agent", id],
     queryFn: async () => {
-      const [{ data: agent }, { data: listings }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", id).maybeSingle(),
-        supabase.from("properties").select("*").eq("agent_id", id).eq("status", "active").order("created_at", { ascending: false }),
-      ]);
-      return { agent, listings: (listings ?? []) as unknown as PropertyCardData[] };
+      const { data: agent } = await supabase.from("profiles").select("*").eq("id", id).maybeSingle();
+      return { agent };
     },
   });
+
+  const {
+    data: listingsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: listingsLoading,
+  } = useInfiniteQuery({
+    queryKey: ["agent-listings", id],
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      const from = pageParam as number;
+      const { data, error } = await supabase
+        .from("properties")
+        .select("*")
+        .eq("agent_id", id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .range(from, from + LISTING_PAGE_SIZE - 1);
+      if (error) throw error;
+      const rows = (data ?? []) as unknown as PropertyCardData[];
+      return { rows, nextFrom: rows.length === LISTING_PAGE_SIZE ? from + LISTING_PAGE_SIZE : null };
+    },
+    getNextPageParam: (last) => last.nextFrom,
+  });
+  const listings = (listingsData?.pages ?? []).flatMap((p) => p.rows);
 
   useEffect(() => {
     const channel = supabase
       .channel(`agent-${id}-realtime`)
       .on("postgres_changes", { event: "*", schema: "public", table: "properties", filter: `agent_id=eq.${id}` }, () => {
-        qc.invalidateQueries({ queryKey: ["agent", id] });
+        qc.invalidateQueries({ queryKey: ["agent-listings", id] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${id}` }, () => {
         qc.invalidateQueries({ queryKey: ["agent", id] });
@@ -70,12 +96,28 @@ function AgentDetail() {
         )}
 
         <h2 className="mt-10 text-2xl font-bold">Listings by {a.full_name}</h2>
-        {data.listings.length === 0 ? (
+        {listingsLoading ? (
+          <p className="mt-4 text-muted-foreground">Loading listings…</p>
+        ) : listings.length === 0 ? (
           <p className="mt-4 text-muted-foreground">No active listings.</p>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {data.listings.map((p) => <PropertyCard key={p.id} p={p} />)}
-          </div>
+          <>
+            <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {listings.map((p) => <PropertyCard key={p.id} p={p} />)}
+            </div>
+            {hasNextPage && (
+              <div className="mt-8 flex justify-center">
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  disabled={isFetchingNextPage}
+                  onClick={() => fetchNextPage()}
+                >
+                  {isFetchingNextPage ? "Loading…" : "Load more"}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </SiteShell>
