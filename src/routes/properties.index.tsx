@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
@@ -16,7 +16,6 @@ interface SearchParams {
   maxPrice?: string;
   bedrooms?: string;
   sort?: string;
-  page?: string;
 }
 
 export const Route = createFileRoute("/properties/")({
@@ -29,7 +28,6 @@ export const Route = createFileRoute("/properties/")({
     maxPrice: (s.maxPrice as string) || "",
     bedrooms: (s.bedrooms as string) || "",
     sort: (s.sort as string) || "newest",
-    page: (s.page as string) || "1",
   }),
   component: PropertiesPage,
 });
@@ -39,18 +37,31 @@ const PAGE_SIZE = 12;
 function PropertiesPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
+  const sort = search.sort || "newest";
+
+  // Local draft state for the filter form; committed to URL on Apply.
   const [city, setCity] = useState(search.city || "");
   const [type, setType] = useState(search.type || "");
   const [category, setCategory] = useState(search.category || "");
   const [minPrice, setMinPrice] = useState(search.minPrice || "");
   const [maxPrice, setMaxPrice] = useState(search.maxPrice || "");
   const [bedrooms, setBedrooms] = useState(search.bedrooms || "");
-  const sort = search.sort || "newest";
-  const page = parseInt(search.page || "1", 10);
 
-  const { data, isLoading } = useQuery({
+  // Keep draft synced when URL changes (e.g. shared link, browser back).
+  useEffect(() => {
+    setCity(search.city || "");
+    setType(search.type || "");
+    setCategory(search.category || "");
+    setMinPrice(search.minPrice || "");
+    setMaxPrice(search.maxPrice || "");
+    setBedrooms(search.bedrooms || "");
+  }, [search.city, search.type, search.category, search.minPrice, search.maxPrice, search.bedrooms]);
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["properties-list", search],
-    queryFn: async () => {
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      const from = pageParam as number;
       let q = supabase
         .from("properties")
         .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url)", { count: "exact" })
@@ -64,26 +75,43 @@ function PropertiesPage() {
       if (sort === "price_asc") q = q.order("price", { ascending: true });
       else if (sort === "price_desc") q = q.order("price", { ascending: false });
       else q = q.order("created_at", { ascending: false });
-      const from = (page - 1) * PAGE_SIZE;
       q = q.range(from, from + PAGE_SIZE - 1);
       const { data, count, error } = await q;
       if (error) throw error;
-      return { rows: (data ?? []) as unknown as PropertyCardData[], count: count ?? 0 };
+      const rows = (data ?? []) as unknown as PropertyCardData[];
+      return { rows, count: count ?? 0, nextFrom: rows.length === PAGE_SIZE ? from + PAGE_SIZE : null };
     },
+    getNextPageParam: (last) => last.nextFrom,
   });
 
+  const rows = (data?.pages ?? []).flatMap((p) => p.rows);
+  const total = data?.pages[0]?.count ?? 0;
+
   const apply = () => {
-    navigate({ search: { city, type, category, minPrice, maxPrice, bedrooms, sort, page: "1" } });
+    navigate({ search: { city, type, category, minPrice, maxPrice, bedrooms, sort } });
+  };
+  const reset = () => {
+    navigate({ search: { sort: "newest" } });
   };
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.count / PAGE_SIZE)) : 1;
+  // Infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
+    }, { rootMargin: "600px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <SiteShell>
       <div className="mx-auto max-w-[1760px] px-6 py-8 lg:px-10">
         <h1 className="mb-6 text-3xl font-bold">Browse properties</h1>
 
-        <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-7">
+        <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-8">
           <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="rounded-full" />
           <select value={type} onChange={(e) => setType(e.target.value)} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
             <option value="">Any type</option>
@@ -104,13 +132,14 @@ function PropertiesPage() {
           <Input placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="rounded-full" />
           <Input placeholder="Bedrooms" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="rounded-full" />
           <Button onClick={apply} className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90">Apply</Button>
+          <Button variant="outline" onClick={reset} className="rounded-full">Reset</Button>
         </div>
 
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{data?.count ?? 0} results</p>
+          <p className="text-sm text-muted-foreground">{total} results</p>
           <select
             value={sort}
-            onChange={(e) => navigate({ search: { ...search, sort: e.target.value, page: "1" } })}
+            onChange={(e) => navigate({ search: { ...search, sort: e.target.value } })}
             className="h-9 rounded-full border border-input bg-background px-3 text-sm"
           >
             <option value="newest">Newest</option>
@@ -129,16 +158,25 @@ function PropertiesPage() {
               </div>
             ))}
           </div>
-        ) : data && data.rows.length > 0 ? (
+        ) : rows.length > 0 ? (
           <>
             <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {data.rows.map((p) => <PropertyCard key={p.id} p={p} />)}
+              {rows.map((p) => <PropertyCard key={p.id} p={p} />)}
             </div>
-            <div className="mt-10 flex items-center justify-center gap-2">
-              <Button variant="outline" className="rounded-full" disabled={page <= 1} onClick={() => navigate({ search: { ...search, page: String(page - 1) } })}>Previous</Button>
-              <span className="text-sm">Page {page} of {totalPages}</span>
-              <Button variant="outline" className="rounded-full" disabled={page >= totalPages} onClick={() => navigate({ search: { ...search, page: String(page + 1) } })}>Next</Button>
-            </div>
+            <div ref={sentinelRef} className="h-10" />
+            {isFetchingNextPage && (
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                ))}
+              </div>
+            )}
+            {!hasNextPage && (
+              <p className="mt-10 text-center text-xs text-muted-foreground">You've reached the end.</p>
+            )}
           </>
         ) : (
           <div className="mt-12 rounded-2xl border border-dashed border-border p-12 text-center">
