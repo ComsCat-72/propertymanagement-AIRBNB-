@@ -1,13 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/")({
@@ -23,7 +20,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const [category, setCategory] = useState<CategoryId>("all");
 
@@ -75,64 +71,8 @@ function Index() {
     };
   }, [qc]);
 
-  const explore = () => navigate({ to: "/properties", search: {} as never });
-
   return (
     <SiteShell>
-      <section className="relative isolate overflow-hidden bg-[#05060f] text-white">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(96,80,220,0.45),transparent_65%)]" />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-[45%] bg-[radial-gradient(ellipse_at_left,rgba(40,80,220,0.35),transparent_70%)]" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[45%] bg-[radial-gradient(ellipse_at_right,rgba(40,80,220,0.35),transparent_70%)]" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.15] [background-image:radial-gradient(circle_at_1px_1px,#fff_1px,transparent_0)] [background-size:28px_28px]" />
-
-        <div className="relative mx-auto flex max-w-[1280px] flex-col items-center px-6 pb-24 pt-20 text-center lg:pt-28">
-          <button
-            onClick={explore}
-            className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-1.5 pr-5 text-xs font-medium text-white/80 backdrop-blur transition hover:bg-white/[0.08]"
-          >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 text-white shadow-[0_8px_24px_-6px_rgba(37,99,235,0.7)]">
-              Book a tour <ArrowRight className="h-3 w-3" />
-            </span>
-            Free consultation call
-          </button>
-
-          <h1 className="mt-8 max-w-4xl font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-            Gateway to <br />
-            <span className="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">Dream Homes</span>
-          </h1>
-          <p className="mt-6 max-w-lg text-base text-white/60">
-            Curated properties for sale and rent — modern, verified, and personalized to you.
-          </p>
-
-          <Button
-            onClick={explore}
-            className="mt-10 h-12 rounded-full bg-blue-600 px-8 text-sm font-semibold text-white shadow-[0_20px_50px_-15px_rgba(37,99,235,0.8)] hover:bg-blue-500"
-          >
-            Explore Homes
-          </Button>
-
-          <div className="mt-10 flex flex-col items-center gap-1.5">
-            <div className="flex gap-1 text-yellow-400">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-current" />
-              ))}
-            </div>
-            <p className="text-sm text-white/70">4.9/5 From 3,602 Customers</p>
-          </div>
-
-          <div className="mt-10 grid w-full max-w-3xl grid-cols-3 gap-2 sm:grid-cols-6">
-            {["Kigali", "Nairobi", "Lagos", "Dubai", "London", "New York"].map((c) => (
-              <span
-                key={c}
-                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-xs font-medium text-white/70 backdrop-blur"
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <CategoryPills active={category} onChange={setCategory} />
 
       {featured && featured.length > 0 && (

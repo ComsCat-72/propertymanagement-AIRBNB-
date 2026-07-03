@@ -84,9 +84,9 @@ function RegisterPage() {
             <Label>Profile photo *</Label>
             <div className="mt-2 flex items-center gap-4">
               {form.profile_photo_url ? (
-                <img src={form.profile_photo_url} alt="" className="h-20 w-20 rounded-full object-cover" />
+                <img src={form.profile_photo_url} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
               ) : (
-                <span className="grid h-20 w-20 place-items-center rounded-full bg-muted text-muted-foreground">?</span>
+                <span className="grid h-28 w-24 place-items-center rounded-md border border-dashed border-border bg-muted text-[10px] text-muted-foreground">Passport photo</span>
               )}
               <input
                 ref={fileRef}
