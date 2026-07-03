@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +20,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const [category, setCategory] = useState<CategoryId>("all");
 
@@ -72,8 +70,6 @@ function Index() {
       supabase.removeChannel(channel);
     };
   }, [qc]);
-
-  const explore = () => navigate({ to: "/properties", search: {} as never });
 
   return (
     <SiteShell>
