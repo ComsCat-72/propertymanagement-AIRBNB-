@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 
 const schema = z.object({
   full_name: z.string().trim().min(1).max(100),
@@ -34,14 +35,25 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [pending, setPending] = useState<File | null>(null);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
-  const uploadPhoto = async (file: File) => {
+  const pickFile = (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Please choose an image file"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Image must be under 10MB"); return; }
+    setPending(file);
+  };
+
+  const uploadCropped = async (blob: Blob) => {
+    if (!pending) return;
+    const src = pending;
+    setPending(null);
     setUploading(true);
-    const path = `signup/${crypto.randomUUID()}-${file.name}`;
-    const { error } = await supabase.storage.from("property-images").upload(path, file);
+    const name = safeStorageName(src.name).replace(/\.[a-z]+$/, ".jpg");
+    const path = `signup/${crypto.randomUUID()}-${name}`;
+    const { error } = await supabase.storage.from("property-images").upload(path, blob, { contentType: "image/jpeg" });
     if (error) { toast.error(error.message); setUploading(false); return; }
     const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);
     if (data?.signedUrl) setForm((f) => ({ ...f, profile_photo_url: data.signedUrl }));
@@ -93,7 +105,11 @@ function RegisterPage() {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) pickFile(f);
+                  e.target.value = "";
+                }}
               />
               <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} className="rounded-full">
                 <Upload className="mr-2 h-4 w-4" />{uploading ? "Uploading…" : form.profile_photo_url ? "Change photo" : "Upload photo"}
@@ -114,6 +130,7 @@ function RegisterPage() {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account? <Link to="/login" className="font-semibold text-brand underline">Log in</Link>
         </p>
+        <PhotoCropper open={!!pending} file={pending} onCancel={() => setPending(null)} onConfirm={uploadCropped} />
       </div>
     </SiteShell>
   );

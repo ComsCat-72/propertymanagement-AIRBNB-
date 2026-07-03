@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   component: ProfilePage,
@@ -19,6 +20,7 @@ function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [pending, setPending] = useState<File | null>(null);
 
   useEffect(() => {
     if (profile) setF({
@@ -32,13 +34,19 @@ function ProfilePage() {
     });
   }, [profile]);
 
-  const uploadPhoto = async (file: File) => {
-    if (!profile) return;
+  const pickFile = (file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("Please choose an image file"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Image must be under 10MB"); return; }
+    setPending(file);
+  };
+
+  const uploadCropped = async (blob: Blob) => {
+    if (!profile || !pending) return;
+    setPending(null);
     setUploading(true);
-    const path = `avatars/${profile.id}/${crypto.randomUUID()}-${file.name}`;
-    const { error } = await supabase.storage.from("property-images").upload(path, file, { upsert: false, contentType: file.type });
+    const name = safeStorageName(pending.name).replace(/\.[a-z]+$/, ".jpg");
+    const path = `avatars/${profile.id}/${crypto.randomUUID()}-${name}`;
+    const { error } = await supabase.storage.from("property-images").upload(path, blob, { upsert: false, contentType: "image/jpeg" });
     if (error) { toast.error(error.message); setUploading(false); return; }
     const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);
     if (data?.signedUrl) setF((prev) => ({ ...prev, profile_photo_url: data.signedUrl }));
@@ -67,7 +75,17 @@ function ProfilePage() {
         <div>
           <Label className="mb-1 block">Profile photo (passport style)</Label>
           <p className="mb-2 text-xs text-muted-foreground">Clear head-and-shoulders photo, plain background. Max 5MB.</p>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) pickFile(f);
+              e.target.value = "";
+            }}
+          />
           <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading} className="rounded-full">
             <Upload className="mr-2 h-4 w-4" />{uploading ? "Uploading…" : f.profile_photo_url ? "Change photo" : "Upload photo"}
           </Button>
@@ -82,6 +100,7 @@ function ProfilePage() {
         <div className="md:col-span-2"><Label>Achievements & awards</Label><Textarea rows={4} value={f.achievements} onChange={(e) => setF({ ...f, achievements: e.target.value })} placeholder="Top seller 2025, 100+ successful deals…" className="mt-1 rounded-xl" /></div>
       </div>
       <Button onClick={save} disabled={loading} className="mt-6 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">{loading ? "Saving…" : "Save changes"}</Button>
+      <PhotoCropper open={!!pending} file={pending} onCancel={() => setPending(null)} onConfirm={uploadCropped} />
     </div>
   );
 }
