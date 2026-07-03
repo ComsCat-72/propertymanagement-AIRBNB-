@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -41,19 +41,12 @@ export function PhotoCropper({
   const [zoom, setZoom] = useState(1);
   const [area, setArea] = useState<Area | null>(null);
 
-  // Create/revoke object URL for the incoming file
-  useState(() => {});
-  if (file && !src) {
+  useEffect(() => {
+    if (!file) { setSrc(null); setCrop({ x: 0, y: 0 }); setZoom(1); setArea(null); return; }
     const url = URL.createObjectURL(file);
     setSrc(url);
-  }
-  if (!file && src) {
-    URL.revokeObjectURL(src);
-    setSrc(null);
-    setCrop({ x: 0, y: 0 });
-    setZoom(1);
-    setArea(null);
-  }
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => setArea(pixels), []);
 
