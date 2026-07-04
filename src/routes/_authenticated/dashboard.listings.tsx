@@ -84,7 +84,7 @@ function ListingsPage() {
 
   const save = async () => {
     if (!user) return;
-    if (!form.title || !form.city) { toast.error("Title and city are required"); return; }
+    if (!form.title || !form.city || !form.location) { toast.error("Title, city, and location are required"); return; }
     const payload = {
       agent_id: user.id,
       title: form.title.trim(),
@@ -164,7 +164,7 @@ function ListingsPage() {
                 </select>
               </div>
               <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
-              <div><Label>Address / area</Label><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
+              <div><Label>Location *</Label><Input required placeholder="Neighborhood, street, or landmark" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
               <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
               <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
               <div><Label>Area (m²)</Label><Input type="number" value={form.area_sqm} onChange={(e) => setForm({ ...form, area_sqm: e.target.value })} /></div>

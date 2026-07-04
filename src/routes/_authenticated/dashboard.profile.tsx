@@ -45,7 +45,7 @@ function ProfilePage() {
     setPending(null);
     setUploading(true);
     const name = safeStorageName(pending.name).replace(/\.[a-z]+$/, ".jpg");
-    const path = `avatars/${profile.id}/${crypto.randomUUID()}-${name}`;
+    const path = `${profile.id}/avatars/${crypto.randomUUID()}-${name}`;
     const { error } = await supabase.storage.from("property-images").upload(path, blob, { upsert: false, contentType: "image/jpeg" });
     if (error) { toast.error(error.message); setUploading(false); return; }
     const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);

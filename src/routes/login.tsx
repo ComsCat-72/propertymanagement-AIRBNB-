@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
@@ -16,6 +17,8 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const navigate = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
@@ -32,6 +35,17 @@ function LoginPage() {
     navigate({ to: isAdmin ? "/admin" : "/dashboard" });
   };
 
+  const resetPassword = async () => {
+    if (!email) { toast.error("Enter your email above first"); return; }
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Password reset link sent — check your email");
+  };
+
   return (
     <SiteShell>
       <div className="mx-auto flex max-w-md flex-col px-6 py-16">
@@ -43,8 +57,18 @@ function LoginPage() {
             <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 rounded-xl" />
           </div>
           <div>
-            <Label>Password</Label>
-            <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 rounded-xl" />
+            <div className="flex items-center justify-between">
+              <Label>Password</Label>
+              <button type="button" onClick={resetPassword} disabled={resetting} className="text-xs font-semibold text-brand hover:underline disabled:opacity-60">
+                {resetting ? "Sending…" : "Forgot password?"}
+              </button>
+            </div>
+            <div className="relative mt-1">
+              <Input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-xl pr-10" />
+              <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
           <Button disabled={loading} type="submit" className="w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
             {loading ? "Logging in…" : "Log in"}

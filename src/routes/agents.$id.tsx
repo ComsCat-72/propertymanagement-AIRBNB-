@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { Phone, Mail, MapPin, Building2, Award } from "lucide-react";
+import { Phone, Mail, MapPin, Building2, Award, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
@@ -65,6 +65,10 @@ function AgentDetail() {
 
   if (!data?.agent) return <SiteShell><div className="p-10">Agent not found.</div></SiteShell>;
   const a = data.agent;
+  const waPhone = (a.phone || "").replace(/[^\d]/g, "");
+  const waLink = waPhone
+    ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${a.full_name}, I found your profile on LoyalityReal250 and would like to chat.`)}`
+    : "";
 
   return (
     <SiteShell>
@@ -85,6 +89,11 @@ function AgentDetail() {
               {a.address && <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-brand" /> {a.address}</span>}
               {a.agency_name && <span className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-brand" /> {a.agency_name}</span>}
             </div>
+            {waLink && (
+              <a href={waLink} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#20b357]">
+                <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
+              </a>
+            )}
           </div>
         </div>
 
