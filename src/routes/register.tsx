@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +34,7 @@ function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<File | null>(null);
 
@@ -118,7 +119,15 @@ function RegisterPage() {
           </div>
           <div className="md:col-span-2"><Label>Full name *</Label><Input required value={form.full_name} onChange={set("full_name")} className="mt-1 rounded-xl" /></div>
           <div><Label>Email *</Label><Input type="email" required value={form.email} onChange={set("email")} className="mt-1 rounded-xl" /></div>
-          <div><Label>Password *</Label><Input type="password" required value={form.password} onChange={set("password")} className="mt-1 rounded-xl" /></div>
+          <div>
+            <Label>Password *</Label>
+            <div className="relative mt-1">
+              <Input type={showPassword ? "text" : "password"} required value={form.password} onChange={set("password")} className="rounded-xl pr-10" />
+              <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
           <div><Label>Phone</Label><Input value={form.phone} onChange={set("phone")} className="mt-1 rounded-xl" /></div>
           <div><Label>Agency name</Label><Input value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label>Office address</Label><Input value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
