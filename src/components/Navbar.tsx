@@ -1,7 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, User as UserIcon, LogOut, LayoutDashboard, Shield, Globe } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +14,98 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const TYPE_OPTIONS = [
+  { label: "Any type", value: "" },
+  { label: "For sale", value: "sale" },
+  { label: "For rent", value: "rent" },
+];
+
+const CATEGORY_OPTIONS = [
+  { label: "Any category", value: "" },
+  { label: "House", value: "house" },
+  { label: "Apartment", value: "apartment" },
+  { label: "Villa", value: "villa" },
+  { label: "Land", value: "land" },
+  { label: "Commercial", value: "commercial" },
+  { label: "Car", value: "car" },
+  { label: "Motorcycle", value: "motorcycle" },
+];
+
+const PRICE_RANGES = [
+  { label: "Any budget", min: "", max: "" },
+  { label: "Under 50,000", min: "", max: "50000" },
+  { label: "50k – 200k", min: "50000", max: "200000" },
+  { label: "200k – 500k", min: "200000", max: "500000" },
+  { label: "500k – 1M", min: "500000", max: "1000000" },
+  { label: "1M+", min: "1000000", max: "" },
+];
+
+function useScrollDirection() {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let last = typeof window !== "undefined" ? window.scrollY : 0;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 20) { setHidden(false); last = y; return; }
+      if (y > last + 6) setHidden(true);
+      else if (y < last - 6) setHidden(false);
+      last = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return hidden;
+}
+
 export function Navbar() {
   const { user, profile, isAdmin, isAgent, signOut } = useAuth();
   const navigate = useNavigate();
+  const hidden = useScrollDirection();
+
+  const [where, setWhere] = useState("");
+  const [type, setType] = useState("");
+  const [category, setCategory] = useState("");
+  const [priceIdx, setPriceIdx] = useState(0);
+  const [openWhere, setOpenWhere] = useState(false);
+  const [openType, setOpenType] = useState(false);
+  const [openPrice, setOpenPrice] = useState(false);
+
+  const { data: locations } = useQuery({
+    queryKey: ["distinct-locations"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await supabase.from("properties").select("city, location").eq("status", "active").limit(500);
+      const set = new Set<string>();
+      (data ?? []).forEach((r: { city?: string | null; location?: string | null }) => {
+        if (r.city) set.add(r.city);
+        if (r.location) set.add(r.location);
+      });
+      return Array.from(set).sort();
+    },
+  });
+
+  const runSearch = () => {
+    const range = PRICE_RANGES[priceIdx];
+    const search: Record<string, string> = {};
+    if (where) search.city = where;
+    if (type) search.type = type;
+    if (category) search.category = category;
+    if (range.min) search.minPrice = range.min;
+    if (range.max) search.maxPrice = range.max;
+    navigate({ to: "/properties", search: search as never });
+    setOpenWhere(false); setOpenType(false); setOpenPrice(false);
+  };
+
+  const priceLabel = PRICE_RANGES[priceIdx].label;
+  const typeLabel = [...TYPE_OPTIONS, ...CATEGORY_OPTIONS].find((o) => o.value === (type || category))?.label ?? "Any type";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-transform duration-300",
+        hidden && "lg:translate-y-0 -translate-y-full",
+      )}
+    >
       {/* Top row */}
       <div className="mx-auto flex h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:px-10">
         {/* Logo */}
@@ -39,16 +129,51 @@ export function Navbar() {
         </nav>
 
         {/* Compact search pill (mobile/tablet) */}
-        <button
-          onClick={() => navigate({ to: "/properties" })}
-          className="mx-2 flex flex-1 items-center gap-3 rounded-full border border-border bg-background py-2.5 px-4 shadow-sm transition hover:shadow-md lg:hidden"
-          aria-label="Search properties"
-        >
-          <Search className="h-4 w-4 shrink-0" />
-          <div className="min-w-0 flex-1 text-left">
-            <div className="truncate text-sm font-semibold">Start your search</div>
-          </div>
-        </button>
+        <Popover open={openWhere} onOpenChange={setOpenWhere}>
+          <PopoverTrigger asChild>
+            <button
+              className="mx-2 flex min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-background py-2.5 px-4 shadow-sm transition hover:shadow-md lg:hidden"
+              aria-label="Search properties"
+            >
+              <Search className="h-4 w-4 shrink-0" />
+              <div className="min-w-0 flex-1 text-left">
+                <div className="truncate text-sm font-semibold">{where || "Start your search"}</div>
+                <div className="truncate text-[11px] text-muted-foreground">{typeLabel} · {priceLabel}</div>
+              </div>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="center" className="w-[92vw] max-w-sm space-y-3 p-4">
+            <div>
+              <label className="text-xs font-semibold">Where</label>
+              <select value={where} onChange={(e) => setWhere(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                <option value="">Anywhere</option>
+                {(locations ?? []).map((l) => <option key={l} value={l}>{l}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs font-semibold">Type</label>
+                <select value={type || category} onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "sale" || v === "rent" || v === "") { setType(v); setCategory(""); }
+                  else { setCategory(v); setType(""); }
+                }} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                  {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {CATEGORY_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold">Price</label>
+                <select value={priceIdx} onChange={(e) => setPriceIdx(Number(e.target.value))} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                  {PRICE_RANGES.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
+                </select>
+              </div>
+            </div>
+            <button onClick={runSearch} className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-brand-foreground">
+              <Search className="h-4 w-4" /> Search
+            </button>
+          </PopoverContent>
+        </Popover>
 
         {/* Right actions */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
@@ -126,29 +251,62 @@ export function Navbar() {
 
       {/* Expanded search pill (desktop only) */}
       <div className="hidden justify-center pb-4 lg:flex">
-        <button
-          onClick={() => navigate({ to: "/properties" })}
-          className="group flex h-16 w-full max-w-[860px] items-center rounded-full border border-border bg-background pl-2 pr-2 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)] transition hover:shadow-[0_2px_4px_rgba(0,0,0,0.12),0_8px_20px_rgba(0,0,0,0.08)]"
-        >
-          <span className="flex-1 rounded-full px-6 py-2 text-left transition hover:bg-muted">
-            <span className="block text-xs font-semibold">Where</span>
-            <span className="block truncate text-sm text-muted-foreground">Search destinations</span>
-          </span>
+        <div className="flex h-16 w-full max-w-[860px] items-center rounded-full border border-border bg-background pl-2 pr-2 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)]">
+          <Popover open={openWhere} onOpenChange={setOpenWhere}>
+            <PopoverTrigger asChild>
+              <button className="flex-1 rounded-full px-6 py-2 text-left transition hover:bg-muted">
+                <span className="block text-xs font-semibold">Where</span>
+                <span className="block truncate text-sm text-muted-foreground">{where || "Search destinations"}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-72 p-2">
+              <div className="max-h-72 overflow-y-auto">
+                <button onClick={() => { setWhere(""); setOpenWhere(false); }} className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted">Anywhere</button>
+                {(locations ?? []).map((l) => (
+                  <button key={l} onClick={() => { setWhere(l); setOpenWhere(false); }} className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted">{l}</button>
+                ))}
+                {(locations ?? []).length === 0 && <p className="px-3 py-2 text-sm text-muted-foreground">No locations yet</p>}
+              </div>
+            </PopoverContent>
+          </Popover>
           <span className="h-8 w-px bg-border" />
-          <span className="flex-1 rounded-full px-6 py-2 text-left transition hover:bg-muted">
-            <span className="block text-xs font-semibold">Property type</span>
-            <span className="block truncate text-sm text-muted-foreground">Any type</span>
-          </span>
+          <Popover open={openType} onOpenChange={setOpenType}>
+            <PopoverTrigger asChild>
+              <button className="flex-1 rounded-full px-6 py-2 text-left transition hover:bg-muted">
+                <span className="block text-xs font-semibold">Property type</span>
+                <span className="block truncate text-sm text-muted-foreground">{typeLabel}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="center" className="w-64 p-2">
+              <p className="px-3 pt-1 text-[11px] font-semibold uppercase text-muted-foreground">Listing type</p>
+              {TYPE_OPTIONS.map((o) => (
+                <button key={o.value} onClick={() => { setType(o.value); setCategory(""); setOpenType(false); }} className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted">{o.label}</button>
+              ))}
+              <p className="mt-2 px-3 pt-1 text-[11px] font-semibold uppercase text-muted-foreground">Category</p>
+              {CATEGORY_OPTIONS.slice(1).map((o) => (
+                <button key={o.value} onClick={() => { setCategory(o.value); setType(""); setOpenType(false); }} className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted">{o.label}</button>
+              ))}
+            </PopoverContent>
+          </Popover>
           <span className="h-8 w-px bg-border" />
-          <span className="flex-1 rounded-full px-6 py-2 text-left transition hover:bg-muted">
-            <span className="block text-xs font-semibold">Price</span>
-            <span className="block truncate text-sm text-muted-foreground">Any budget</span>
-          </span>
-          <span className="ml-2 flex h-12 items-center gap-2 rounded-full bg-brand pl-4 pr-5 text-brand-foreground">
+          <Popover open={openPrice} onOpenChange={setOpenPrice}>
+            <PopoverTrigger asChild>
+              <button className="flex-1 rounded-full px-6 py-2 text-left transition hover:bg-muted">
+                <span className="block text-xs font-semibold">Price</span>
+                <span className="block truncate text-sm text-muted-foreground">{priceLabel}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-56 p-2">
+              {PRICE_RANGES.map((r, i) => (
+                <button key={i} onClick={() => { setPriceIdx(i); setOpenPrice(false); }} className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted">{r.label}</button>
+              ))}
+            </PopoverContent>
+          </Popover>
+          <button onClick={runSearch} className="ml-2 flex h-12 items-center gap-2 rounded-full bg-brand pl-4 pr-5 text-brand-foreground transition hover:bg-brand/90">
             <Search className="h-4 w-4" />
             <span className="text-sm font-semibold">Search</span>
-          </span>
-        </button>
+          </button>
+        </div>
       </div>
     </header>
   );
