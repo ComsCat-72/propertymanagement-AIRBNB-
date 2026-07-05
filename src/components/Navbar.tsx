@@ -129,47 +129,6 @@ export function Navbar() {
           <Link to="/properties" search={{ type: "rent" } as never} className="rounded-full px-2 py-2 hover:text-foreground">Rentals</Link>
         </nav>
 
-        {/* Mobile: show current search summary (small) next to logo */}
-        <div className="hidden" />
-
-        {/* Shared mobile popover content (rendered once, triggered from mobile pill row below) */}
-        <Popover open={openWhere} onOpenChange={setOpenWhere}>
-          <PopoverTrigger asChild>
-            <span className="hidden" />
-          </PopoverTrigger>
-          <PopoverContent align="center" className="w-[92vw] max-w-sm space-y-3 p-4 lg:hidden">
-            <div>
-              <label className="text-xs font-semibold">Where</label>
-              <select value={where} onChange={(e) => setWhere(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
-                <option value="">Anywhere</option>
-                {(locations ?? []).map((l) => <option key={l} value={l}>{l}</option>)}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-xs font-semibold">Type</label>
-                <select value={type || category} onChange={(e) => {
-                  const v = e.target.value;
-                  if (v === "sale" || v === "rent" || v === "") { setType(v); setCategory(""); }
-                  else { setCategory(v); setType(""); }
-                }} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
-                  {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  {CATEGORY_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold">Price</label>
-                <select value={priceIdx} onChange={(e) => setPriceIdx(Number(e.target.value))} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
-                  {PRICE_RANGES.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
-                </select>
-              </div>
-            </div>
-            <button onClick={runSearch} className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-brand-foreground">
-              <Search className="h-4 w-4" /> Search
-            </button>
-          </PopoverContent>
-        </Popover>
-
         {/* Right actions */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <Link
@@ -241,6 +200,59 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+        </div>
+      </div>
+
+      {/* Mobile search pill row — collapses on scroll down (Airbnb style) */}
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 lg:hidden",
+          collapsed ? "max-h-0 opacity-0" : "max-h-24 opacity-100",
+        )}
+      >
+        <div className="mx-auto max-w-[1760px] px-4 pb-3 sm:px-6">
+          <Popover open={openMobile} onOpenChange={setOpenMobile}>
+            <PopoverTrigger asChild>
+              <button
+                className="flex h-14 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-6 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.06)] transition hover:shadow-md"
+                aria-label="Start your search"
+              >
+                <Search className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                <span className="truncate text-base font-semibold">{where || "Start your search"}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="center" className="w-[92vw] max-w-sm space-y-3 p-4">
+              <div>
+                <label className="text-xs font-semibold">Where</label>
+                <select value={where} onChange={(e) => setWhere(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                  <option value="">Anywhere</option>
+                  {(locations ?? []).map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs font-semibold">Type</label>
+                  <select value={type || category} onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "sale" || v === "rent" || v === "") { setType(v); setCategory(""); }
+                    else { setCategory(v); setType(""); }
+                  }} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                    {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    {CATEGORY_OPTIONS.slice(1).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold">Price</label>
+                  <select value={priceIdx} onChange={(e) => setPriceIdx(Number(e.target.value))} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
+                    {PRICE_RANGES.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              <button onClick={() => { runSearch(); setOpenMobile(false); }} className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-brand-foreground">
+                <Search className="h-4 w-4" /> Search
+              </button>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
