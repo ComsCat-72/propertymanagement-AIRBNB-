@@ -75,6 +75,7 @@ export function Navbar() {
   const [openWhere, setOpenWhere] = useState(false);
   const [openType, setOpenType] = useState(false);
   const [openPrice, setOpenPrice] = useState(false);
+  const [openMobile, setOpenMobile] = useState(false);
 
   const { data: locations } = useQuery({
     queryKey: ["distinct-locations"],
