@@ -41,26 +41,32 @@ const PRICE_RANGES = [
 ];
 
 function useScrollDirection() {
-  const [hidden, setHidden] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
     let last = typeof window !== "undefined" ? window.scrollY : 0;
+    let ticking = false;
     const onScroll = () => {
-      const y = window.scrollY;
-      if (y < 20) { setHidden(false); last = y; return; }
-      if (y > last + 6) setHidden(true);
-      else if (y < last - 6) setHidden(false);
-      last = y;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y < 24) setCollapsed(false);
+        else if (y > last + 8) setCollapsed(true);
+        else if (y < last - 8) setCollapsed(false);
+        last = y;
+        ticking = false;
+      });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  return hidden;
+  return collapsed;
 }
 
 export function Navbar() {
   const { user, profile, isAdmin, isAgent, signOut } = useAuth();
   const navigate = useNavigate();
-  const hidden = useScrollDirection();
+  const collapsed = useScrollDirection();
 
   const [where, setWhere] = useState("");
   const [type, setType] = useState("");
@@ -100,12 +106,7 @@ export function Navbar() {
   const typeLabel = [...TYPE_OPTIONS, ...CATEGORY_OPTIONS].find((o) => o.value === (type || category))?.label ?? "Any type";
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-transform duration-300",
-        hidden && "lg:translate-y-0 -translate-y-full",
-      )}
-    >
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       {/* Top row */}
       <div className="mx-auto flex h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:px-10">
         {/* Logo */}
