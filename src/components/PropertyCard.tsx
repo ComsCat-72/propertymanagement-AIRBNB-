@@ -29,12 +29,13 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
 
   return (
     <div className="group">
-      <Link to="/properties/$id" params={{ id: p.id }} className="block">
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
+        <Link to="/properties/$id" params={{ id: p.id }} className="absolute inset-0 z-0">
           <img src={imgs[idx]} alt={p.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+        </Link>
           <button
             onClick={(e) => { e.preventDefault(); setLiked(!liked); }}
-            className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-black/20 backdrop-blur-sm transition hover:scale-110"
+            className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-black/20 backdrop-blur-sm transition hover:scale-110"
           >
             <Heart className={`h-5 w-5 ${liked ? "fill-accent text-accent" : "fill-black/40 text-white"}`} />
           </button>
@@ -42,24 +43,24 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             <>
               <button
                 onClick={(e) => { e.preventDefault(); setIdx((i) => (i - 1 + imgs.length) % imgs.length); }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full bg-white/90 opacity-0 shadow transition group-hover:opacity-100"
+                className="absolute left-2 top-1/2 z-10 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full bg-white/90 opacity-0 shadow transition group-hover:opacity-100"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={(e) => { e.preventDefault(); setIdx((i) => (i + 1) % imgs.length); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full bg-white/90 opacity-0 shadow transition group-hover:opacity-100"
+                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full bg-white/90 opacity-0 shadow transition group-hover:opacity-100"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
-              <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
+              <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1">
                 {imgs.slice(0, 5).map((_, i) => (
                   <span key={i} className={`h-1.5 w-1.5 rounded-full ${i === idx ? "bg-white" : "bg-white/50"}`} />
                 ))}
               </div>
             </>
           )}
-          <span className="absolute left-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold capitalize">{p.category}</span>
+          <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold capitalize">{p.category}</span>
           {waHref && (
             <a
               href={waHref}
@@ -67,14 +68,14 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               aria-label="Chat on WhatsApp"
-              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#20b357]"
+              className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#20b357]"
             >
               <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
             </a>
           )}
-        </div>
+      </div>
 
-        <div className="mt-3 space-y-1">
+      <Link to="/properties/$id" params={{ id: p.id }} className="mt-3 block space-y-1">
           <div className="flex items-start justify-between gap-2">
             <h3 className="truncate font-semibold text-foreground">{p.title}</h3>
             <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-xs font-semibold text-brand">{p.property_type === "rent" ? "Rent" : "Sale"}</span>
@@ -100,7 +101,6 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
               </div>
             )}
           </div>
-        </div>
       </Link>
     </div>
   );
