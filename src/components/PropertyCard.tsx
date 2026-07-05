@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, ChevronLeft, ChevronRight, BedDouble, Bath, Maximize } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, BedDouble, Bath, Maximize, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { formatPrice } from "@/lib/format";
 
@@ -15,13 +15,17 @@ export interface PropertyCardData {
   bathrooms: number;
   area_sqm: number;
   images: string[];
-  agent?: { id: string; full_name: string; profile_photo_url: string | null } | null;
+  agent?: { id: string; full_name: string; profile_photo_url: string | null; phone?: string | null } | null;
 }
 
 export function PropertyCard({ p }: { p: PropertyCardData }) {
   const [idx, setIdx] = useState(0);
   const [liked, setLiked] = useState(false);
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"];
+  const waPhone = (p.agent?.phone || "").replace(/[^\d]/g, "");
+  const waHref = waPhone
+    ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on LoyalityReal250.`)}`
+    : "";
 
   return (
     <div className="group">
@@ -56,6 +60,18 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             </>
           )}
           <span className="absolute left-3 top-3 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold capitalize">{p.category}</span>
+          {waHref && (
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              aria-label="Chat on WhatsApp"
+              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white shadow-md transition hover:bg-[#20b357]"
+            >
+              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+            </a>
+          )}
         </div>
 
         <div className="mt-3 space-y-1">

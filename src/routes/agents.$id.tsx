@@ -112,7 +112,12 @@ function AgentDetail() {
         ) : (
           <>
             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {listings.map((p) => <PropertyCard key={p.id} p={p} />)}
+              {listings.map((p) => (
+                <PropertyCard
+                  key={p.id}
+                  p={{ ...p, agent: { id: a.id, full_name: a.full_name, profile_photo_url: a.profile_photo_url, phone: a.phone } }}
+                />
+              ))}
             </div>
             {hasNextPage && (
               <div className="mt-8 flex justify-center">
