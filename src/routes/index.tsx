@@ -6,6 +6,7 @@ import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HScrollSection } from "@/components/HScrollSection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,8 +76,49 @@ function Index() {
     <SiteShell>
       <CategoryPills active={category} onChange={setCategory} />
 
+      {/* Mobile / tablet: Airbnb-style horizontal-scroll sections */}
+      <div className="mx-auto max-w-[1760px] lg:hidden">
+        {featured && featured.length > 0 && (
+          <HScrollSection title="Featured properties" subtitle="Handpicked by our team" items={featured} />
+        )}
+        {isLoading ? (
+          <section className="px-4 pt-6">
+            <Skeleton className="mb-3 h-6 w-48" />
+            <div className="flex gap-4 overflow-hidden">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="w-[72%] shrink-0 space-y-2">
+                  <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <>
+            {Object.entries(groupByCity(data ?? [])).map(([city, list]) => (
+              <HScrollSection
+                key={city}
+                title={`Popular homes in ${city}`}
+                items={list}
+                linkSearch={{ city }}
+              />
+            ))}
+            {(data?.length ?? 0) > 0 && (
+              <HScrollSection title="Great homes for your next move" subtitle="Fresh listings across the country" items={data ?? []} />
+            )}
+            {(data?.length ?? 0) === 0 && (
+              <div className="mx-4 mt-8 rounded-2xl border border-dashed border-border p-8 text-center">
+                <p className="text-base font-semibold">No listings yet</p>
+                <p className="mt-1 text-sm text-muted-foreground">Check back soon.</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Desktop grid layout */}
       {featured && featured.length > 0 && (
-        <section className="mx-auto max-w-[1760px] px-6 pt-10 lg:px-10">
+        <section className="mx-auto hidden max-w-[1760px] px-6 pt-10 lg:block lg:px-10">
           <div className="mb-5 flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold">Featured properties</h2>
@@ -89,7 +131,7 @@ function Index() {
         </section>
       )}
 
-      <section className="mx-auto max-w-[1760px] px-6 py-10 lg:px-10">
+      <section className="mx-auto hidden max-w-[1760px] px-6 py-10 lg:block lg:px-10">
         <h2 className="mb-5 text-2xl font-bold">Latest listings</h2>
         {isLoading ? (
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -114,4 +156,15 @@ function Index() {
       </section>
     </SiteShell>
   );
+}
+
+function groupByCity(items: PropertyCardData[]): Record<string, PropertyCardData[]> {
+  const groups: Record<string, PropertyCardData[]> = {};
+  for (const p of items) {
+    const key = p.city || "Nearby";
+    if (!groups[key]) groups[key] = [];
+    if (groups[key].length < 8) groups[key].push(p);
+  }
+  // Only keep cities with at least 2 items so the row feels curated
+  return Object.fromEntries(Object.entries(groups).filter(([, v]) => v.length >= 2));
 }
