@@ -6,10 +6,12 @@ import { MobileBottomNav } from "./MobileBottomNav";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans">
+    <div className="flex min-h-screen flex-col bg-background font-sans pb-16 lg:pb-0">
       <Navbar />
-      <main className="flex-1 pb-20 lg:pb-0">{children}</main>
-      <Footer />
+      <main className="flex-1">{children}</main>
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
       <CookieBanner />
       <MobileBottomNav />
     </div>
