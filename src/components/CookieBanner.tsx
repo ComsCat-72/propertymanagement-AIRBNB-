@@ -19,18 +19,18 @@ export function setCookieConsent(v: CookieConsent | null) {
 
 /** Small floating badge (bottom-left) that lets the user re-open the banner
  *  after they've already decided. Persists their preference forever via localStorage. */
-// function ConsentBadge({ current, onOpen }: { current: CookieConsent; onOpen: () => void }) {
-//   return (
-//     <button
-//       onClick={onOpen}
-//       aria-label="Cookie preferences"
-//       className="fixed bottom-4 left-4 z-[55] flex items-center gap-2 rounded-full border border-border bg-background/95 px-3 py-2 text-xs font-semibold shadow-lg backdrop-blur hover:bg-muted"
-//     >
-//       <Settings2 className="h-3.5 w-3.5 text-brand" />
-//       Cookies: {current === "accepted" ? <span className="text-brand">On</span> : <span className="text-muted-foreground">Off</span>}
-//     </button>
-//   );
-// }
+function ConsentBadge({ current, onOpen }: { current: CookieConsent; onOpen: () => void }) {
+  return (
+    <button
+      onClick={onOpen}
+      aria-label="Cookie preferences"
+      className="fixed bottom-4 left-4 z-[55] flex items-center gap-2 rounded-full border border-border bg-background/95 px-3 py-2 text-xs font-semibold shadow-lg backdrop-blur hover:bg-muted"
+    >
+      <Settings2 className="h-3.5 w-3.5 text-brand" />
+      Cookies: {current === "accepted" ? <span className="text-brand">On</span> : <span className="text-muted-foreground">Off</span>}
+    </button>
+  );
+}
 
 export function CookieBanner() {
   const [consent, setConsent] = useState<CookieConsent | null>(null);
