@@ -51,8 +51,8 @@ function useScrollDirection() {
       requestAnimationFrame(() => {
         const y = window.scrollY;
         if (y < 24) setCollapsed(false);
-        else if (y > last + 8) setCollapsed(true);
-        else if (y < last - 8) setCollapsed(false);
+        else if (y > last + 12) setCollapsed(true);
+        else if (y < last - 12) setCollapsed(false);
         last = y;
         ticking = false;
       });
@@ -107,9 +107,14 @@ export function Navbar() {
   const typeLabel = [...TYPE_OPTIONS, ...CATEGORY_OPTIONS].find((o) => o.value === (type || category))?.label ?? "Any type";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      {/* Top row */}
-      <div className="mx-auto flex h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:px-10">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-transform duration-300 will-change-transform",
+        collapsed ? "-translate-y-full lg:translate-y-0" : "translate-y-0",
+      )}
+    >
+      {/* Top row — hidden on mobile (mobile uses search pill + bottom nav) */}
+      <div className="mx-auto hidden h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:flex lg:px-10">
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-brand-foreground font-bold">L</div>
@@ -204,22 +209,17 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile search pill row — collapses on scroll down (Airbnb style) */}
-      <div
-        className={cn(
-          "overflow-hidden transition-all duration-300 lg:hidden",
-          collapsed ? "max-h-0 opacity-0" : "max-h-24 opacity-100",
-        )}
-      >
-        <div className="mx-auto max-w-[1760px] px-4 pb-3 sm:px-6">
+      {/* Mobile search pill — Airbnb-style single row */}
+      <div className="lg:hidden">
+        <div className="mx-auto max-w-[1760px] px-4 pb-3 pt-3 sm:px-6">
           <Popover open={openMobile} onOpenChange={setOpenMobile}>
             <PopoverTrigger asChild>
               <button
-                className="flex h-14 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-6 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.06)] transition hover:shadow-md"
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-6 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.06)]"
                 aria-label="Start your search"
               >
                 <Search className="h-4 w-4 shrink-0" strokeWidth={2.5} />
-                <span className="truncate text-base font-semibold">{where || "Start your search"}</span>
+                <span className="truncate text-[15px] font-semibold">{where || "Start your search"}</span>
               </button>
             </PopoverTrigger>
             <PopoverContent align="center" className="w-[92vw] max-w-sm space-y-3 p-4">
