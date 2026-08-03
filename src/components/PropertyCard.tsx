@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Heart, ChevronLeft, ChevronRight, BedDouble, Bath, Maximize, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { formatPrice } from "@/lib/format";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { isVerified } from "@/lib/plans";
 
 export interface PropertyCardData {
   id: string;
@@ -15,7 +17,14 @@ export interface PropertyCardData {
   bathrooms: number;
   area_sqm: number;
   images: string[];
-  agent?: { id: string; full_name: string; profile_photo_url: string | null; phone?: string | null } | null;
+  agent?: {
+    id: string;
+    full_name: string;
+    profile_photo_url: string | null;
+    phone?: string | null;
+    is_verified?: boolean | null;
+    verified_expires_at?: string | null;
+  } | null;
 }
 
 export function PropertyCard({ p }: { p: PropertyCardData }) {
@@ -23,6 +32,7 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
   const [liked, setLiked] = useState(false);
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"];
   const waPhone = (p.agent?.phone || "").replace(/[^\d]/g, "");
+  const verified = isVerified(p.agent);
   const waHref = waPhone
     ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on LoyalityReal250.`)}`
     : "";
@@ -61,6 +71,11 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             </>
           )}
           <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold capitalize">{p.category}</span>
+          {verified && (
+            <span className="pointer-events-none absolute left-3 top-11 z-10 rounded-full bg-background/95 px-1.5 py-0.5">
+              <VerifiedBadge size="sm" />
+            </span>
+          )}
           {waHref && (
             <a
               href={waHref}
@@ -98,6 +113,7 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
                   </span>
                 )}
                 <span className="max-w-[80px] truncate text-xs text-muted-foreground">{p.agent.full_name}</span>
+                {verified && <VerifiedBadge size="sm" withLabel={false} />}
               </div>
             )}
           </div>
