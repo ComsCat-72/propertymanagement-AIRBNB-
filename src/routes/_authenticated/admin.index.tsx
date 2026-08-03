@@ -10,7 +10,7 @@ function AdminOverview() {
   const { data } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      const [{ count: agents }, { count: properties }, { count: suspended }] = await Promise.all([
+      const [{ count: agents }, { count: properties }, { count: suspended }, { count: subs }, { count: pendingReq }] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("properties").select("*", { count: "exact", head: true }),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("status", "suspended"),
