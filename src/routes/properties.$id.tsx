@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MapPin, BedDouble, Bath, Maximize, Building2, MessageCircle } from "lucide-react";
+import { Phone, BedDouble, Bath, Maximize, Building2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { Button } from "@/components/ui/button";
