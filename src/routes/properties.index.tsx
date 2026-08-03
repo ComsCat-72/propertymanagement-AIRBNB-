@@ -79,7 +79,11 @@ function PropertiesPage() {
       const { data, count, error } = await q;
       if (error) throw error;
       const rows = (data ?? []) as unknown as PropertyCardData[];
-      return { rows, count: count ?? 0, nextFrom: rows.length === PAGE_SIZE ? from + PAGE_SIZE : null };
+      return {
+        rows: rankVerifiedFirst(rows),
+        count: count ?? 0,
+        nextFrom: rows.length === PAGE_SIZE ? from + PAGE_SIZE : null,
+      };
     },
     getNextPageParam: (last) => last.nextFrom,
   });
