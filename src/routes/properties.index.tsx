@@ -64,7 +64,7 @@ function PropertiesPage() {
       const from = pageParam as number;
       let q = supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone)", { count: "exact" })
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone, is_verified, verified_expires_at)", { count: "exact" })
         .eq("status", "active");
       if (search.city) q = q.ilike("city", `%${search.city}%`);
       if (search.type) q = q.eq("property_type", search.type as "sale" | "rent");

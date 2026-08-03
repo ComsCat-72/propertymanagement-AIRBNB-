@@ -18,7 +18,7 @@ function PropertyDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, agency_name, bio, profile_photo_url, phone)")
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, agency_name, bio, profile_photo_url, phone, is_verified, verified_expires_at)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;

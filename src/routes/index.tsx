@@ -28,7 +28,7 @@ function Index() {
     queryFn: async () => {
       let q = supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone)")
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone, is_verified, verified_expires_at)")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(20);
@@ -47,7 +47,7 @@ function Index() {
     queryFn: async () => {
       const { data } = await supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone)")
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone, is_verified, verified_expires_at)")
         .eq("is_featured", true)
         .eq("status", "active")
         .limit(8);
