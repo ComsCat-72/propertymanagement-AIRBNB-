@@ -28,7 +28,9 @@ import { Route as AuthenticatedDashboardListingsRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardBillingRouteImport } from './routes/_authenticated/dashboard.billing'
 import { Route as AuthenticatedDashboardAnalyticsRouteImport } from './routes/_authenticated/dashboard.analytics'
 import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authenticated/admin.listings'
+import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin.billing'
 import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
+import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -130,10 +132,22 @@ const AuthenticatedAdminListingsRoute =
     path: '/listings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBillingRoute =
+  AuthenticatedAdminBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminAgentsRoute =
   AuthenticatedAdminAgentsRouteImport.update({
     id: '/agents',
     path: '/agents',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminActivityRoute =
+  AuthenticatedAdminActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
@@ -148,7 +162,9 @@ export interface FileRoutesByFullPath {
   '/properties/$id': typeof PropertiesIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
+  '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
@@ -167,7 +183,9 @@ export interface FileRoutesByTo {
   '/properties/$id': typeof PropertiesIdRoute
   '/agents': typeof AgentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
+  '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
+  '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
@@ -190,7 +208,9 @@ export interface FileRoutesById {
   '/properties/$id': typeof PropertiesIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
+  '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/_authenticated/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/_authenticated/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
@@ -213,7 +233,9 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/agents/'
     | '/properties/'
+    | '/admin/activity'
     | '/admin/agents'
+    | '/admin/billing'
     | '/admin/listings'
     | '/dashboard/analytics'
     | '/dashboard/billing'
@@ -232,7 +254,9 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/agents'
     | '/properties'
+    | '/admin/activity'
     | '/admin/agents'
+    | '/admin/billing'
     | '/admin/listings'
     | '/dashboard/analytics'
     | '/dashboard/billing'
@@ -254,7 +278,9 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/agents/'
     | '/properties/'
+    | '/_authenticated/admin/activity'
     | '/_authenticated/admin/agents'
+    | '/_authenticated/admin/billing'
     | '/_authenticated/admin/listings'
     | '/_authenticated/dashboard/analytics'
     | '/_authenticated/dashboard/billing'
@@ -413,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminListingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/billing': {
+      id: '/_authenticated/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AuthenticatedAdminBillingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/agents': {
       id: '/_authenticated/admin/agents'
       path: '/agents'
@@ -420,17 +453,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAgentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/activity': {
+      id: '/_authenticated/admin/activity'
+      path: '/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AuthenticatedAdminActivityRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
   AuthenticatedAdminAgentsRoute: typeof AuthenticatedAdminAgentsRoute
+  AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
   AuthenticatedAdminListingsRoute: typeof AuthenticatedAdminListingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
   AuthenticatedAdminAgentsRoute: AuthenticatedAdminAgentsRoute,
+  AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
   AuthenticatedAdminListingsRoute: AuthenticatedAdminListingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }

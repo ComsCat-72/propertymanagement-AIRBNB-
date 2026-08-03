@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { useAuth } from "@/lib/auth";
+import { planExpired } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardLayout,
@@ -12,6 +13,8 @@ function DashboardLayout() {
   const tabs = [
     { to: "/dashboard", label: "Overview" },
     { to: "/dashboard/listings", label: "My Listings" },
+    { to: "/dashboard/analytics", label: "Analytics" },
+    { to: "/dashboard/billing", label: "Billing" },
     { to: "/dashboard/profile", label: "Profile" },
   ] as const;
   return (
@@ -21,6 +24,12 @@ function DashboardLayout() {
         {profile?.status === "suspended" && (
           <div className="mt-4 rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-sm">
             <strong className="font-semibold">Your account is pending approval.</strong> An admin must approve your account before your listings appear publicly.
+          </div>
+        )}
+        {planExpired(profile) && (
+          <div className="mt-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-5 py-3 text-sm">
+            <strong className="font-semibold">Your subscription has expired.</strong> Your existing listings stay live, but you're back on the Free limit.{" "}
+            <Link to="/dashboard/billing" className="font-semibold underline">Subscribe again</Link> to keep adding listings.
           </div>
         )}
         <div className="mt-6 flex gap-2 border-b border-border">
