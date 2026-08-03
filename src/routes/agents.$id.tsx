@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { isVerified } from "@/lib/plans";
 
 export const Route = createFileRoute("/agents/$id")({
   component: AgentDetail,
@@ -21,7 +23,7 @@ function AgentDetail() {
     queryFn: async () => {
       const { data: agent } = await supabase
         .from("profiles")
-        .select("id, full_name, agency_name, bio, profile_photo_url, achievements, phone, status")
+        .select("id, full_name, agency_name, bio, profile_photo_url, achievements, phone, status, is_verified, verified_expires_at")
         .eq("id", id)
         .maybeSingle();
       return { agent };
@@ -84,7 +86,10 @@ function AgentDetail() {
             <span className="grid h-28 w-28 place-items-center rounded-full bg-brand text-3xl font-bold text-brand-foreground">{a.full_name.charAt(0) || "A"}</span>
           )}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold">{a.full_name}</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-bold">{a.full_name}</h1>
+              {isVerified(a) && <VerifiedBadge />}
+            </div>
             {a.agency_name && <p className="mt-1 text-muted-foreground">{a.agency_name}</p>}
             {a.bio && <p className="mt-3 max-w-2xl text-sm">{a.bio}</p>}
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
@@ -117,7 +122,7 @@ function AgentDetail() {
               {listings.map((p) => (
                 <PropertyCard
                   key={p.id}
-                  p={{ ...p, agent: { id: a.id, full_name: a.full_name, profile_photo_url: a.profile_photo_url, phone: a.phone } }}
+                  p={{ ...p, agent: { id: a.id, full_name: a.full_name, profile_photo_url: a.profile_photo_url, phone: a.phone, is_verified: a.is_verified, verified_expires_at: a.verified_expires_at } }}
                 />
               ))}
             </div>

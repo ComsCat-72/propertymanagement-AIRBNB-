@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { isVerified } from "@/lib/plans";
 
 interface AgentsSearch {
   q: string;
@@ -37,10 +39,15 @@ function AgentsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, full_name, agency_name, profile_photo_url, bio")
+        .select("id, full_name, agency_name, profile_photo_url, bio, is_verified, verified_expires_at")
         .eq("status", "active")
         .order("created_at", { ascending: false });
-      return data ?? [];
+      const rows = data ?? [];
+      // Verified agents surface first in the directory.
+      return rows
+        .map((a, i) => ({ a, i, v: isVerified(a) ? 1 : 0 }))
+        .sort((x, y) => y.v - x.v || x.i - y.i)
+        .map((x) => x.a);
     },
   });
 
@@ -131,7 +138,10 @@ function AgentsPage() {
                   <span className="grid h-16 w-16 place-items-center rounded-full bg-brand text-xl font-bold text-brand-foreground">{a.full_name.charAt(0) || "A"}</span>
                 )}
                 <div className="min-w-0">
-                  <p className="truncate font-bold">{a.full_name}</p>
+                  <p className="flex items-center gap-1.5 truncate font-bold">
+                    {a.full_name}
+                    {isVerified(a) && <VerifiedBadge size="sm" withLabel={false} />}
+                  </p>
                   {a.agency_name && <p className="flex items-center gap-1 truncate text-xs text-muted-foreground"><Building2 className="h-3 w-3" /> {a.agency_name}</p>}
                 </div>
               </div>
