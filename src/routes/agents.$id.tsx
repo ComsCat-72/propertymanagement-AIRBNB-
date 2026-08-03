@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { Phone, Mail, MapPin, Building2, Award, MessageCircle } from "lucide-react";
+import { Phone, Building2, Award, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
@@ -19,7 +19,11 @@ function AgentDetail() {
   const { data } = useQuery({
     queryKey: ["agent", id],
     queryFn: async () => {
-      const { data: agent } = await supabase.from("profiles").select("*").eq("id", id).maybeSingle();
+      const { data: agent } = await supabase
+        .from("profiles")
+        .select("id, full_name, agency_name, bio, profile_photo_url, achievements, phone, status")
+        .eq("id", id)
+        .maybeSingle();
       return { agent };
     },
   });
@@ -85,8 +89,6 @@ function AgentDetail() {
             {a.bio && <p className="mt-3 max-w-2xl text-sm">{a.bio}</p>}
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
               {a.phone && <span className="flex items-center gap-1.5"><Phone className="h-4 w-4 text-brand" /> {a.phone}</span>}
-              <span className="flex items-center gap-1.5"><Mail className="h-4 w-4 text-brand" /> {a.email}</span>
-              {a.address && <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-brand" /> {a.address}</span>}
               {a.agency_name && <span className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-brand" /> {a.agency_name}</span>}
             </div>
             {waLink && (

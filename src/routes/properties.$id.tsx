@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MapPin, BedDouble, Bath, Maximize, Building2, MessageCircle } from "lucide-react";
+import { Phone, BedDouble, Bath, Maximize, Building2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ function PropertyDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(*)")
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, agency_name, bio, profile_photo_url, phone)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -36,7 +36,7 @@ function PropertyDetail() {
     id: string; title: string; description: string; price: number;
     property_type: "sale" | "rent"; category: string; location: string; city: string;
     bedrooms: number; bathrooms: number; area_sqm: number; amenities: string[]; images: string[];
-    agent: { id: string; full_name: string; email: string; phone: string | null; address: string | null; agency_name: string | null; profile_photo_url: string | null; bio: string | null };
+    agent: { id: string; full_name: string; phone: string | null; agency_name: string | null; profile_photo_url: string | null; bio: string | null };
   };
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600"];
 
@@ -115,13 +115,13 @@ function PropertyDetail() {
                 </div>
                 <div className="mt-4 space-y-2 text-sm">
                   <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-brand" /> {p.agent.phone || "—"}</p>
-                  <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-brand" /> {p.agent.email}</p>
-                  {p.agent.address && <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-brand" /> {p.agent.address}</p>}
                   {p.agent.agency_name && <p className="flex items-center gap-2"><Building2 className="h-4 w-4 text-brand" /> {p.agent.agency_name}</p>}
                 </div>
-                <a href={`mailto:${p.agent.email}`} className="mt-5 block">
-                  <Button className="w-full rounded-full bg-brand font-semibold text-brand-foreground hover:bg-brand/90">Contact Agent</Button>
-                </a>
+                {p.agent.phone && (
+                  <a href={`tel:${p.agent.phone}`} className="mt-5 block">
+                    <Button className="w-full rounded-full bg-brand font-semibold text-brand-foreground hover:bg-brand/90">Call Agent</Button>
+                  </a>
+                )}
                 {waLink && (
                   <a href={waLink} target="_blank" rel="noopener noreferrer" className="mt-2 block">
                     <Button className="w-full rounded-full bg-[#25D366] font-semibold text-white hover:bg-[#20b357]">
