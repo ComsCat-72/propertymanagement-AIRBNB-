@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { useAuth } from "@/lib/auth";
+import { planExpired } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardLayout,
@@ -12,6 +13,8 @@ function DashboardLayout() {
   const tabs = [
     { to: "/dashboard", label: "Overview" },
     { to: "/dashboard/listings", label: "My Listings" },
+    { to: "/dashboard/analytics", label: "Analytics" },
+    { to: "/dashboard/billing", label: "Billing" },
     { to: "/dashboard/profile", label: "Profile" },
   ] as const;
   return (
@@ -23,7 +26,13 @@ function DashboardLayout() {
             <strong className="font-semibold">Your account is pending approval.</strong> An admin must approve your account before your listings appear publicly.
           </div>
         )}
-        <div className="mt-6 flex gap-2 border-b border-border">
+        {planExpired(profile) && (
+          <div className="mt-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-5 py-3 text-sm">
+            <strong className="font-semibold">Your subscription has expired.</strong> Your existing listings stay live, but you're back on the Free limit.{" "}
+            <Link to="/dashboard/billing" className="font-semibold underline">Subscribe again</Link> to keep adding listings.
+          </div>
+        )}
+        <div className="mt-6 flex flex-wrap gap-2 border-b border-border">
           {tabs.map((t) => (
             <Link key={t.to} to={t.to} className={`rounded-t-xl px-4 py-2 text-sm font-semibold ${pathname === t.to ? "border-b-2 border-brand text-brand" : "text-muted-foreground hover:text-foreground"}`}>{t.label}</Link>
           ))}

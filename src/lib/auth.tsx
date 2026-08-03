@@ -14,6 +14,10 @@ export interface Profile {
   bio: string | null;
   profile_photo_url: string | null;
   status: "active" | "suspended";
+  plan: "free" | "tier1" | "tier2";
+  plan_expires_at: string | null;
+  is_verified: boolean;
+  verified_expires_at: string | null;
 }
 
 interface AuthCtx {

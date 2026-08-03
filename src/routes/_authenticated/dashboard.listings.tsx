@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatPrice } from "@/lib/format";
+import { effectivePlan, maxListings, type PlanLimit } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -40,7 +41,7 @@ const emptyForm = (): Form => ({
 });
 
 function ListingsPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(emptyForm());
@@ -54,6 +55,18 @@ function ListingsPage() {
       return data ?? [];
     },
   });
+
+  const { data: limits } = useQuery({
+    queryKey: ["plan-limits"],
+    queryFn: async () => {
+      const { data } = await supabase.from("plan_limits").select("*").order("sort_order");
+      return (data ?? []) as unknown as PlanLimit[];
+    },
+  });
+
+  const cap = maxListings(effectivePlan(profile), limits);
+  const used = listings?.length ?? 0;
+  const quotaReached = cap !== null && used >= cap;
 
   useEffect(() => {
     if (!user) return;
@@ -84,6 +97,10 @@ function ListingsPage() {
 
   const save = async () => {
     if (!user) return;
+    if (!form.id && quotaReached) {
+      toast.error(`You've reached your plan limit of ${cap} listings. Upgrade to add more.`);
+      return;
+    }
     if (!form.title || !form.city || !form.location) { toast.error("Title, city, and location are required"); return; }
     const payload = {
       agent_id: user.id,
@@ -137,7 +154,10 @@ function ListingsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{listings?.length ?? 0} listings</p>
+        <p className="text-sm text-muted-foreground">
+          {used} listing{used === 1 ? "" : "s"}
+          {cap !== null ? ` of ${cap} on your plan` : " · unlimited plan"}
+        </p>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(emptyForm()); }}>
           <DialogTrigger asChild>
             <Button className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90"><Plus className="mr-2 h-4 w-4" /> New listing</Button>
@@ -193,6 +213,13 @@ function ListingsPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {quotaReached && (
+        <div className="mb-6 rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-sm">
+          <strong className="font-semibold">You've reached your listing limit ({cap}).</strong> Your current listings stay live.{" "}
+          <Link to="/dashboard/billing" className="font-semibold underline">Upgrade your plan</Link> to add more.
+        </div>
+      )}
 
       <div className="space-y-3">
         {listings?.map((l) => (

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
+import { rankVerifiedFirst } from "@/lib/plans";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,7 @@ function PropertiesPage() {
       const from = pageParam as number;
       let q = supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone)", { count: "exact" })
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone, is_verified, verified_expires_at)", { count: "exact" })
         .eq("status", "active");
       if (search.city) q = q.ilike("city", `%${search.city}%`);
       if (search.type) q = q.eq("property_type", search.type as "sale" | "rent");
@@ -79,7 +80,11 @@ function PropertiesPage() {
       const { data, count, error } = await q;
       if (error) throw error;
       const rows = (data ?? []) as unknown as PropertyCardData[];
-      return { rows, count: count ?? 0, nextFrom: rows.length === PAGE_SIZE ? from + PAGE_SIZE : null };
+      return {
+        rows: rankVerifiedFirst(rows),
+        count: count ?? 0,
+        nextFrom: rows.length === PAGE_SIZE ? from + PAGE_SIZE : null,
+      };
     },
     getNextPageParam: (last) => last.nextFrom,
   });

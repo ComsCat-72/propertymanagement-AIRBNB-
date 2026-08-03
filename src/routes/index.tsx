@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
+import { rankVerifiedFirst } from "@/lib/plans";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -28,7 +29,7 @@ function Index() {
     queryFn: async () => {
       let q = supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone)")
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone, is_verified, verified_expires_at)")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(20);
@@ -38,7 +39,7 @@ function Index() {
       }
       const { data, error } = await q;
       if (error) throw error;
-      return data as unknown as PropertyCardData[];
+      return rankVerifiedFirst(data as unknown as PropertyCardData[]);
     },
   });
 
@@ -47,11 +48,11 @@ function Index() {
     queryFn: async () => {
       const { data } = await supabase
         .from("properties")
-        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone)")
+        .select("*, agent:profiles!properties_agent_id_fkey(id, full_name, profile_photo_url, phone, is_verified, verified_expires_at)")
         .eq("is_featured", true)
         .eq("status", "active")
         .limit(8);
-      return (data ?? []) as unknown as PropertyCardData[];
+      return rankVerifiedFirst((data ?? []) as unknown as PropertyCardData[]);
     },
   });
 

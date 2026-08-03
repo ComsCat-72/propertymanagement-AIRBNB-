@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      listing_views: {
+        Row: {
+          agent_id: string
+          id: string
+          property_id: string
+          viewed_at: string
+          viewer_hash: string
+        }
+        Insert: {
+          agent_id: string
+          id?: string
+          property_id: string
+          viewed_at?: string
+          viewer_hash?: string
+        }
+        Update: {
+          agent_id?: string
+          id?: string
+          property_id?: string
+          viewed_at?: string
+          viewer_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_views_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_views_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_limits: {
+        Row: {
+          label: string
+          max_listings: number | null
+          perks: string[]
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          price_rwf: number
+          sort_order: number
+        }
+        Insert: {
+          label: string
+          max_listings?: number | null
+          perks?: string[]
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          price_rwf?: number
+          sort_order?: number
+        }
+        Update: {
+          label?: string
+          max_listings?: number | null
+          perks?: string[]
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          price_rwf?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           achievements: string
@@ -24,10 +90,14 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_verified: boolean
           phone: string | null
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          plan_expires_at: string | null
           profile_photo_url: string | null
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
+          verified_expires_at: string | null
         }
         Insert: {
           achievements?: string
@@ -38,10 +108,14 @@ export type Database = {
           email?: string
           full_name?: string
           id: string
+          is_verified?: boolean
           phone?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          plan_expires_at?: string | null
           profile_photo_url?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
+          verified_expires_at?: string | null
         }
         Update: {
           achievements?: string
@@ -52,10 +126,14 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          is_verified?: boolean
           phone?: string | null
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          plan_expires_at?: string | null
           profile_photo_url?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
+          verified_expires_at?: string | null
         }
         Relationships: []
       }
@@ -130,6 +208,59 @@ export type Database = {
           },
         ]
       }
+      upgrade_requests: {
+        Row: {
+          admin_note: string
+          agent_id: string
+          amount_rwf: number
+          created_at: string
+          id: string
+          payment_reference: string
+          requested_plan: Database["public"]["Enums"]["subscription_plan"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          wants_badge: boolean
+        }
+        Insert: {
+          admin_note?: string
+          agent_id: string
+          amount_rwf?: number
+          created_at?: string
+          id?: string
+          payment_reference?: string
+          requested_plan?: Database["public"]["Enums"]["subscription_plan"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          wants_badge?: boolean
+        }
+        Update: {
+          admin_note?: string
+          agent_id?: string
+          amount_rwf?: number
+          created_at?: string
+          id?: string
+          payment_reference?: string
+          requested_plan?: Database["public"]["Enums"]["subscription_plan"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          wants_badge?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upgrade_requests_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -156,12 +287,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_set_plan: {
+        Args: {
+          _agent_id: string
+          _days?: number
+          _plan: Database["public"]["Enums"]["subscription_plan"]
+        }
+        Returns: undefined
+      }
+      admin_set_verified: {
+        Args: { _agent_id: string; _days?: number; _verified: boolean }
+        Returns: undefined
+      }
+      approve_upgrade_request: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
+      current_plan: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["subscription_plan"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      listing_quota_reached: { Args: { _user_id: string }; Returns: boolean }
+      reject_upgrade_request: {
+        Args: { _note: string; _request_id: string }
+        Returns: undefined
       }
     }
     Enums: {
@@ -177,6 +333,7 @@ export type Database = {
         | "motorcycle"
       property_status: "active" | "sold" | "rented"
       property_type: "sale" | "rent"
+      subscription_plan: "free" | "tier1" | "tier2"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -317,6 +474,7 @@ export const Constants = {
       ],
       property_status: ["active", "sold", "rented"],
       property_type: ["sale", "rent"],
+      subscription_plan: ["free", "tier1", "tier2"],
     },
   },
 } as const
