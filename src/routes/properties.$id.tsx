@@ -1,11 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { Phone, BedDouble, Bath, Maximize, Building2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { formatPrice } from "@/lib/format";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { isVerified } from "@/lib/plans";
 
 export const Route = createFileRoute("/properties/$id")({
   component: PropertyDetail,
@@ -27,6 +30,15 @@ function PropertyDetail() {
     },
   });
 
+  // Record a listing view once per mount (feeds agent analytics).
+  const tracked = useRef<string | null>(null);
+  const agentId = (data as { agent_id?: string } | undefined)?.agent_id;
+  useEffect(() => {
+    if (!agentId || tracked.current === id) return;
+    tracked.current = id;
+    void supabase.from("listing_views").insert({ property_id: id, agent_id: agentId } as never);
+  }, [id, agentId]);
+
   if (isLoading) {
     return <SiteShell><div className="mx-auto max-w-6xl px-6 py-10">Loading…</div></SiteShell>;
   }
@@ -36,7 +48,7 @@ function PropertyDetail() {
     id: string; title: string; description: string; price: number;
     property_type: "sale" | "rent"; category: string; location: string; city: string;
     bedrooms: number; bathrooms: number; area_sqm: number; amenities: string[]; images: string[];
-    agent: { id: string; full_name: string; phone: string | null; agency_name: string | null; profile_photo_url: string | null; bio: string | null };
+    agent: { id: string; full_name: string; phone: string | null; agency_name: string | null; profile_photo_url: string | null; bio: string | null; is_verified: boolean | null; verified_expires_at: string | null };
   };
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600"];
 
@@ -109,7 +121,7 @@ function PropertyDetail() {
                     <span className="grid h-14 w-14 place-items-center rounded-full bg-brand text-lg font-bold text-brand-foreground">{p.agent.full_name.charAt(0)}</span>
                   )}
                   <div>
-                    <p className="font-bold">{p.agent.full_name}</p>
+                    <p className="font-bold">{p.agent.full_name}{isVerified(p.agent) && <VerifiedBadge size="sm" withLabel={false} />}</p>
                     {p.agent.agency_name && <p className="text-xs text-muted-foreground">{p.agent.agency_name}</p>}
                   </div>
                 </div>
