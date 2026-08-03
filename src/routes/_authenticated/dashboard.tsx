@@ -32,7 +32,7 @@ function DashboardLayout() {
             <Link to="/dashboard/billing" className="font-semibold underline">Subscribe again</Link> to keep adding listings.
           </div>
         )}
-        <div className="mt-6 flex gap-2 border-b border-border">
+        <div className="mt-6 flex flex-wrap gap-2 border-b border-border">
           {tabs.map((t) => (
             <Link key={t.to} to={t.to} className={`rounded-t-xl px-4 py-2 text-sm font-semibold ${pathname === t.to ? "border-b-2 border-brand text-brand" : "text-muted-foreground hover:text-foreground"}`}>{t.label}</Link>
           ))}
