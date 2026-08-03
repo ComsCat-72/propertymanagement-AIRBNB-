@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
+import { rankVerifiedFirst } from "@/lib/plans";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -38,7 +39,7 @@ function Index() {
       }
       const { data, error } = await q;
       if (error) throw error;
-      return data as unknown as PropertyCardData[];
+      return rankVerifiedFirst(data as unknown as PropertyCardData[]);
     },
   });
 
@@ -51,7 +52,7 @@ function Index() {
         .eq("is_featured", true)
         .eq("status", "active")
         .limit(8);
-      return (data ?? []) as unknown as PropertyCardData[];
+      return rankVerifiedFirst((data ?? []) as unknown as PropertyCardData[]);
     },
   });
 
