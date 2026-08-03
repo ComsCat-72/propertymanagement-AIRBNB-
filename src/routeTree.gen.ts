@@ -25,6 +25,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as ApiPublicSeedAdminsRouteImport } from './routes/api/public/seed-admins'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
 import { Route as AuthenticatedDashboardListingsRouteImport } from './routes/_authenticated/dashboard.listings'
+import { Route as AuthenticatedDashboardBillingRouteImport } from './routes/_authenticated/dashboard.billing'
 import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authenticated/admin.listings'
 import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
 
@@ -110,6 +111,12 @@ const AuthenticatedDashboardListingsRoute =
     path: '/listings',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardBillingRoute =
+  AuthenticatedDashboardBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAdminListingsRoute =
   AuthenticatedAdminListingsRouteImport.update({
     id: '/listings',
@@ -136,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/properties/': typeof PropertiesIndexRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
+  '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
   '/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/api/public/seed-admins': typeof ApiPublicSeedAdminsRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/properties': typeof PropertiesIndexRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
+  '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
   '/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/api/public/seed-admins': typeof ApiPublicSeedAdminsRoute
@@ -174,6 +183,7 @@ export interface FileRoutesById {
   '/properties/': typeof PropertiesIndexRoute
   '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
+  '/_authenticated/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
   '/_authenticated/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/api/public/seed-admins': typeof ApiPublicSeedAdminsRoute
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/properties/'
     | '/admin/agents'
     | '/admin/listings'
+    | '/dashboard/billing'
     | '/dashboard/listings'
     | '/dashboard/profile'
     | '/api/public/seed-admins'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/properties'
     | '/admin/agents'
     | '/admin/listings'
+    | '/dashboard/billing'
     | '/dashboard/listings'
     | '/dashboard/profile'
     | '/api/public/seed-admins'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
     | '/properties/'
     | '/_authenticated/admin/agents'
     | '/_authenticated/admin/listings'
+    | '/_authenticated/dashboard/billing'
     | '/_authenticated/dashboard/listings'
     | '/_authenticated/dashboard/profile'
     | '/api/public/seed-admins'
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardListingsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/billing': {
+      id: '/_authenticated/dashboard/billing'
+      path: '/billing'
+      fullPath: '/dashboard/billing'
+      preLoaderRoute: typeof AuthenticatedDashboardBillingRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/admin/listings': {
       id: '/_authenticated/admin/listings'
       path: '/listings'
@@ -399,6 +419,7 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardBillingRoute: typeof AuthenticatedDashboardBillingRoute
   AuthenticatedDashboardListingsRoute: typeof AuthenticatedDashboardListingsRoute
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -406,6 +427,7 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardBillingRoute: AuthenticatedDashboardBillingRoute,
     AuthenticatedDashboardListingsRoute: AuthenticatedDashboardListingsRoute,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
