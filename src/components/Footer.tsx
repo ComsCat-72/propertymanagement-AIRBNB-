@@ -31,7 +31,7 @@ export function Footer() {
             <li>Commercial spaces</li>
           </ul>
         </div>
-        {/* <div>
+        <div>
           <h4 className="mb-3 text-sm font-bold">LoyalityReal250</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>Newsroom</li>
@@ -39,7 +39,7 @@ export function Footer() {
             <li>Careers</li>
             <li>Contact us</li>
           </ul>
-        </div> */}
+        </div> 
       </div>
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-[1760px] flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-muted-foreground sm:flex-row lg:px-10">
