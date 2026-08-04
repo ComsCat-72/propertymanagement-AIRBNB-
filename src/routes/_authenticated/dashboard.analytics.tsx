@@ -71,7 +71,7 @@ function AnalyticsPage() {
     for (const e of events) {
       const k = new Date(e.created_at).toISOString().slice(5, 10);
       const row = map.get(k);
-      if (row && k in Object.fromEntries([[k, 1]]) && row[e.event_type] !== undefined) row[e.event_type] += 1;
+      if (row && row[e.event_type] !== undefined) row[e.event_type] += 1;
     }
     return Array.from(map, ([day, counts]) => ({ day, ...counts }));
   })();
