@@ -18,6 +18,7 @@ export interface Profile {
   plan_expires_at: string | null;
   is_verified: boolean;
   verified_expires_at: string | null;
+  cancel_at_period_end: boolean;
 }
 
 interface AuthCtx {

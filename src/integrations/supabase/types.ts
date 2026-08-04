@@ -53,6 +53,44 @@ export type Database = {
           },
         ]
       }
+      monetization_events: {
+        Row: {
+          agent_id: string
+          amount_rwf: number
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          plan: Database["public"]["Enums"]["subscription_plan"] | null
+        }
+        Insert: {
+          agent_id: string
+          amount_rwf?: number
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+        }
+        Update: {
+          agent_id?: string
+          amount_rwf?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monetization_events_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_limits: {
         Row: {
           label: string
@@ -86,6 +124,7 @@ export type Database = {
           address: string | null
           agency_name: string | null
           bio: string | null
+          cancel_at_period_end: boolean
           created_at: string
           email: string
           full_name: string
@@ -104,6 +143,7 @@ export type Database = {
           address?: string | null
           agency_name?: string | null
           bio?: string | null
+          cancel_at_period_end?: boolean
           created_at?: string
           email?: string
           full_name?: string
@@ -122,6 +162,7 @@ export type Database = {
           address?: string | null
           agency_name?: string | null
           bio?: string | null
+          cancel_at_period_end?: boolean
           created_at?: string
           email?: string
           full_name?: string

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { useAuth } from "@/lib/auth";
-import { planExpired } from "@/lib/plans";
+import { GRACE_DAYS, graceEndsAt, planStatus } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardLayout,
@@ -10,6 +10,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardLayout() {
   const { pathname } = useLocation();
   const { profile } = useAuth();
+  const status = planStatus(profile);
+  const graceEnd = graceEndsAt(profile);
   const tabs = [
     { to: "/dashboard", label: "Overview" },
     { to: "/dashboard/listings", label: "My Listings" },
@@ -26,10 +28,24 @@ function DashboardLayout() {
             <strong className="font-semibold">Your account is pending approval.</strong> An admin must approve your account before your listings appear publicly.
           </div>
         )}
-        {planExpired(profile) && (
+        {status === "grace" && (
+          <div className="mt-4 rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-sm">
+            <strong className="font-semibold">Grace period — {GRACE_DAYS} days.</strong> Your plan lapsed. You keep your listing
+            allowance until {graceEnd?.toLocaleDateString()}, but analytics and other advanced features are paused.{" "}
+            <Link to="/dashboard/billing" className="font-semibold underline">Renew now</Link>.
+          </div>
+        )}
+        {status === "expired" && (
           <div className="mt-4 rounded-2xl border border-destructive/40 bg-destructive/10 px-5 py-3 text-sm">
             <strong className="font-semibold">Your subscription has expired.</strong> Your existing listings stay live, but you're back on the Free limit.{" "}
             <Link to="/dashboard/billing" className="font-semibold underline">Subscribe again</Link> to keep adding listings.
+          </div>
+        )}
+        {profile?.cancel_at_period_end && status !== "free" && status !== "expired" && (
+          <div className="mt-4 rounded-2xl border border-border bg-muted px-5 py-3 text-sm">
+            <strong className="font-semibold">Cancellation scheduled.</strong> Your plan will not renew
+            {profile.plan_expires_at ? ` after ${new Date(profile.plan_expires_at).toLocaleDateString()}` : ""}.{" "}
+            <Link to="/dashboard/billing" className="font-semibold underline">Manage billing</Link>.
           </div>
         )}
         <div className="mt-6 flex flex-wrap gap-2 border-b border-border">

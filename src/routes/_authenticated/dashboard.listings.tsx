@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatPrice } from "@/lib/format";
 import { effectivePlan, maxListings, type PlanLimit } from "@/lib/plans";
+import { logEvent } from "@/lib/events";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -98,6 +99,7 @@ function ListingsPage() {
   const save = async () => {
     if (!user) return;
     if (!form.id && quotaReached) {
+      void logEvent(user.id, "quota_reached", { plan: effectivePlan(profile), metadata: { cap, used } });
       toast.error(`You've reached your plan limit of ${cap} listings. Upgrade to add more.`);
       return;
     }

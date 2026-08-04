@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Sparkles } from "lucide-react";
+import { Check, CircleCheck, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { BADGE_PRICE_RWF, effectivePlan, formatRwf, isVerified, maxListings, planExpired, type PlanKey, type PlanLimit } from "@/lib/plans";
+import { logEvent } from "@/lib/events";
+import {
+  BADGE_PRICE_RWF, GRACE_DAYS, effectivePlan, formatRwf, graceEndsAt, isVerified,
+  maxListings, planStatus, type PlanKey, type PlanLimit,
+} from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard/billing")({
   component: BillingPage,
@@ -23,6 +27,9 @@ function BillingPage() {
   const [wantsBadge, setWantsBadge] = useState(false);
   const [reference, setReference] = useState("");
   const [saving, setSaving] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const { data: limits } = useQuery({
     queryKey: ["plan-limits"],
@@ -58,6 +65,11 @@ function BillingPage() {
   const cap = maxListings(plan, limits);
   const verified = isVerified(profile);
   const pending = (requests ?? []).find((r) => r.status === "pending");
+  const status = planStatus(profile);
+  const graceEnd = graceEndsAt(profile);
+  const cancelScheduled = !!profile?.cancel_at_period_end && status !== "free";
+  const used = usedCount ?? 0;
+  const remaining = cap === null ? null : Math.max(0, cap - used);
 
   const amount = (() => {
     const base = (limits ?? []).find((l) => l.plan === target)?.price_rwf ?? 0;
@@ -76,17 +88,54 @@ function BillingPage() {
     } as never);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Upgrade request sent — an admin will confirm your payment.");
-    setTarget(null); setWantsBadge(false); setReference("");
+    await logEvent(user.id, wantsBadge && target === plan ? "badge_requested" : "upgrade_requested", {
+      plan: target, amountRwf: amount, metadata: { wants_badge: wantsBadge },
+    });
+    setSent(true);
     qc.invalidateQueries({ queryKey: ["my-upgrade-requests"] });
+    refresh();
+  };
+
+  const closeRequestDialog = () => {
+    setTarget(null); setWantsBadge(false); setReference(""); setSent(false);
+  };
+
+  const setCancellation = async (cancel: boolean) => {
+    if (!user) return;
+    setCancelling(true);
+    const { error } = await supabase.from("profiles").update({ cancel_at_period_end: cancel } as never).eq("id", user.id);
+    setCancelling(false);
+    if (error) { toast.error(error.message); return; }
+    if (cancel) await logEvent(user.id, "subscription_cancelled", { plan, metadata: { at_period_end: true } });
+    setCancelOpen(false);
+    toast.success(cancel ? "Subscription set to end on your renewal date." : "Subscription renewal restored.");
     refresh();
   };
 
   return (
     <div className="space-y-8">
-      {planExpired(profile) && (
+      {status === "grace" && (
+        <div className="rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-sm">
+          <strong className="font-semibold">Grace period — {GRACE_DAYS} days.</strong> Your plan lapsed, so analytics and other
+          advanced features are paused, but you keep your full listing allowance until{" "}
+          {graceEnd?.toLocaleDateString()}. Renew before then to avoid dropping to the Free limit.
+        </div>
+      )}
+      {status === "expired" && (
         <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-5 py-3 text-sm">
-          <strong className="font-semibold">Your subscription has expired.</strong> Your listings are still live, but you're back on the Free plan. Subscribe again to add more listings.
+          <strong className="font-semibold">Your subscription has expired.</strong> The grace period is over — your listings are
+          still live, but you're back on the Free limit and advanced features are locked. Subscribe again to add more listings.
+        </div>
+      )}
+      {cancelScheduled && status !== "expired" && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-muted px-5 py-3 text-sm">
+          <span>
+            <strong className="font-semibold">Cancellation scheduled.</strong> Your plan will not renew
+            {profile?.plan_expires_at ? ` after ${new Date(profile.plan_expires_at).toLocaleDateString()}` : ""}.
+          </span>
+          <Button size="sm" variant="outline" className="ml-auto rounded-full" disabled={cancelling} onClick={() => setCancellation(false)}>
+            Keep my subscription
+          </Button>
         </div>
       )}
 
@@ -94,16 +143,20 @@ function BillingPage() {
         <div className="rounded-2xl border border-border bg-card p-5">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Current plan</p>
           <p className="mt-2 text-2xl font-bold capitalize">{(limits ?? []).find((l) => l.plan === plan)?.label ?? plan}</p>
+          <p className="mt-1 text-xs font-semibold capitalize text-muted-foreground">
+            {status === "active" ? "Active" : status === "grace" ? "In grace period" : status === "expired" ? "Expired" : "Free plan"}
+          </p>
           {profile?.plan_expires_at && plan !== "free" && (
             <p className="mt-1 text-xs text-muted-foreground">Renews / expires {new Date(profile.plan_expires_at).toLocaleDateString()}</p>
           )}
         </div>
         <div className="rounded-2xl border border-border bg-card p-5">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Listings used</p>
-          <p className="mt-2 text-2xl font-bold">{usedCount ?? 0}{cap === null ? " / ∞" : ` / ${cap}`}</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Quota remaining</p>
+          <p className="mt-2 text-2xl font-bold">{remaining === null ? "Unlimited" : `${remaining} left`}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{used}{cap === null ? " listings" : ` of ${cap} used`}</p>
           {cap !== null && (
             <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-brand" style={{ width: `${Math.min(100, ((usedCount ?? 0) / cap) * 100)}%` }} />
+              <div className="h-full rounded-full bg-brand" style={{ width: `${Math.min(100, (used / cap) * 100)}%` }} />
             </div>
           )}
         </div>
@@ -115,6 +168,17 @@ function BillingPage() {
           )}
         </div>
       </div>
+
+      {status !== "free" && !cancelScheduled && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 text-sm">
+          <span className="text-muted-foreground">
+            Cancelling keeps your plan until the current period ends — nothing is removed before then.
+          </span>
+          <Button variant="outline" size="sm" className="ml-auto rounded-full text-destructive" onClick={() => setCancelOpen(true)}>
+            Cancel subscription
+          </Button>
+        </div>
+      )}
 
       {pending && (
         <div className="rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-sm">
@@ -188,9 +252,22 @@ function BillingPage() {
         </div>
       )}
 
-      <Dialog open={!!target} onOpenChange={(o) => { if (!o) setTarget(null); }}>
+      <Dialog open={!!target} onOpenChange={(o) => { if (!o) closeRequestDialog(); }}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Request upgrade</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{sent ? "Request sent" : "Confirm your upgrade"}</DialogTitle></DialogHeader>
+          {sent ? (
+            <div className="space-y-4 text-center">
+              <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-brand/10">
+                <CircleCheck className="h-6 w-6 text-brand" />
+              </span>
+              <p className="text-sm text-muted-foreground">
+                We've sent your request for{" "}
+                <strong className="text-foreground">{(limits ?? []).find((l) => l.plan === target)?.label ?? target}{wantsBadge ? " + verified badge" : ""}</strong>{" "}
+                at {formatRwf(amount)}. An admin activates it for 30 days once your payment is confirmed.
+              </p>
+              <Button onClick={closeRequestDialog} className="w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">Done</Button>
+            </div>
+          ) : (
           <div className="space-y-4">
             <div className="rounded-2xl bg-muted p-4 text-sm">
               <p className="font-semibold capitalize">
@@ -213,6 +290,31 @@ function BillingPage() {
             <Button onClick={submit} disabled={saving} className="w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
               {saving ? "Sending…" : "Send request"}
             </Button>
+          </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Cancel your subscription?</DialogTitle></DialogHeader>
+          <div className="space-y-4 text-sm">
+            <p className="text-muted-foreground">
+              Your {(limits ?? []).find((l) => l.plan === plan)?.label ?? plan} plan stays active
+              {profile?.plan_expires_at ? ` until ${new Date(profile.plan_expires_at).toLocaleDateString()}` : ""}. After that you
+              get a {GRACE_DAYS}-day grace period where your listing allowance is kept but advanced features are paused, then you
+              move to the Free limit. Existing listings are never deleted.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 rounded-full" onClick={() => setCancelOpen(false)}>Keep plan</Button>
+              <Button
+                className="flex-1 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={cancelling}
+                onClick={() => setCancellation(true)}
+              >
+                {cancelling ? "Cancelling…" : "Confirm cancellation"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
