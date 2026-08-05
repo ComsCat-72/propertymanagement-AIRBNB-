@@ -18,6 +18,27 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://dwell-discover-dot.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "LoyalityReal250",
+          url: "https://dwell-discover-dot.lovable.app",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://dwell-discover-dot.lovable.app/properties?city={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "LoyalityReal250",
+            url: "https://dwell-discover-dot.lovable.app",
+          },
+        }),
+      },
+    ],
   }),
   component: Index,
 });
