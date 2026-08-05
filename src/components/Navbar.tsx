@@ -153,7 +153,7 @@ export function Navbar() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full border border-border py-1 pl-3 pr-1 transition hover:shadow-md">
+                <button aria-label="Open account menu" className="flex items-center gap-2 rounded-full border border-border py-1 pl-3 pr-1 transition hover:shadow-md">
                   <Menu className="h-4 w-4" />
                   {profile?.profile_photo_url ? (
                     <img src={profile.profile_photo_url} alt="" className="h-8 w-8 rounded-full object-cover" />
@@ -189,7 +189,7 @@ export function Navbar() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full border border-border py-1.5 pl-3 pr-1.5 transition hover:shadow-md">
+                <button aria-label="Open account menu" className="flex items-center gap-2 rounded-full border border-border py-1.5 pl-3 pr-1.5 transition hover:shadow-md">
                   <Menu className="h-4 w-4" />
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-700 text-white">
                     <UserIcon className="h-4 w-4" />
