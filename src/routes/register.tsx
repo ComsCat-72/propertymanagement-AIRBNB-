@@ -126,21 +126,21 @@ function RegisterPage() {
               </Button>
             </div>
           </div>
-          <div className="md:col-span-2"><Label>Full name *</Label><Input required value={form.full_name} onChange={set("full_name")} className="mt-1 rounded-xl" /></div>
-          <div><Label>Email *</Label><Input type="email" required value={form.email} onChange={set("email")} className="mt-1 rounded-xl" /></div>
+          <div className="md:col-span-2"><Label htmlFor="reg-full-name">Full name *</Label><Input id="reg-full-name" required value={form.full_name} onChange={set("full_name")} className="mt-1 rounded-xl" /></div>
+          <div><Label htmlFor="reg-email">Email *</Label><Input id="reg-email" type="email" required value={form.email} onChange={set("email")} className="mt-1 rounded-xl" /></div>
           <div>
-            <Label>Password *</Label>
+            <Label htmlFor="reg-password">Password *</Label>
             <div className="relative mt-1">
-              <Input type={showPassword ? "text" : "password"} required value={form.password} onChange={set("password")} className="rounded-xl pr-10" />
+              <Input id="reg-password" type={showPassword ? "text" : "password"} required value={form.password} onChange={set("password")} className="rounded-xl pr-10" />
               <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
-          <div><Label>Phone</Label><Input value={form.phone} onChange={set("phone")} className="mt-1 rounded-xl" /></div>
-          <div><Label>Agency name</Label><Input value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
-          <div className="md:col-span-2"><Label>Office address</Label><Input value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
-          <div className="md:col-span-2"><Label>Bio</Label><Textarea value={form.bio} onChange={set("bio")} rows={4} className="mt-1 rounded-xl" /></div>
+          <div><Label htmlFor="reg-phone">Phone</Label><Input id="reg-phone" value={form.phone} onChange={set("phone")} className="mt-1 rounded-xl" /></div>
+          <div><Label htmlFor="reg-agency">Agency name</Label><Input id="reg-agency" value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
+          <div className="md:col-span-2"><Label htmlFor="reg-address">Office address</Label><Input id="reg-address" value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
+          <div className="md:col-span-2"><Label htmlFor="reg-bio">Bio</Label><Textarea id="reg-bio" value={form.bio} onChange={set("bio")} rows={4} className="mt-1 rounded-xl" /></div>
           <Button disabled={loading} type="submit" className="md:col-span-2 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
             {loading ? "Creating…" : "Create agent account"}
           </Button>
