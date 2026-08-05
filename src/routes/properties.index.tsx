@@ -126,13 +126,13 @@ function PropertiesPage() {
         <h1 className="mb-6 text-3xl font-bold">Browse properties</h1>
 
         <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-8">
-          <Input placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="rounded-full" />
-          <select value={type} onChange={(e) => setType(e.target.value)} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
+          <Input aria-label="City" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="rounded-full" />
+          <select aria-label="Property type" value={type} onChange={(e) => setType(e.target.value)} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
             <option value="">Any type</option>
             <option value="sale">For Sale</option>
             <option value="rent">For Rent</option>
           </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
+          <select aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value)} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
             <option value="">Any category</option>
             <option value="house">House</option>
             <option value="apartment">Apartment</option>
@@ -142,9 +142,9 @@ function PropertiesPage() {
             <option value="car">Car</option>
             <option value="motorcycle">Motorcycle</option>
           </select>
-          <Input placeholder="Min $" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="rounded-full" />
-          <Input placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="rounded-full" />
-          <Input placeholder="Bedrooms" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="rounded-full" />
+          <Input aria-label="Minimum price" placeholder="Min $" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="rounded-full" />
+          <Input aria-label="Maximum price" placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="rounded-full" />
+          <Input aria-label="Bedrooms" placeholder="Bedrooms" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="rounded-full" />
           <Button onClick={apply} className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90">Apply</Button>
           <Button variant="outline" onClick={reset} className="rounded-full">Reset</Button>
         </div>
@@ -152,6 +152,7 @@ function PropertiesPage() {
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{total} results</p>
           <select
+            aria-label="Sort results"
             value={sort}
             onChange={(e) => navigate({ search: { ...search, sort: e.target.value } })}
             className="h-9 rounded-full border border-input bg-background px-3 text-sm"
