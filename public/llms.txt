@@ -1,0 +1,16 @@
+# LoyalityReal250
+
+> A Rwandan real estate marketplace where verified agents list houses, apartments, land, commercial property and vehicles for sale or rent.
+
+Visitors browse listings for free, filter by city, price, category and bedrooms, and contact agents directly by phone or WhatsApp. Agents register for an account, publish listings, and can upgrade to paid tiers for higher listing quotas, analytics and a verified badge.
+
+## Pages
+
+- [Home](/): Featured and latest property listings across every category.
+- [All properties](/properties): Full searchable listing directory with city, price, type and bedroom filters.
+- [Find an agent](/agents): Directory of verified property agents with profiles and achievements.
+- [Become an agent](/register): Create a free agent account to publish listings.
+
+## Optional
+
+- [Agent log in](/login): Sign-in page for existing agents.
