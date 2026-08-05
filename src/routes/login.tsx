@@ -62,18 +62,18 @@ function LoginPage() {
         <p className="mt-1 text-sm text-muted-foreground">Log in to manage your listings.</p>
         <form onSubmit={submit} className="mt-8 space-y-4">
           <div>
-            <Label>Email</Label>
-            <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 rounded-xl" />
+            <Label htmlFor="login-email">Email</Label>
+            <Input id="login-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 rounded-xl" />
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <Label>Password</Label>
+              <Label htmlFor="login-password">Password</Label>
               <button type="button" onClick={resetPassword} disabled={resetting} className="text-xs font-semibold text-brand hover:underline disabled:opacity-60">
                 {resetting ? "Sending…" : "Forgot password?"}
               </button>
             </div>
             <div className="relative mt-1">
-              <Input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-xl pr-10" />
+              <Input id="login-password" type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-xl pr-10" />
               <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

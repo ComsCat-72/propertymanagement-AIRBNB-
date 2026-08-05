@@ -18,6 +18,27 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://dwell-discover-dot.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "LoyalityReal250",
+          url: "https://dwell-discover-dot.lovable.app",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://dwell-discover-dot.lovable.app/properties?city={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "LoyalityReal250",
+            url: "https://dwell-discover-dot.lovable.app",
+          },
+        }),
+      },
+    ],
   }),
   component: Index,
 });
@@ -77,6 +98,15 @@ function Index() {
   return (
     <SiteShell>
       <CategoryPills active={category} onChange={setCategory} />
+
+      <section className="mx-auto max-w-[1760px] px-6 pt-8 lg:px-10">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          Find Houses, Land &amp; Cars for Sale or Rent in Rwanda
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Browse verified listings from trusted LoyalityReal250 agents and contact them directly.
+        </p>
+      </section>
 
       {featured && featured.length > 0 && (
         <section className="mx-auto max-w-[1760px] px-6 pt-10 lg:px-10">

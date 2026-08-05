@@ -44,6 +44,34 @@ export const Route = createFileRoute("/properties/$id")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      ...(s
+        ? {
+            scripts: [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "Product",
+                  name: s.title,
+                  description,
+                  ...(s.images?.length ? { image: s.images } : {}),
+                  url,
+                  ...(s.price
+                    ? {
+                        offers: {
+                          "@type": "Offer",
+                          price: s.price,
+                          priceCurrency: "RWF",
+                          availability: "https://schema.org/InStock",
+                          url,
+                        },
+                      }
+                    : {}),
+                }),
+              },
+            ],
+          }
+        : {}),
     };
   },
   component: PropertyDetail,
