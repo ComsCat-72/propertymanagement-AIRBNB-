@@ -59,9 +59,9 @@ function ResetPasswordPage() {
         </p>
         <form onSubmit={submit} className="mt-8 space-y-4">
           <div>
-            <Label>New password</Label>
+            <Label htmlFor="new-password">New password</Label>
             <div className="relative mt-1">
-              <Input type={show ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-xl pr-10" />
+              <Input id="new-password" type={show ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-xl pr-10" />
               <button type="button" onClick={() => setShow((s) => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label={show ? "Hide password" : "Show password"}>
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
