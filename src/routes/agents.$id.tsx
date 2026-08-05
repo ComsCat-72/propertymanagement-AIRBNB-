@@ -10,6 +10,41 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 
 export const Route = createFileRoute("/agents/$id")({
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, agency_name, bio, profile_photo_url")
+      .eq("id", params.id)
+      .maybeSingle();
+    return { seo: data as { full_name: string; agency_name: string | null; bio: string | null; profile_photo_url: string | null } | null };
+  },
+  head: ({ params, loaderData }) => {
+    const s = loaderData?.seo;
+    const url = `https://dwell-discover-dot.lovable.app/agents/${params.id}`;
+    const title = s ? `${s.full_name} — Property Agent | LoyalityReal250` : "Property agent | LoyalityReal250";
+    const raw = s
+      ? `${s.full_name}${s.agency_name ? ` of ${s.agency_name}` : ""} is a property agent on LoyalityReal250. ${s.bio ?? "View their listings, achievements and contact details."}`.trim()
+      : "View this LoyalityReal250 agent's profile, achievements and active property listings.";
+    const description = raw.length > 157 ? `${raw.slice(0, 157)}…` : raw;
+    const image = s?.profile_photo_url;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "profile" },
+        { property: "og:url", content: url },
+        ...(image?.startsWith("https://")
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: AgentDetail,
 });
 
