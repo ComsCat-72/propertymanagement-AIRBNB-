@@ -43,6 +43,27 @@ export const Route = createFileRoute("/agents/$id")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      ...(s
+        ? {
+            scripts: [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "Person",
+                  name: s.full_name,
+                  jobTitle: "Property Agent",
+                  description,
+                  url,
+                  ...(s.profile_photo_url ? { image: s.profile_photo_url } : {}),
+                  ...(s.agency_name
+                    ? { worksFor: { "@type": "Organization", name: s.agency_name } }
+                    : {}),
+                }),
+              },
+            ],
+          }
+        : {}),
     };
   },
   component: AgentDetail,
