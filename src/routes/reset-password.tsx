@@ -9,7 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Reset password — LoyalityReal250" }] }),
+  head: () => ({
+    meta: [
+      { title: "Reset Your Password | LoyalityReal250" },
+      { name: "description", content: "Set a new password for your LoyalityReal250 agent account using the secure reset link sent to your email address." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Reset Your Password | LoyalityReal250" },
+      { property: "og:description", content: "Set a new password for your LoyalityReal250 agent account." },
+      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/reset-password" },
+    ],
+    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/reset-password" }],
+  }),
   component: ResetPasswordPage,
 });
 
