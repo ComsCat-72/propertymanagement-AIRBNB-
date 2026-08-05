@@ -9,7 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Log in — LoyalityReal250" }] }),
+  head: () => ({
+    meta: [
+      { title: "Agent Log In | LoyalityReal250" },
+      { name: "description", content: "Log in to your LoyalityReal250 agent account to publish listings, manage your profile and track enquiries from buyers and renters." },
+      { property: "og:title", content: "Agent Log In | LoyalityReal250" },
+      { property: "og:description", content: "Log in to manage your LoyalityReal250 listings and profile." },
+      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/login" }],
+  }),
   component: LoginPage,
 });
 

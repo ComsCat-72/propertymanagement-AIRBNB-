@@ -11,11 +11,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "LoyalityReal250 — Find your next home" },
-      { name: "description", content: "Browse the latest property listings for sale and rent." },
-      { property: "og:title", content: "LoyalityReal250" },
-      { property: "og:description", content: "Browse the latest property listings for sale and rent." },
+      { title: "Houses, Land & Cars for Sale or Rent | LoyalityReal250" },
+      { name: "description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent in Rwanda, listed by trusted LoyalityReal250 agents." },
+      { property: "og:title", content: "Houses, Land & Cars for Sale or Rent | LoyalityReal250" },
+      { property: "og:description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent, listed by trusted LoyalityReal250 agents." },
+      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/" }],
   }),
   component: Index,
 });

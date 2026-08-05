@@ -45,6 +45,8 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
         </Link>
           <button
             onClick={(e) => { e.preventDefault(); setLiked(!liked); }}
+            aria-label={liked ? `Remove ${p.title} from favourites` : `Save ${p.title} to favourites`}
+            aria-pressed={liked}
             className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-black/20 backdrop-blur-sm transition hover:scale-110"
           >
             <Heart className={`h-5 w-5 ${liked ? "fill-accent text-accent" : "fill-black/40 text-white"}`} />
@@ -53,12 +55,14 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             <>
               <button
                 onClick={(e) => { e.preventDefault(); setIdx((i) => (i - 1 + imgs.length) % imgs.length); }}
+                aria-label="Previous photo"
                 className="absolute left-2 top-1/2 z-10 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full bg-white/90 opacity-0 shadow transition group-hover:opacity-100"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={(e) => { e.preventDefault(); setIdx((i) => (i + 1) % imgs.length); }}
+                aria-label="Next photo"
                 className="absolute right-2 top-1/2 z-10 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full bg-white/90 opacity-0 shadow transition group-hover:opacity-100"
               >
                 <ChevronRight className="h-4 w-4" />

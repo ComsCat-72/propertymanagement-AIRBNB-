@@ -23,7 +23,16 @@ const schema = z.object({
 });
 
 export const Route = createFileRoute("/register")({
-  head: () => ({ meta: [{ title: "Become an agent — LoyalityReal250" }] }),
+  head: () => ({
+    meta: [
+      { title: "Become a Listing Agent | LoyalityReal250" },
+      { name: "description", content: "Create a free LoyalityReal250 agent account to list houses, land, commercial property and vehicles, and reach buyers and renters across Rwanda." },
+      { property: "og:title", content: "Become a Listing Agent | LoyalityReal250" },
+      { property: "og:description", content: "Create a free agent account and start listing properties on LoyalityReal250." },
+      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/register" },
+    ],
+    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/register" }],
+  }),
   component: RegisterPage,
 });
 
