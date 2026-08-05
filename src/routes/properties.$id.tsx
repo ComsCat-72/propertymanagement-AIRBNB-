@@ -11,6 +11,41 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 
 export const Route = createFileRoute("/properties/$id")({
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("properties")
+      .select("title, description, city, location, price, property_type, images")
+      .eq("id", params.id)
+      .maybeSingle();
+    return { seo: data as { title: string; description: string | null; city: string | null; location: string | null; price: number | null; property_type: string | null; images: string[] | null } | null };
+  },
+  head: ({ params, loaderData }) => {
+    const s = loaderData?.seo;
+    const url = `https://dwell-discover-dot.lovable.app/properties/${params.id}`;
+    const title = s ? `${s.title} — ${s.city ?? "Rwanda"} | LoyalityReal250` : "Property listing | LoyalityReal250";
+    const raw = s
+      ? `${s.title} for ${s.property_type === "rent" ? "rent" : "sale"} in ${s.location || s.city || "Rwanda"}. ${s.description ?? ""}`.trim()
+      : "View this property listing on LoyalityReal250, with photos, price and direct contact to the listing agent.";
+    const description = raw.length > 157 ? `${raw.slice(0, 157)}…` : raw;
+    const image = s?.images?.[0];
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        ...(image?.startsWith("https://")
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: PropertyDetail,
 });
 
