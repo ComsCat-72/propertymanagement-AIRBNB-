@@ -17,7 +17,16 @@ interface AgentsSearch {
 const PAGE_SIZE = 12;
 
 export const Route = createFileRoute("/agents/")({
-  head: () => ({ meta: [{ title: "Our agents — LoyalityReal250" }] }),
+  head: () => ({
+    meta: [
+      { title: "Find a Real Estate Agent | LoyalityReal250" },
+      { name: "description", content: "Browse verified LoyalityReal250 property agents, read their profiles and achievements, and contact the right agent for your next home or investment." },
+      { property: "og:title", content: "Find a Real Estate Agent | LoyalityReal250" },
+      { property: "og:description", content: "Browse verified LoyalityReal250 property agents and contact the right one for your next home." },
+      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/agents" },
+    ],
+    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/agents" }],
+  }),
   validateSearch: (s: Record<string, unknown>): AgentsSearch => ({
     q: (s.q as string) || "",
     city: (s.city as string) || "",
