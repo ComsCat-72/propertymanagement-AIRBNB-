@@ -20,7 +20,16 @@ interface SearchParams {
 }
 
 export const Route = createFileRoute("/properties/")({
-  head: () => ({ meta: [{ title: "All properties — LoyalityReal250" }] }),
+  head: () => ({
+    meta: [
+      { title: "All Properties for Sale & Rent | LoyalityReal250" },
+      { name: "description", content: "Search every LoyalityReal250 listing — houses, apartments, land, commercial property and vehicles — filtered by city, price, type and bedrooms." },
+      { property: "og:title", content: "All Properties for Sale & Rent | LoyalityReal250" },
+      { property: "og:description", content: "Search every LoyalityReal250 listing by city, price, type and bedrooms." },
+      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/properties" },
+    ],
+    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/properties" }],
+  }),
   validateSearch: (s: Record<string, unknown>): SearchParams => ({
     city: (s.city as string) || "",
     type: (s.type as string) || "",
