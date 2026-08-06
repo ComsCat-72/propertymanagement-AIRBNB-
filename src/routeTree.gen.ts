@@ -32,6 +32,7 @@ import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin.billing'
 import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -156,6 +157,11 @@ const AuthenticatedAdminActivityRoute =
     path: '/activity',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/properties/$id': typeof PropertiesIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/properties/$id': typeof PropertiesIdRoute
   '/agents': typeof AgentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/properties/$id': typeof PropertiesIdRoute
   '/agents/': typeof AgentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/agents/'
     | '/properties/'
+    | '/.lovable/oauth/consent'
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/billing'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/agents'
     | '/properties'
+    | '/.lovable/oauth/consent'
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/billing'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/agents/'
     | '/properties/'
+    | '/.lovable/oauth/consent'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/agents'
     | '/_authenticated/admin/billing'
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   PropertiesIdRoute: typeof PropertiesIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicSeedAdminsRoute: typeof ApiPublicSeedAdminsRoute
 }
 
@@ -480,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminActivityRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -548,6 +568,7 @@ const rootRouteChildren: RootRouteChildren = {
   PropertiesIdRoute: PropertiesIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicSeedAdminsRoute: ApiPublicSeedAdminsRoute,
 }
 export const routeTree = rootRouteImport
