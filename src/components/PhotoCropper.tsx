@@ -79,7 +79,7 @@ export function PhotoCropper({
         </div>
         <div className="px-1 pt-2">
           <label className="mb-2 block text-xs font-semibold text-muted-foreground">Zoom</label>
-          <Slider value={[zoom]} min={1} max={3} step={0.05} onValueChange={(v) => setZoom(v[0])} />
+          <Slider aria-label="Zoom photo" value={[zoom]} min={1} max={3} step={0.05} onValueChange={(v) => setZoom(v[0])} />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel} className="rounded-full">Cancel</Button>

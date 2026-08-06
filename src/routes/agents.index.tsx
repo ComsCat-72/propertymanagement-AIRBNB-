@@ -112,7 +112,7 @@ function AgentsPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input aria-label="Search agents by name, agency or bio" value={q} onChange={(e) => setSearch({ q: e.target.value })} placeholder="Search by name, agency or bio" className="rounded-full pl-9" />
           </div>
-          <select value={agency} onChange={(e) => setSearch({ agency: e.target.value })} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
+          <select aria-label="Filter agents by agency" value={agency} onChange={(e) => setSearch({ agency: e.target.value })} className="h-9 rounded-full border border-input bg-background px-3 text-sm">
             <option value="">Any agency</option>
             {agencies.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
