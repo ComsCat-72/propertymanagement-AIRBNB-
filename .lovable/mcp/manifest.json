@@ -1,0 +1,286 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://xwgwksurcsljwwbqhjwe.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "loyality-home-hub",
+      "version": "0.1.0",
+      "title": "Loyality Home Hub"
+    },
+    "tools": [
+      {
+        "name": "search_properties",
+        "title": "Search properties",
+        "description": "Search active LoyalityReal250 listings by city, category, sale/rent type and price range.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "house",
+                "apartment",
+                "land",
+                "commercial",
+                "villa",
+                "car",
+                "motorcycle"
+              ]
+            },
+            "property_type": {
+              "type": "string",
+              "enum": [
+                "sale",
+                "rent"
+              ]
+            },
+            "min_price": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max_price": {
+              "type": "number",
+              "minimum": 0
+            },
+            "limit": {
+              "description": "Maximum results (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_listings",
+        "title": "List my listings",
+        "description": "List the property listings owned by the signed-in agent on LoyalityReal250.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter by listing status.",
+              "type": "string",
+              "enum": [
+                "active",
+                "sold",
+                "rented"
+              ]
+            },
+            "limit": {
+              "description": "Maximum listings to return (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_listing",
+        "title": "Create listing",
+        "description": "Create a new property or vehicle listing for the signed-in agent. Subject to the agent's plan quota.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Listing title."
+            },
+            "description": {
+              "description": "Listing description.",
+              "type": "string"
+            },
+            "price": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Price in RWF."
+            },
+            "city": {
+              "description": "City, e.g. Kigali.",
+              "type": "string"
+            },
+            "location": {
+              "description": "Neighbourhood or street location.",
+              "type": "string"
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "house",
+                "apartment",
+                "land",
+                "commercial",
+                "villa",
+                "car",
+                "motorcycle"
+              ]
+            },
+            "property_type": {
+              "type": "string",
+              "enum": [
+                "sale",
+                "rent"
+              ]
+            },
+            "bedrooms": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "bathrooms": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "area_sqm": {
+              "type": "number",
+              "minimum": 0
+            },
+            "images": {
+              "description": "Public image URLs.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "title",
+            "price",
+            "category",
+            "property_type"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_listing",
+        "title": "Update listing",
+        "description": "Update fields of one of the signed-in agent's listings, such as price, status or description.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The listing id."
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "price": {
+              "type": "number",
+              "minimum": 0
+            },
+            "city": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "active",
+                "sold",
+                "rented"
+              ]
+            },
+            "property_type": {
+              "type": "string",
+              "enum": [
+                "sale",
+                "rent"
+              ]
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "delete_listing",
+        "title": "Delete listing",
+        "description": "Permanently delete one of the signed-in agent's listings.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The listing id to delete."
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_account",
+        "title": "Get my account",
+        "description": "Get the signed-in agent's profile, subscription plan, verified badge status and listing count.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

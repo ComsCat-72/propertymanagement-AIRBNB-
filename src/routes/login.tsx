@@ -19,10 +19,14 @@ export const Route = createFileRoute("/login")({
     ],
     links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/login" }],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
+  }),
   component: LoginPage,
 });
 
 function LoginPage() {
+  const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,6 +41,7 @@ function LoginPage() {
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     const uid = data.user?.id;
+    if (next) { window.location.href = next; return; }
     if (!uid) { navigate({ to: "/" }); return; }
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
     const isAdmin = (roles ?? []).some((r) => r.role === "admin");
