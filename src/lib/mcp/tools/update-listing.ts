@@ -19,7 +19,9 @@ export default defineTool({
   annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   handler: async ({ id, ...changes }, ctx) => {
     if (!ctx.isAuthenticated()) throw new ToolError("Not authenticated");
-    const patch = Object.fromEntries(Object.entries(changes).filter(([, v]) => v !== undefined));
+    const patch = Object.fromEntries(
+      Object.entries(changes).filter(([, v]) => v !== undefined),
+    ) as Partial<typeof changes>;
     if (Object.keys(patch).length === 0) throw new ToolError("Provide at least one field to update");
     const supabase = supabaseForUser(ctx);
     const { data, error } = await supabase
