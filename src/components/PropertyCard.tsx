@@ -106,7 +106,7 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{p.area_sqm}m²</span>
           </div>
           <div className="flex items-center justify-between pt-1">
-            <span className="font-bold text-foreground">{formatPrice(p.price, p.property_type)}</span>
+            <span className="numeric font-bold text-foreground">{formatPrice(p.price, p.property_type)}</span>
             {p.agent && (
               <div className="flex items-center gap-1.5">
                 {p.agent.profile_photo_url ? (
