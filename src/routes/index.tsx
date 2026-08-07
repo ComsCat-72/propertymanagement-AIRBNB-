@@ -99,14 +99,9 @@ function Index() {
     <SiteShell>
       <CategoryPills active={category} onChange={setCategory} />
 
-      <section className="mx-auto max-w-[1760px] px-6 pt-8 lg:px-10">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Find Houses, Land &amp; Cars for Sale or Rent in Rwanda
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Browse verified listings from trusted LoyalityReal250 agents and contact them directly.
-        </p>
-      </section>
+      <h1 className="sr-only">
+        Houses, land and cars for sale or rent in Rwanda
+      </h1>
 
       {featured && featured.length > 0 && (
         <section className="mx-auto max-w-[1760px] px-6 pt-10 lg:px-10">
