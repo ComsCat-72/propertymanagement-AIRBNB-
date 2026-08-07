@@ -146,7 +146,7 @@ function RegisterPage() {
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account? <Link to="/login" className="font-semibold text-brand underline">Log in</Link>
+          Already have an account? <Link to="/login" search={{ next: undefined }} className="font-semibold text-brand underline">Log in</Link>
         </p>
         <PhotoCropper open={!!pending} file={pending} onCancel={() => setPending(null)} onConfirm={uploadCropped} />
       </div>

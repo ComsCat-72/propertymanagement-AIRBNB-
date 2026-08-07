@@ -1,9 +1,13 @@
 import { Link } from "@tanstack/react-router";
+import logoAsset from "@/assets/byungura-logo.png.asset.json";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border bg-secondary/40">
-      <div className="mx-auto grid max-w-[1760px] gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
+    <footer className="mt-16 border-t border-border bg-secondary">
+      <div className="mx-auto max-w-[1760px] px-6 pt-12 lg:px-10">
+        <img src={logoAsset.url} alt="byungura.com" className="h-12 w-auto object-contain" />
+      </div>
+      <div className="mx-auto grid max-w-[1760px] gap-10 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
         <div>
           <h4 className="mb-3 text-sm font-bold">Support</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -16,7 +20,7 @@ export function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-bold">Community</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/agents">Find an agent</Link></li>
+            <li><Link to="/agents" search={{ q: "", city: "", agency: "" }}>Find an agent</Link></li>
             <li>Become an agent</li>
             <li>Refer a friend</li>
             <li>Investor relations</li>

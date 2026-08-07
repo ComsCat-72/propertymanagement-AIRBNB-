@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, User as UserIcon, LogOut, LayoutDashboard, Shield, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logoAsset from "@/assets/byungura-logo.png.asset.json";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -116,11 +117,8 @@ export function Navbar() {
       {/* Top row — hidden on mobile (mobile uses search pill + bottom nav) */}
       <div className="mx-auto hidden h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:flex lg:px-10">
         {/* Logo */}
-        <Link to="/" className="flex shrink-0 items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-brand-foreground font-bold">L</div>
-          <span className="hidden text-lg font-bold tracking-tight text-brand sm:inline">
-            LoyalityReal<span className="text-gold">250</span>
-          </span>
+        <Link to="/" className="flex shrink-0 items-center" aria-label="byungura.com home">
+          <img src={logoAsset.url} alt="byungura.com — opening doors to your future" className="h-11 w-auto object-contain" />
         </Link>
 
         {/* Center tabs (desktop only) */}
@@ -131,7 +129,7 @@ export function Navbar() {
           >
             Homes
           </Link>
-          <Link to="/agents" className="rounded-full px-2 py-2 hover:text-foreground">Agents</Link>
+          <Link to="/agents" search={{ q: "", city: "", agency: "" }} className="rounded-full px-2 py-2 hover:text-foreground">Agents</Link>
           <Link to="/properties" search={{ type: "rent" } as never} className="rounded-full px-2 py-2 hover:text-foreground">Rentals</Link>
         </nav>
 
@@ -198,10 +196,10 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem onClick={() => navigate({ to: "/register" })}>Sign up</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/login" })}>Log in</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/login", search: { next: undefined } })}>Log in</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/register" })}>Become an agent</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/agents" })}>Find an agent</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/agents", search: { q: "", city: "", agency: "" } })}>Find an agent</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/properties" })}>Browse homes</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
