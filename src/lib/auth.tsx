@@ -42,11 +42,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (uid: string) => {
-    const [{ data: p }, { data: r }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
+    const [{ data: p }, { data: r }, { data: contacts }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select(
+          "id, full_name, phone, agency_name, bio, profile_photo_url, photo_public_id, status, achievements, plan, plan_expires_at, is_verified, verified_expires_at, cancel_at_period_end",
+        )
+        .eq("id", uid)
+        .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
+      // email/address are owner/admin-only and come from a protected lookup
+      supabase.rpc("profile_contacts"),
     ]);
-    setProfile((p as Profile | null) ?? null);
+    const own = (contacts as { id: string; email: string | null; address: string | null }[] | null)?.find(
+      (c) => c.id === uid,
+    );
+    setProfile(p ? ({ ...(p as object), email: own?.email ?? "", address: own?.address ?? "" } as Profile) : null);
     setRoles((r ?? []).map((x: { role: AppRole }) => x.role));
   };
 

@@ -11,10 +11,10 @@ function AdminOverview() {
     queryKey: ["admin-stats"],
     queryFn: async () => {
       const [{ count: agents }, { count: properties }, { count: suspended }, { count: subs }, { count: pendingReq }] = await Promise.all([
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("properties").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("*", { count: "exact", head: true }).eq("status", "suspended"),
-        supabase.from("profiles").select("*", { count: "exact", head: true }).neq("plan", "free").gt("plan_expires_at", new Date().toISOString()),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("status", "suspended"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).neq("plan", "free").gt("plan_expires_at", new Date().toISOString()),
         supabase.from("upgrade_requests").select("*", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       return { agents: agents ?? 0, properties: properties ?? 0, suspended: suspended ?? 0, subs: subs ?? 0, pendingReq: pendingReq ?? 0 };
