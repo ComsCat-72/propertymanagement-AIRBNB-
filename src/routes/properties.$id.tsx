@@ -9,6 +9,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 import { formatPrice } from "@/lib/format";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
+import { cldUrl } from "@/lib/cloudinary";
 
 export const Route = createFileRoute("/properties/$id")({
   loader: async ({ params }) => {
@@ -130,7 +131,7 @@ function PropertyDetail() {
             <CarouselContent>
               {imgs.map((src, i) => (
                 <CarouselItem key={i}>
-                  <img src={src} alt="" className="h-72 w-full object-cover" />
+                  <img src={cldUrl(src, 1000)} alt="" className="h-72 w-full object-cover" />
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -139,10 +140,10 @@ function PropertyDetail() {
         </div>
 
         <div className="mt-6 hidden h-[480px] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl md:grid">
-          <img src={imgs[0]} alt="" className="col-span-2 row-span-2 h-full w-full object-cover" />
+          <img src={cldUrl(imgs[0], 1200)} alt="" className="col-span-2 row-span-2 h-full w-full object-cover" />
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-full w-full bg-muted">
-              {imgs[i] && <img src={imgs[i]} alt="" className="h-full w-full object-cover" />}
+              {imgs[i] && <img src={cldUrl(imgs[i], 600)} alt="" className="h-full w-full object-cover" />}
             </div>
           ))}
         </div>
@@ -179,7 +180,7 @@ function PropertyDetail() {
               <div className="mt-6 border-t border-border pt-6">
                 <div className="flex items-center gap-3">
                   {p.agent.profile_photo_url ? (
-                    <img src={p.agent.profile_photo_url} alt="" className="h-14 w-14 rounded-full object-cover" />
+                    <img src={cldUrl(p.agent.profile_photo_url, 160)} alt="" className="h-14 w-14 rounded-full object-cover" />
                   ) : (
                     <span className="grid h-14 w-14 place-items-center rounded-full bg-brand text-lg font-bold text-brand-foreground">{p.agent.full_name.charAt(0)}</span>
                   )}

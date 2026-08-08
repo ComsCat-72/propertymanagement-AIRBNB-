@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
+import { cldUrl } from "@/lib/cloudinary";
 
 interface AgentsSearch {
   q: string;
@@ -142,7 +143,7 @@ function AgentsPage() {
             <Link key={a.id} to="/agents/$id" params={{ id: a.id }} className="rounded-3xl border border-border bg-card p-6 transition hover:shadow-lg">
               <div className="flex items-center gap-4">
                 {a.profile_photo_url ? (
-                  <img src={a.profile_photo_url} alt="" className="h-16 w-16 rounded-full object-cover" />
+                  <img src={cldUrl(a.profile_photo_url, 200)} alt="" className="h-16 w-16 rounded-full object-cover" />
                 ) : (
                   <span className="grid h-16 w-16 place-items-center rounded-full bg-brand text-xl font-bold text-brand-foreground">{a.full_name.charAt(0) || "A"}</span>
                 )}
