@@ -362,6 +362,14 @@ export type Database = {
         Returns: boolean
       }
       listing_quota_reached: { Args: { _user_id: string }; Returns: boolean }
+      profile_contacts: {
+        Args: never
+        Returns: {
+          address: string
+          email: string
+          id: string
+        }[]
+      }
       reject_upgrade_request: {
         Args: { _note: string; _request_id: string }
         Returns: undefined
