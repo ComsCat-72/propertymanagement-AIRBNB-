@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
-import { uploadAvatar } from "@/lib/cloudinary";
+import { uploadAvatar, cldUrl } from "@/lib/cloudinary";
 import { deleteUploads } from "@/lib/cloudinary.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
@@ -74,7 +74,7 @@ function ProfilePage() {
     <div className="max-w-2xl">
       <div className="mb-6 flex items-center gap-5">
         {f.profile_photo_url ? (
-          <img src={f.profile_photo_url} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
+          <img src={cldUrl(f.profile_photo_url, 300)} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
         ) : (
           <div className="grid h-28 w-24 place-items-center rounded-md border border-dashed border-border bg-muted text-xs text-muted-foreground">Passport photo</div>
         )}
