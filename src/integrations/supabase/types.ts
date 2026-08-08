@@ -131,6 +131,7 @@ export type Database = {
           id: string
           is_verified: boolean
           phone: string | null
+          photo_public_id: string
           plan: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at: string | null
           profile_photo_url: string | null
@@ -150,6 +151,7 @@ export type Database = {
           id: string
           is_verified?: boolean
           phone?: string | null
+          photo_public_id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at?: string | null
           profile_photo_url?: string | null
@@ -169,6 +171,7 @@ export type Database = {
           id?: string
           is_verified?: boolean
           phone?: string | null
+          photo_public_id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at?: string | null
           profile_photo_url?: string | null
@@ -190,6 +193,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          image_public_ids: string[]
           images: string[]
           is_featured: boolean
           location: string
@@ -210,6 +214,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          image_public_ids?: string[]
           images?: string[]
           is_featured?: boolean
           location?: string
@@ -230,6 +235,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          image_public_ids?: string[]
           images?: string[]
           is_featured?: boolean
           location?: string

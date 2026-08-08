@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formatPrice } from "@/lib/format";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
+import { cldUrl } from "@/lib/cloudinary";
 
 export interface PropertyCardData {
   id: string;
@@ -41,7 +42,7 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
     <div className="group">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
         <Link to="/properties/$id" params={{ id: p.id }} className="absolute inset-0 z-0">
-          <img src={imgs[idx]} alt={p.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+          <img src={cldUrl(imgs[idx], 800)} alt={p.title} className="h-full w-full object-cover transition group-hover:scale-105" />
         </Link>
           <button
             onClick={(e) => { e.preventDefault(); setLiked(!liked); }}
@@ -110,7 +111,7 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             {p.agent && (
               <div className="flex items-center gap-1.5">
                 {p.agent.profile_photo_url ? (
-                  <img src={p.agent.profile_photo_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+                  <img src={cldUrl(p.agent.profile_photo_url, 96)} alt="" className="h-6 w-6 rounded-full object-cover" />
                 ) : (
                   <span className="grid h-6 w-6 place-items-center rounded-full bg-brand text-[10px] font-bold text-brand-foreground">
                     {p.agent.full_name.charAt(0) || "A"}

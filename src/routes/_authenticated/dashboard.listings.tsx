@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { formatPrice } from "@/lib/format";
 import { effectivePlan, maxListings, type PlanLimit } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
+import { uploadListingImage, cldUrl } from "@/lib/cloudinary";
+import { deleteUploads } from "@/lib/cloudinary.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -32,13 +34,14 @@ type Form = {
   area_sqm: string;
   amenities: string;
   images: string[];
+  image_public_ids: string[];
   status: "active" | "sold" | "rented";
 };
 
 const emptyForm = (): Form => ({
   title: "", description: "", price: "", property_type: "sale", category: "house",
   location: "", city: "", bedrooms: "0", bathrooms: "0", area_sqm: "0",
-  amenities: "", images: [], status: "active",
+  amenities: "", images: [], image_public_ids: [], status: "active",
 });
 
 function ListingsPage() {
@@ -85,14 +88,17 @@ function ListingsPage() {
     if (form.images.length + files.length > 10) { toast.error("Max 10 images"); return; }
     setUploading(true);
     const urls: string[] = [];
+    const ids: string[] = [];
     for (const file of Array.from(files)) {
-      const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
-      const { error } = await supabase.storage.from("property-images").upload(path, file);
-      if (error) { toast.error(error.message); continue; }
-      const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);
-      if (data?.signedUrl) urls.push(data.signedUrl);
+      try {
+        const { url, publicId } = await uploadListingImage(file);
+        urls.push(url);
+        ids.push(publicId);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : `Could not upload ${file.name}`);
+      }
     }
-    setForm((f) => ({ ...f, images: [...f.images, ...urls] }));
+    setForm((f) => ({ ...f, images: [...f.images, ...urls], image_public_ids: [...f.image_public_ids, ...ids] }));
     setUploading(false);
   };
 
@@ -118,6 +124,7 @@ function ListingsPage() {
       area_sqm: parseFloat(form.area_sqm) || 0,
       amenities: form.amenities.split(",").map((s) => s.trim()).filter(Boolean),
       images: form.images,
+      image_public_ids: form.image_public_ids,
       status: form.status,
     };
     const { error } = form.id
@@ -132,8 +139,11 @@ function ListingsPage() {
 
   const del = async (id: string) => {
     if (!confirm("Delete this listing?")) return;
+    const target = listings?.find((l) => l.id === id) as { image_public_ids?: string[] } | undefined;
     const { error } = await supabase.from("properties").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
+    const ids = target?.image_public_ids ?? [];
+    if (ids.length) void deleteUploads({ data: { publicIds: ids } }).catch(() => {});
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: ["my-listings"] });
   };
@@ -148,7 +158,8 @@ function ListingsPage() {
       bathrooms: String((l as { bathrooms: number }).bathrooms),
       area_sqm: String((l as { area_sqm: number }).area_sqm),
       amenities: (x.amenities as string[]).join(", "),
-      images: x.images, status: x.status,
+      images: x.images, image_public_ids: (l as { image_public_ids?: string[] }).image_public_ids ?? [],
+      status: x.status,
     });
     setOpen(true);
   };
@@ -201,8 +212,16 @@ function ListingsPage() {
                   <div className="mt-3 grid grid-cols-4 gap-2">
                     {form.images.map((src, i) => (
                       <div key={i} className="relative aspect-square overflow-hidden rounded-lg">
-                        <img src={src} alt="" className="h-full w-full object-cover" />
-                        <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white">
+                        <img src={cldUrl(src, 320)} alt="" className="h-full w-full object-cover" />
+                        <button type="button" aria-label="Remove image" onClick={() => {
+                          const removed = form.image_public_ids[i];
+                          if (removed) void deleteUploads({ data: { publicIds: [removed] } }).catch(() => {});
+                          setForm({
+                            ...form,
+                            images: form.images.filter((_, j) => j !== i),
+                            image_public_ids: form.image_public_ids.filter((_, j) => j !== i),
+                          });
+                        }} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white">
                           <X className="h-3 w-3" />
                         </button>
                       </div>
@@ -227,7 +246,7 @@ function ListingsPage() {
         {listings?.map((l) => (
           <div key={l.id} className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
             <div className="h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-muted">
-              {(l.images as string[])[0] && <img src={(l.images as string[])[0]} alt="" className="h-full w-full object-cover" />}
+              {(l.images as string[])[0] && <img src={cldUrl((l.images as string[])[0], 320)} alt="" className="h-full w-full object-cover" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="truncate font-semibold">{l.title}</p>

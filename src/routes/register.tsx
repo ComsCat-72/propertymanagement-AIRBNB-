@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
+import { uploadSignupAvatar } from "@/lib/cloudinary";
 
 const schema = z.object({
   full_name: z.string().trim().min(1).max(100),
@@ -62,11 +63,12 @@ function RegisterPage() {
     setPending(null);
     setUploading(true);
     const name = safeStorageName(src.name).replace(/\.[a-z]+$/, ".jpg");
-    const path = `signup/${crypto.randomUUID()}-${name}`;
-    const { error } = await supabase.storage.from("property-images").upload(path, blob, { contentType: "image/jpeg" });
-    if (error) { toast.error(error.message); setUploading(false); return; }
-    const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);
-    if (data?.signedUrl) setForm((f) => ({ ...f, profile_photo_url: data.signedUrl }));
+    try {
+      const { url } = await uploadSignupAvatar(blob, name);
+      setForm((f) => ({ ...f, profile_photo_url: url }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
     setUploading(false);
   };
 

@@ -1,0 +1,2 @@
+ALTER TABLE public.properties ADD COLUMN IF NOT EXISTS image_public_ids text[] NOT NULL DEFAULT '{}'::text[];
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS photo_public_id text NOT NULL DEFAULT '';

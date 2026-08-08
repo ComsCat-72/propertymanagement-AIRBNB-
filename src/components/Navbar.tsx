@@ -7,6 +7,7 @@ import logoAsset from "@/assets/byungura-logo.png.asset.json";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cldUrl } from "@/lib/cloudinary";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,7 +155,7 @@ export function Navbar() {
                 <button aria-label="Open account menu" className="flex items-center gap-2 rounded-full border border-border py-1 pl-3 pr-1 transition hover:shadow-md">
                   <Menu className="h-4 w-4" />
                   {profile?.profile_photo_url ? (
-                    <img src={profile.profile_photo_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                    <img src={cldUrl(profile.profile_photo_url, 96)} alt="" className="h-8 w-8 rounded-full object-cover" />
                   ) : (
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-brand-foreground">
                       <UserIcon className="h-4 w-4" />

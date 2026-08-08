@@ -8,6 +8,7 @@ import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
+import { cldUrl } from "@/lib/cloudinary";
 
 export const Route = createFileRoute("/agents/$id")({
   loader: async ({ params }) => {
@@ -137,7 +138,7 @@ function AgentDetail() {
       <div className="mx-auto max-w-[1280px] px-6 py-10 lg:px-10">
         <div className="flex flex-col items-start gap-6 rounded-3xl border border-border bg-card p-8 md:flex-row md:items-center">
           {a.profile_photo_url ? (
-            <img src={a.profile_photo_url} alt="" className="h-28 w-28 rounded-full object-cover" />
+            <img src={cldUrl(a.profile_photo_url, 320)} alt="" className="h-28 w-28 rounded-full object-cover" />
           ) : (
             <span className="grid h-28 w-28 place-items-center rounded-full bg-brand text-3xl font-bold text-brand-foreground">{a.full_name.charAt(0) || "A"}</span>
           )}

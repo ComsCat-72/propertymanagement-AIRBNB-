@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
+import { uploadAvatar, cldUrl } from "@/lib/cloudinary";
+import { deleteUploads } from "@/lib/cloudinary.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   component: ProfilePage,
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/profile")({
 
 function ProfilePage() {
   const { profile, refresh } = useAuth();
-  const [f, setF] = useState({ full_name: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "", achievements: "" });
+  const [f, setF] = useState({ full_name: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "", achievements: "", photo_public_id: "" });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -31,6 +33,7 @@ function ProfilePage() {
       bio: profile.bio || "",
       profile_photo_url: profile.profile_photo_url || "",
       achievements: (profile as { achievements?: string }).achievements || "",
+      photo_public_id: (profile as { photo_public_id?: string }).photo_public_id || "",
     });
   }, [profile]);
 
@@ -45,13 +48,16 @@ function ProfilePage() {
     setPending(null);
     setUploading(true);
     const name = safeStorageName(pending.name).replace(/\.[a-z]+$/, ".jpg");
-    const path = `${profile.id}/avatars/${crypto.randomUUID()}-${name}`;
-    const { error } = await supabase.storage.from("property-images").upload(path, blob, { upsert: false, contentType: "image/jpeg" });
-    if (error) { toast.error(error.message); setUploading(false); return; }
-    const { data } = await supabase.storage.from("property-images").createSignedUrl(path, 60 * 60 * 24 * 365);
-    if (data?.signedUrl) setF((prev) => ({ ...prev, profile_photo_url: data.signedUrl }));
+    const previous = f.photo_public_id;
+    try {
+      const { url, publicId } = await uploadAvatar(blob, name);
+      setF((prev) => ({ ...prev, profile_photo_url: url, photo_public_id: publicId }));
+      if (previous) void deleteUploads({ data: { publicIds: [previous] } }).catch(() => {});
+      toast.success("Photo uploaded — remember to save changes");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
     setUploading(false);
-    toast.success("Photo uploaded — remember to save changes");
   };
 
   const save = async () => {
@@ -68,7 +74,7 @@ function ProfilePage() {
     <div className="max-w-2xl">
       <div className="mb-6 flex items-center gap-5">
         {f.profile_photo_url ? (
-          <img src={f.profile_photo_url} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
+          <img src={cldUrl(f.profile_photo_url, 300)} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
         ) : (
           <div className="grid h-28 w-24 place-items-center rounded-md border border-dashed border-border bg-muted text-xs text-muted-foreground">Passport photo</div>
         )}
