@@ -16,8 +16,21 @@ function AdminAgents() {
   const { data } = useQuery({
     queryKey: ["admin-agents"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").order("status", { ascending: true }).order("created_at", { ascending: false });
-      return data ?? [];
+      const [{ data }, { data: contacts }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select(
+            "id, full_name, agency_name, profile_photo_url, status, plan, plan_expires_at, is_verified, verified_expires_at, created_at",
+          )
+          .order("status", { ascending: true })
+          .order("created_at", { ascending: false }),
+        // email is admin/owner-only and only available through this protected lookup
+        supabase.rpc("profile_contacts"),
+      ]);
+      const emails = new Map(
+        ((contacts as { id: string; email: string | null }[] | null) ?? []).map((c) => [c.id, c.email ?? ""]),
+      );
+      return (data ?? []).map((a) => ({ ...a, email: emails.get(a.id) ?? "" }));
     },
   });
   useEffect(() => {
