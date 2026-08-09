@@ -13,9 +13,9 @@ export function Footer() {
           <h4 className="mb-3 text-sm font-bold">Support</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>Help Center</li>
-            <li>Safety information</li>
+            {/* <li>Safety information</li>
             <li>Cancellation options</li>
-            <li>Report a neighborhood concern</li>
+            <li>Report a neighborhood concern</li> */}
           </ul>
         </div>
         <div>
@@ -32,23 +32,23 @@ export function Footer() {
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><Link to="/properties">All properties</Link></li>
             <li>Featured homes</li>
-            <li>New developments</li>
-            <li>Commercial spaces</li>
+            {/* <li>New developments</li>
+            <li>Commercial spaces</li> */}
           </ul>
         </div>
         <div>
-          <h4 className="mb-3 text-sm font-bold">LoyalityReal250</h4>
+          <h4 className="mb-3 text-sm font-bold">Ibyungura.com</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>Newsroom</li>
-            <li>New features</li>
-            <li>Careers</li>
+            {/* <li>New features</li>
+            <li>Careers</li> */}
             <li>Contact us</li>
           </ul>
         </div> 
       </div>
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-[1760px] flex-col items-center justify-between gap-2 px-6 py-6 text-xs text-muted-foreground sm:flex-row lg:px-10">
-          <span>© {new Date().getFullYear()} LoyalityReal250 · Built with care</span>
+          <span>© {new Date().getFullYear()} Ibyungura.com · Dreams Into Reality</span>
           <span className="flex gap-4"><span>Privacy</span><span>Terms</span><span>Sitemap</span></span>
         </div>
       </div>

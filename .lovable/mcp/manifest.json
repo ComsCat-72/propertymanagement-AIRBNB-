@@ -11,15 +11,15 @@
   },
   "mcp": {
     "server": {
-      "name": "loyality-home-hub",
+      "name": "Ibyungura.com",
       "version": "0.1.0",
-      "title": "Loyality Home Hub"
+      "title": "Ibyungura.com Home and Real Estate Hub"
     },
     "tools": [
       {
         "name": "search_properties",
         "title": "Search properties",
-        "description": "Search active LoyalityReal250 listings by city, category, sale/rent type and price range.",
+        "description": "Search active Ibyungura.com listings by city, category, sale/rent type and price range.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -72,7 +72,7 @@
       {
         "name": "list_my_listings",
         "title": "List my listings",
-        "description": "List the property listings owned by the signed-in agent on LoyalityReal250.",
+        "description": "List the property listings owned by the signed-in agent on Ibyungura.com.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
