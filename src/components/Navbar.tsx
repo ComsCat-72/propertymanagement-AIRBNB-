@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, User as UserIcon, LogOut, LayoutDashboard, Shield, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/byungura-logo.png.asset.json";
+// import logoAsset from "@/assets/byungura-logo.png.asset.json";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
