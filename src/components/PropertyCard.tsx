@@ -35,7 +35,7 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
   const waPhone = (p.agent?.phone || "").replace(/[^\d]/g, "");
   const verified = isVerified(p.agent);
   const waHref = waPhone
-    ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on LoyalityReal250.`)}`
+    ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on Ibyungura.com.`)}`
     : "";
 
   return (
