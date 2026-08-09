@@ -5,7 +5,7 @@ import { supabaseForUser } from "../supabase";
 export default defineTool({
   name: "search_properties",
   title: "Search properties",
-  description: "Search active LoyalityReal250 listings by city, category, sale/rent type and price range.",
+  description: "Search active Ibyungura.com listings by city, category, sale/rent type and price range.",
   inputSchema: {
     city: z.string().trim().optional(),
     category: z.enum(["house", "apartment", "land", "commercial", "villa", "car", "motorcycle"]).optional(),

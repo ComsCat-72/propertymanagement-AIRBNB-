@@ -5,7 +5,7 @@ import { supabaseForUser } from "../supabase";
 export default defineTool({
   name: "list_my_listings",
   title: "List my listings",
-  description: "List the property listings owned by the signed-in agent on LoyalityReal250.",
+  description: "List the property listings owned by the signed-in agent on Ibyungura.com.",
   inputSchema: {
     status: z.enum(["active", "sold", "rented"]).optional().describe("Filter by listing status."),
     limit: z.number().int().min(1).max(50).optional().describe("Maximum listings to return (default 20)."),
