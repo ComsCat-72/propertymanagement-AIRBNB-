@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="mt-16 border-t border-border bg-secondary">
       <div className="mx-auto max-w-[1760px] px-6 pt-12 lg:px-10">
         {/* <img src={logoAsset.url} alt="byungura.com" className="h-12 w-auto object-contain" /> */}
-        <img src= "/bungura_logo.png" alt="ibyungura.com" className="h-12 w-auto object-contain" />
+        <img src="bungura_logo.png" alt="ibyungura.com" className="h-12 w-auto object-contain" />
       </div>
       <div className="mx-auto grid max-w-[1760px] gap-10 px-6 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
         <div>
