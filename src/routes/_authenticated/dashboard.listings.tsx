@@ -14,7 +14,7 @@ import { formatPrice } from "@/lib/format";
 import { effectivePlan, maxListings, type PlanLimit } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
 import { uploadListingImage, cldUrl } from "@/lib/cloudinary";
-import { deleteUploads } from "@/lib/cloudinary.functions";
+import { deleteUploads, deletePropertyWithImages } from "@/lib/cloudinary.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -142,13 +142,13 @@ function ListingsPage() {
 
   const del = async (id: string) => {
     if (!confirm("Delete this listing?")) return;
-    const target = listings?.find((l) => l.id === id) as { image_public_ids?: string[] } | undefined;
-    const { error } = await supabase.from("properties").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    const ids = target?.image_public_ids ?? [];
-    if (ids.length) void deleteUploads({ data: { publicIds: ids } }).catch(() => {});
-    toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["my-listings"] });
+    try {
+      await deletePropertyWithImages({ data: { id } });
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["my-listings"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not delete listing");
+    }
   };
 
   const edit = (l: typeof listings extends (infer U)[] | undefined ? U : never) => {
