@@ -7,34 +7,35 @@ import { CategoryPills, type CategoryId } from "@/components/CategoryPills";
 import { rankVerifiedFirst } from "@/lib/plans";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Houses, Land & Cars for Sale or Rent | LoyalityReal250" },
-      { name: "description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent in Rwanda, listed by trusted LoyalityReal250 agents." },
-      { property: "og:title", content: "Houses, Land & Cars for Sale or Rent | LoyalityReal250" },
-      { property: "og:description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent, listed by trusted LoyalityReal250 agents." },
-      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/" },
+      { title: "Houses, Land & Cars for Sale or Rent | Ibyungura.com" },
+      { name: "description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent in Rwanda, listed by trusted Ibyungura.com agents." },
+      { property: "og:title", content: "Houses, Land & Cars for Sale or Rent | Ibyungura.com" },
+      { property: "og:description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent, listed by trusted Ibyungura.com agents." },
+      { property: "og:url", content: `${SITE_URL}/` },
     ],
-    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
     scripts: [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "LoyalityReal250",
-          url: "https://dwell-discover-dot.lovable.app",
+          name: "Ibyungura.com",
+          url: `${SITE_URL}`,
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://dwell-discover-dot.lovable.app/properties?city={search_term_string}",
+            target: `${SITE_URL}/properties?city={search_term_string}`,
             "query-input": "required name=search_term_string",
           },
           publisher: {
             "@type": "Organization",
-            name: "LoyalityReal250",
-            url: "https://dwell-discover-dot.lovable.app",
+            name: "Ibyungura.com",
+            url: `${SITE_URL}`,
           },
         }),
       },

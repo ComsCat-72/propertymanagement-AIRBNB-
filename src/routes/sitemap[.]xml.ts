@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL } from "@/lib/site";
 
-const BASE_URL = "https://dwell-discover-dot.lovable.app";
+const BASE_URL = `${SITE_URL}`;
 
 interface SitemapEntry {
   path: string;

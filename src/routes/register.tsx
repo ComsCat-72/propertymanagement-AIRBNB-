@@ -13,6 +13,7 @@ import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 import { uploadSignupAvatar } from "@/lib/cloudinary";
 import { PhoneField } from "@/components/PhoneField";
 import { DEFAULT_DIAL, joinPhone } from "@/lib/phone";
+import { SITE_URL } from "@/lib/site";
 
 const schema = z.object({
   full_name: z.string().trim().min(1).max(100),
@@ -32,9 +33,9 @@ export const Route = createFileRoute("/register")({
       { name: "description", content: "Create a free Ibyungura.com agent account to list houses, land, commercial property and vehicles, and reach buyers and renters across Rwanda." },
       { property: "og:title", content: "Become a Listing Agent | Ibyungura.com" },
       { property: "og:description", content: "Create a free agent account and start listing properties on Ibyungura.com." },
-      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/register" },
+      { property: "og:url", content: `${SITE_URL}/register` },
     ],
-    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/register" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/register` }],
   }),
   component: RegisterPage,
 });

@@ -13,7 +13,7 @@ export default defineMcp({
   title: "Loyality Home Hub",
   version: "0.1.0",
   instructions:
-    "Tools for LoyalityReal250, a Rwandan real estate and vehicle marketplace. Use `search_properties` to find active listings, `list_my_listings` / `create_listing` / `update_listing` / `delete_listing` to manage the signed-in agent's own listings, and `get_my_account` for plan, quota and verified badge status.",
+    "Tools for Ibyungura.com, a Rwandan real estate and vehicle marketplace. Use `search_properties` to find active listings, `list_my_listings` / `create_listing` / `update_listing` / `delete_listing` to manage the signed-in agent's own listings, and `get_my_account` for plan, quota and verified badge status.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
