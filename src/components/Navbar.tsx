@@ -35,11 +35,11 @@ const CATEGORY_OPTIONS = [
 
 const PRICE_RANGES = [
   { label: "Any budget", min: "", max: "" },
-  { label: "Under 50,000", min: "", max: "50000" },
-  { label: "50k – 200k", min: "50000", max: "200000" },
-  { label: "200k – 500k", min: "200000", max: "500000" },
-  { label: "500k – 1M", min: "500000", max: "1000000" },
-  { label: "1M+", min: "1000000", max: "" },
+  { label: "Under RWF 500,000", min: "", max: "500000" },
+  { label: "RWF 500K – 2M", min: "500000", max: "2000000" },
+  { label: "RWF 2M – 10M", min: "2000000", max: "10000000" },
+  { label: "RWF 10M – 50M", min: "10000000", max: "50000000" },
+  { label: "RWF 50M+", min: "50000000", max: "" },
 ];
 
 function useScrollDirection() {
