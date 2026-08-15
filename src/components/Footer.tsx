@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, MessageCircle } from "lucide-react";
 import logoUrl from "@/assets/ibyungura-logo.png";
+import { LANDINGS } from "@/lib/seo-landing";
 
 export function Footer() {
   return (
