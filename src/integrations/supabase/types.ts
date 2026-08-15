@@ -350,6 +350,7 @@ export type Database = {
         Args: { _request_id: string }
         Returns: undefined
       }
+      assert_profiles_column_grants: { Args: never; Returns: undefined }
       current_plan: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
