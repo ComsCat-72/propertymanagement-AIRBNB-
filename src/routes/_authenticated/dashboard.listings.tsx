@@ -180,7 +180,7 @@ function ListingsPage() {
             <div className="grid gap-3 md:grid-cols-2">
               <div className="md:col-span-2"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
               <div className="md:col-span-2"><Label>Description</Label><Textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-              <div><Label>Price</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
+              <div><Label>Price (RWF)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
               <div><Label>Type</Label>
                 <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.property_type} onChange={(e) => setForm({ ...form, property_type: e.target.value as never })}>
                   <option value="sale">For Sale</option><option value="rent">For Rent</option>
