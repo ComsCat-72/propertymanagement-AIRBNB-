@@ -15,6 +15,7 @@ import { effectivePlan, maxListings, type PlanLimit } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
 import { uploadListingImage, cldUrl } from "@/lib/cloudinary";
 import { deleteUploads, deletePropertyWithImages } from "@/lib/cloudinary.functions";
+import { UploadProgressTile, type UploadTask } from "@/components/UploadProgressTile";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -52,6 +53,7 @@ function ListingsPage() {
   const [form, setForm] = useState<Form>(emptyForm());
   const [uploading, setUploading] = useState(false);
   const [amenityDraft, setAmenityDraft] = useState("");
+  const [tasks, setTasks] = useState<UploadTask[]>([]);
 
   const { data: listings } = useQuery({
     queryKey: ["my-listings", user?.id],
@@ -85,27 +87,66 @@ function ListingsPage() {
     return () => { supabase.removeChannel(channel); };
   }, [user, qc]);
 
+  const runTask = async (task: UploadTask) => {
+    setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, status: "uploading", percent: 0, error: undefined } : x)));
+    try {
+      const { url, publicId } = await uploadListingImage(task.file as File, (percent) =>
+        setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, percent } : x))),
+      );
+      setForm((f) => ({ ...f, images: [...f.images, url], image_public_ids: [...f.image_public_ids, publicId] }));
+      setTasks((t) => {
+        const next = t.filter((x) => x.id !== task.id);
+        URL.revokeObjectURL(task.previewUrl);
+        return next;
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : `Could not upload ${task.name}`;
+      setTasks((t) => t.map((x) => (x.id === task.id ? { ...x, status: "error", error: message } : x)));
+      toast.error(message);
+    }
+  };
+
   const upload = async (files: FileList | null) => {
     if (!files || !user) return;
-    if (form.images.length + files.length > 10) { toast.error("Max 10 images"); return; }
+    const list = Array.from(files);
+    if (form.images.length + tasks.length + list.length > 10) { toast.error("Max 10 images"); return; }
+    const queued: UploadTask[] = list.map((file, i) => ({
+      id: `${Date.now()}-${i}-${file.name}`,
+      file,
+      name: file.name,
+      previewUrl: URL.createObjectURL(file),
+      percent: 0,
+      status: "uploading",
+    }));
+    setTasks((t) => [...t, ...queued]);
     setUploading(true);
-    const urls: string[] = [];
-    const ids: string[] = [];
-    for (const file of Array.from(files)) {
-      try {
-        const { url, publicId } = await uploadListingImage(file);
-        urls.push(url);
-        ids.push(publicId);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : `Could not upload ${file.name}`);
+    const queue = [...queued];
+    const workers = Array.from({ length: Math.min(5, queue.length) }, async () => {
+      while (queue.length) {
+        const next = queue.shift();
+        if (next) await runTask(next);
       }
-    }
-    setForm((f) => ({ ...f, images: [...f.images, ...urls], image_public_ids: [...f.image_public_ids, ...ids] }));
+    });
+    await Promise.all(workers);
     setUploading(false);
+  };
+
+  const retryTask = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (task) void runTask(task);
+  };
+
+  const dismissTask = (id: string) => {
+    setTasks((t) => {
+      const task = t.find((x) => x.id === id);
+      if (task) URL.revokeObjectURL(task.previewUrl);
+      return t.filter((x) => x.id !== id);
+    });
   };
 
   const save = async () => {
     if (!user) return;
+    if (tasks.some((t) => t.status === "uploading")) { toast.error("Please wait for the photos to finish uploading"); return; }
     if (!form.id && quotaReached) {
       void logEvent(user.id, "quota_reached", { plan: effectivePlan(profile), metadata: { cap, used } });
       toast.error(`You've reached your plan limit of ${cap} listings. Upgrade to add more.`);
@@ -289,7 +330,7 @@ function ListingsPage() {
                   <Upload className="h-4 w-4" /><span className="text-sm">{uploading ? "Uploading…" : "Click to upload"}</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => upload(e.target.files)} />
                 </label>
-                {form.images.length > 0 && (
+                {(form.images.length > 0 || tasks.length > 0) && (
                   <div className="mt-3 grid grid-cols-4 gap-2">
                     {form.images.map((src, i) => (
                       <div key={i} className="relative aspect-square overflow-hidden rounded-lg">
@@ -307,11 +348,16 @@ function ListingsPage() {
                         </button>
                       </div>
                     ))}
+                    {tasks.map((t) => (
+                      <UploadProgressTile key={t.id} task={t} onRetry={retryTask} onDismiss={t.status === "error" ? dismissTask : undefined} />
+                    ))}
                   </div>
                 )}
               </div>
             </div>
-            <Button onClick={save} className="mt-4 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">{form.id ? "Update" : "Create"} listing</Button>
+            <Button onClick={save} disabled={uploading} className="mt-4 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
+              {uploading ? "Uploading photos…" : `${form.id ? "Update" : "Create"} listing`}
+            </Button>
           </DialogContent>
         </Dialog>
       </div>

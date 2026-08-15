@@ -4,7 +4,14 @@ export type UploadedImage = { url: string; publicId: string };
 
 const MAX_BYTES = 20 * 1024 * 1024;
 
-async function upload(file: Blob, filename: string, kind: "listing" | "avatar" | "signup") {
+export type ProgressFn = (percent: number) => void;
+
+async function upload(
+  file: Blob,
+  filename: string,
+  kind: "listing" | "avatar" | "signup",
+  onProgress?: ProgressFn,
+) {
   if (file.size > MAX_BYTES) throw new Error("Image must be under 20MB");
 
   const sig =
@@ -19,28 +26,42 @@ async function upload(file: Blob, filename: string, kind: "listing" | "avatar" |
   form.append("folder", sig.folder);
   form.append("signature", sig.signature);
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, {
-    method: "POST",
-    body: form,
+  onProgress?.(0);
+  const json = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress?.(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+    };
+    xhr.onerror = () => reject(new Error("Network error during upload"));
+    xhr.onabort = () => reject(new Error("Upload cancelled"));
+    xhr.onload = () => {
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(`Upload failed (${xhr.status}): ${String(xhr.responseText).slice(0, 200)}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(xhr.responseText));
+      } catch {
+        reject(new Error("Unexpected response from image service"));
+      }
+    };
+    xhr.send(form);
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Upload failed (${res.status}): ${text.slice(0, 200)}`);
-  }
-  const json = (await res.json()) as { secure_url: string; public_id: string };
+  onProgress?.(100);
   return { url: json.secure_url, publicId: json.public_id } satisfies UploadedImage;
 }
 
-export function uploadListingImage(file: File) {
-  return upload(file, file.name, "listing");
+export function uploadListingImage(file: File, onProgress?: ProgressFn) {
+  return upload(file, file.name, "listing", onProgress);
 }
 
-export function uploadAvatar(blob: Blob, filename: string) {
-  return upload(blob, filename, "avatar");
+export function uploadAvatar(blob: Blob, filename: string, onProgress?: ProgressFn) {
+  return upload(blob, filename, "avatar", onProgress);
 }
 
-export function uploadSignupAvatar(blob: Blob, filename: string) {
-  return upload(blob, filename, "signup");
+export function uploadSignupAvatar(blob: Blob, filename: string, onProgress?: ProgressFn) {
+  return upload(blob, filename, "signup", onProgress);
 }
 
 /**

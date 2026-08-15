@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 import { uploadAvatar, cldUrl } from "@/lib/cloudinary";
+import { UploadProgressOverlay } from "@/components/UploadProgressTile";
 import { deleteUploads } from "@/lib/cloudinary.functions";
 import { PhoneField } from "@/components/PhoneField";
 import { DEFAULT_DIAL, joinPhone, splitPhone } from "@/lib/phone";
@@ -23,6 +24,8 @@ function ProfilePage() {
   const [f, setF] = useState({ full_name: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "", achievements: "", photo_public_id: "" });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [percent, setPercent] = useState(0);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<File | null>(null);
   const [dial, setDial] = useState(DEFAULT_DIAL);
@@ -56,16 +59,21 @@ function ProfilePage() {
     if (!profile || !pending) return;
     setPending(null);
     setUploading(true);
+    setPercent(0);
+    const localPreview = URL.createObjectURL(blob);
+    setPreviewUrl(localPreview);
     const name = safeStorageName(pending.name).replace(/\.[a-z]+$/, ".jpg");
     const previous = f.photo_public_id;
     try {
-      const { url, publicId } = await uploadAvatar(blob, name);
+      const { url, publicId } = await uploadAvatar(blob, name, setPercent);
       setF((prev) => ({ ...prev, profile_photo_url: url, photo_public_id: publicId }));
       if (previous) void deleteUploads({ data: { publicIds: [previous] } }).catch(() => {});
       toast.success("Photo uploaded — remember to save changes");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     }
+    URL.revokeObjectURL(localPreview);
+    setPreviewUrl(null);
     setUploading(false);
   };
 
@@ -84,11 +92,14 @@ function ProfilePage() {
   return (
     <div className="max-w-2xl">
       <div className="mb-6 flex items-center gap-5">
-        {f.profile_photo_url ? (
-          <img src={cldUrl(f.profile_photo_url, 300)} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
-        ) : (
-          <div className="grid h-28 w-24 place-items-center rounded-md border border-dashed border-border bg-muted text-xs text-muted-foreground">Passport photo</div>
-        )}
+        <div className="relative h-28 w-24 shrink-0">
+          {previewUrl || f.profile_photo_url ? (
+            <img src={previewUrl ?? cldUrl(f.profile_photo_url, 300)} alt="Profile" className="h-full w-full rounded-md border border-border object-cover shadow-sm" />
+          ) : (
+            <div className="grid h-full w-full place-items-center rounded-md border border-dashed border-border bg-muted text-xs text-muted-foreground">Passport photo</div>
+          )}
+          {uploading && <UploadProgressOverlay percent={percent} />}
+        </div>
         <div>
           <Label className="mb-1 block">Profile photo (passport style)</Label>
           <p className="mb-2 text-xs text-muted-foreground">Clear head-and-shoulders photo, plain background. Max 5MB.</p>
@@ -120,7 +131,7 @@ function ProfilePage() {
         <div className="md:col-span-2"><Label>Bio</Label><Textarea rows={4} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} className="mt-1 rounded-xl" /></div>
         <div className="md:col-span-2"><Label>Achievements & awards</Label><Textarea rows={4} value={f.achievements} onChange={(e) => setF({ ...f, achievements: e.target.value })} placeholder="Top seller 2025, 100+ successful deals…" className="mt-1 rounded-xl" /></div>
       </div>
-      <Button onClick={save} disabled={loading} className="mt-6 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">{loading ? "Saving…" : "Save changes"}</Button>
+      <Button onClick={save} disabled={loading || uploading} className="mt-6 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">{loading ? "Saving…" : "Save changes"}</Button>
       <PhotoCropper open={!!pending} file={pending} onCancel={() => setPending(null)} onConfirm={uploadCropped} />
     </div>
   );
