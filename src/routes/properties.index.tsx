@@ -142,8 +142,8 @@ function PropertiesPage() {
             <option value="car">Car</option>
             <option value="motorcycle">Motorcycle</option>
           </select>
-          <Input aria-label="Minimum price" placeholder="Min $" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="rounded-full" />
-          <Input aria-label="Maximum price" placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="rounded-full" />
+          <Input aria-label="Minimum price in Rwandan francs" placeholder="Min RWF" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="rounded-full" />
+          <Input aria-label="Maximum price in Rwandan francs" placeholder="Max RWF" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="rounded-full" />
           <Input aria-label="Bedrooms" placeholder="Bedrooms" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="rounded-full" />
           <Button onClick={apply} className="rounded-full bg-brand text-brand-foreground hover:bg-brand/90">Apply</Button>
           <Button variant="outline" onClick={reset} className="rounded-full">Reset</Button>
