@@ -16,10 +16,12 @@ export default defineTool({
       .delete()
       .eq("id", id)
       .eq("agent_id", ctx.getUserId()!)
-      .select("id")
+      .select("id, image_public_ids")
       .maybeSingle();
     if (error) throw new ToolError(error.message);
     if (!data) throw new ToolError("Listing not found or not owned by you");
+    const { destroyAssets } = await import("@/lib/cloudinary.server");
+    await destroyAssets(((data as { image_public_ids?: string[] }).image_public_ids ?? []) as string[]);
     return { content: [{ type: "text", text: `Deleted listing ${id}` }] };
   },
 });

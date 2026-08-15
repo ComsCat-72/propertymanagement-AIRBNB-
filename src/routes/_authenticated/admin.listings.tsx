@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
+import { deletePropertyWithImages } from "@/lib/cloudinary.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/listings")({
   component: AdminListings,
@@ -31,10 +32,13 @@ function AdminListings() {
   }, [qc]);
   const del = async (id: string) => {
     if (!confirm("Delete this listing?")) return;
-    const { error } = await supabase.from("properties").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Deleted");
-    qc.invalidateQueries({ queryKey: ["admin-listings"] });
+    try {
+      await deletePropertyWithImages({ data: { id } });
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin-listings"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not delete listing");
+    }
   };
   return (
     <div className="space-y-3">
