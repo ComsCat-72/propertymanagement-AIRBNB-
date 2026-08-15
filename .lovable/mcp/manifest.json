@@ -11,9 +11,9 @@
   },
   "mcp": {
     "server": {
-      "name": "Ibyungura.com",
+      "name": "loyality-home-hub",
       "version": "0.1.0",
-      "title": "Ibyungura.com Home and Real Estate Hub"
+      "title": "Loyality Home Hub"
     },
     "tools": [
       {
