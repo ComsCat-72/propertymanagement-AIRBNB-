@@ -16,8 +16,10 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RwandaIndexRouteImport } from './routes/rwanda.index'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
+import { Route as RwandaSlugRouteImport } from './routes/rwanda.$slug'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as AgentsIdRouteImport } from './routes/agents.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -72,6 +74,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RwandaIndexRoute = RwandaIndexRouteImport.update({
+  id: '/rwanda/',
+  path: '/rwanda/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
   id: '/properties/',
   path: '/properties/',
@@ -80,6 +87,11 @@ const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
 const AgentsIndexRoute = AgentsIndexRouteImport.update({
   id: '/agents/',
   path: '/agents/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RwandaSlugRoute = RwandaSlugRouteImport.update({
+  id: '/rwanda/$slug',
+  path: '/rwanda/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesIdRoute = PropertiesIdRouteImport.update({
@@ -203,8 +215,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agents/$id': typeof AgentsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents/': typeof AgentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/rwanda/': typeof RwandaIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
@@ -230,8 +244,10 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/agents/$id': typeof AgentsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents': typeof AgentsIndexRoute
   '/properties': typeof PropertiesIndexRoute
+  '/rwanda': typeof RwandaIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
@@ -261,8 +277,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agents/$id': typeof AgentsIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents/': typeof AgentsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/rwanda/': typeof RwandaIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
@@ -292,8 +310,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agents/$id'
     | '/properties/$id'
+    | '/rwanda/$slug'
     | '/agents/'
     | '/properties/'
+    | '/rwanda/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/activity'
@@ -319,8 +339,10 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/agents/$id'
     | '/properties/$id'
+    | '/rwanda/$slug'
     | '/agents'
     | '/properties'
+    | '/rwanda'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/activity'
@@ -349,8 +371,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/agents/$id'
     | '/properties/$id'
+    | '/rwanda/$slug'
     | '/agents/'
     | '/properties/'
+    | '/rwanda/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/activity'
@@ -378,8 +402,10 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgentsIdRoute: typeof AgentsIdRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
+  RwandaSlugRoute: typeof RwandaSlugRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
+  RwandaIndexRoute: typeof RwandaIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicSeedAdminsRoute: typeof ApiPublicSeedAdminsRoute
@@ -436,6 +462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rwanda/': {
+      id: '/rwanda/'
+      path: '/rwanda'
+      fullPath: '/rwanda/'
+      preLoaderRoute: typeof RwandaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/properties/': {
       id: '/properties/'
       path: '/properties'
@@ -448,6 +481,13 @@ declare module '@tanstack/react-router' {
       path: '/agents'
       fullPath: '/agents/'
       preLoaderRoute: typeof AgentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rwanda/$slug': {
+      id: '/rwanda/$slug'
+      path: '/rwanda/$slug'
+      fullPath: '/rwanda/$slug'
+      preLoaderRoute: typeof RwandaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/properties/$id': {
@@ -653,8 +693,10 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AgentsIdRoute: AgentsIdRoute,
   PropertiesIdRoute: PropertiesIdRoute,
+  RwandaSlugRoute: RwandaSlugRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
+  RwandaIndexRoute: RwandaIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicSeedAdminsRoute: ApiPublicSeedAdminsRoute,
