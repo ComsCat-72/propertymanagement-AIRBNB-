@@ -17,6 +17,9 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Houses, Land & Cars for Sale or Rent | Ibyungura.com" },
       { property: "og:description", content: "Discover verified houses, apartments, land, commercial space and vehicles for sale or rent, listed by trusted Ibyungura.com agents." },
       { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: `${SITE_URL}/og-cover.jpg` },
+      { name: "twitter:image", content: `${SITE_URL}/og-cover.jpg` },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/` }],
     scripts: [
