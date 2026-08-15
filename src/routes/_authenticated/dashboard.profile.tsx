@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 import { uploadAvatar, cldUrl } from "@/lib/cloudinary";
 import { deleteUploads } from "@/lib/cloudinary.functions";
+import { PhoneField } from "@/components/PhoneField";
+import { DEFAULT_DIAL, joinPhone, splitPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   component: ProfilePage,
@@ -23,9 +25,15 @@ function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<File | null>(null);
+  const [dial, setDial] = useState(DEFAULT_DIAL);
+  const [localPhone, setLocalPhone] = useState("");
 
   useEffect(() => {
-    if (profile) setF({
+    if (profile) {
+      const parts = splitPhone(profile.phone);
+      setDial(parts.dial);
+      setLocalPhone(parts.local);
+      setF({
       full_name: profile.full_name || "",
       phone: profile.phone || "",
       address: profile.address || "",
@@ -34,7 +42,8 @@ function ProfilePage() {
       profile_photo_url: profile.profile_photo_url || "",
       achievements: (profile as { achievements?: string }).achievements || "",
       photo_public_id: (profile as { photo_public_id?: string }).photo_public_id || "",
-    });
+      });
+    }
   }, [profile]);
 
   const pickFile = (file: File) => {
@@ -63,9 +72,11 @@ function ProfilePage() {
   const save = async () => {
     if (!profile) return;
     setLoading(true);
-    const { error } = await supabase.from("profiles").update(f as never).eq("id", profile.id);
+    const payload = { ...f, phone: joinPhone(dial, localPhone) };
+    const { error } = await supabase.from("profiles").update(payload as never).eq("id", profile.id);
     setLoading(false);
     if (error) { toast.error(error.message); return; }
+    setF(payload);
     toast.success("Profile updated");
     refresh();
   };
@@ -99,7 +110,11 @@ function ProfilePage() {
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2"><Label>Full name</Label><Input value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} className="mt-1 rounded-xl" /></div>
-        <div><Label>Phone</Label><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} className="mt-1 rounded-xl" /></div>
+        <div>
+          <Label>Phone (WhatsApp)</Label>
+          <PhoneField dial={dial} local={localPhone} onDialChange={setDial} onLocalChange={setLocalPhone} />
+          <p className="mt-1 text-[11px] text-muted-foreground">Saved as +{dial}… so WhatsApp inquiries reach you.</p>
+        </div>
         <div><Label>Agency name</Label><Input value={f.agency_name} onChange={(e) => setF({ ...f, agency_name: e.target.value })} className="mt-1 rounded-xl" /></div>
         <div className="md:col-span-2"><Label>Office address</Label><Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} className="mt-1 rounded-xl" /></div>
         <div className="md:col-span-2"><Label>Bio</Label><Textarea rows={4} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} className="mt-1 rounded-xl" /></div>

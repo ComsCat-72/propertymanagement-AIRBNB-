@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/format";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
+import { whatsappLink } from "@/lib/phone";
 
 export interface PropertyCardData {
   id: string;
@@ -32,11 +33,8 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
   const [idx, setIdx] = useState(0);
   const [liked, setLiked] = useState(false);
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"];
-  const waPhone = (p.agent?.phone || "").replace(/[^\d]/g, "");
   const verified = isVerified(p.agent);
-  const waHref = waPhone
-    ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on Ibyungura.com.`)}`
-    : "";
+  const waHref = whatsappLink(p.agent?.phone, `Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on Ibyungura.com.`);
 
   return (
     <div className="group">

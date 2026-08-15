@@ -9,7 +9,7 @@ export interface PlanLimit {
   sort_order: number;
 }
 
-export const BADGE_PRICE_RWF = 10000;
+export const BADGE_PRICE_RWF = 5000;
 
 /** Days after a paid plan lapses during which the listing allowance is kept. */
 export const GRACE_DAYS = 7;
