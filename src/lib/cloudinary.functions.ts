@@ -9,55 +9,6 @@ type SignedUpload = {
   signature: string;
 };
 
-async function sha1Hex(input: string) {
-  const bytes = new TextEncoder().encode(input);
-  const digest = await crypto.subtle.digest("SHA-1", bytes);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function sign(params: Record<string, string | number>, secret: string) {
-  const toSign = Object.keys(params)
-    .sort()
-    .map((k) => `${k}=${params[k]}`)
-    .join("&");
-  return sha1Hex(`${toSign}${secret}`);
-}
-
-function readEnv() {
-  let cloudName = process.env["CLOUDINARY_CLOUD_NAME"];
-  let apiKey = process.env["CLOUDINARY_API_KEY"];
-  let apiSecret = process.env["CLOUDINARY_API_SECRET"];
-
-  // Fallback: standard `CLOUDINARY_URL` form — cloudinary://<api_key>:<api_secret>@<cloud_name>
-  const url = process.env["CLOUDINARY_URL"];
-  if (url && (!cloudName || !apiKey || !apiSecret)) {
-    const match = /^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/.exec(url.trim());
-    if (match) {
-      apiKey = apiKey || match[1];
-      apiSecret = apiSecret || match[2];
-      cloudName = cloudName || match[3];
-    }
-  }
-
-  const missing = [
-    !cloudName && "CLOUDINARY_CLOUD_NAME",
-    !apiKey && "CLOUDINARY_API_KEY",
-    !apiSecret && "CLOUDINARY_API_SECRET",
-  ].filter(Boolean) as string[];
-
-  if (missing.length) {
-    throw new Error(
-      `Image storage is not configured on this deployment — missing environment ${
-        missing.length > 1 ? "variables" : "variable"
-      }: ${missing.join(", ")}. Add ${missing.length > 1 ? "them" : "it"} to your hosting provider's environment settings (or set CLOUDINARY_URL) and redeploy.`,
-    );
-  }
-
-  return { cloudName: cloudName!, apiKey: apiKey!, apiSecret: apiSecret! };
-}
-
 /** Signature for signed-in agents: listing images or profile photos. */
 export const getUploadSignature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -68,20 +19,22 @@ export const getUploadSignature = createServerFn({ method: "POST" })
     return { kind: input.kind };
   })
   .handler(async ({ data, context }): Promise<SignedUpload> => {
-    const { cloudName, apiKey, apiSecret } = readEnv();
+    const { readCloudinaryEnv, signParams } = await import("./cloudinary.server");
+    const { cloudName, apiKey, apiSecret } = readCloudinaryEnv();
     const folder = `byungura/${data.kind === "listing" ? "listings" : "avatars"}/${context.userId}`;
     const timestamp = Math.floor(Date.now() / 1000);
-    const signature = await sign({ folder, timestamp }, apiSecret);
+    const signature = await signParams({ folder, timestamp }, apiSecret);
     return { cloudName, apiKey, timestamp, folder, signature };
   });
 
 /** Signature for the sign-up form, before an account exists. Folder is fixed. */
 export const getSignupUploadSignature = createServerFn({ method: "POST" }).handler(
   async (): Promise<SignedUpload> => {
-    const { cloudName, apiKey, apiSecret } = readEnv();
+    const { readCloudinaryEnv, signParams } = await import("./cloudinary.server");
+    const { cloudName, apiKey, apiSecret } = readCloudinaryEnv();
     const folder = "byungura/avatars/signup";
     const timestamp = Math.floor(Date.now() / 1000);
-    const signature = await sign({ folder, timestamp }, apiSecret);
+    const signature = await signParams({ folder, timestamp }, apiSecret);
     return { cloudName, apiKey, timestamp, folder, signature };
   },
 );
@@ -95,24 +48,41 @@ export const deleteUploads = createServerFn({ method: "POST" })
     return { publicIds: ids };
   })
   .handler(async ({ data, context }) => {
-    const { cloudName, apiKey, apiSecret } = readEnv();
+    const { destroyAssets } = await import("./cloudinary.server");
     const mine = data.publicIds.filter((id) => id.includes(`/${context.userId}/`));
-    let deleted = 0;
-    for (const publicId of mine) {
-      const timestamp = Math.floor(Date.now() / 1000);
-      const signature = await sign({ public_id: publicId, timestamp }, apiSecret);
-      const body = new URLSearchParams({
-        public_id: publicId,
-        timestamp: String(timestamp),
-        api_key: apiKey,
-        signature,
-      });
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
-        method: "POST",
-        body,
-      });
-      if (res.ok) deleted += 1;
-      else console.error("Cloudinary destroy failed", res.status, await res.text());
-    }
-    return { deleted };
+    return { deleted: await destroyAssets(mine) };
+  });
+
+/**
+ * Deletes a property row and every image it stored on Cloudinary.
+ * Owners and admins only — enforced by RLS on the delete.
+ */
+export const deletePropertyWithImages = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id || typeof input.id !== "string") throw new Error("Missing listing id");
+    return { id: input.id };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: row, error: readErr } = await supabase
+      .from("properties")
+      .select("id, image_public_ids")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readErr) throw new Error(readErr.message);
+    if (!row) throw new Error("Listing not found");
+
+    const { data: deletedRow, error: delErr } = await supabase
+      .from("properties")
+      .delete()
+      .eq("id", data.id)
+      .select("id")
+      .maybeSingle();
+    if (delErr) throw new Error(delErr.message);
+    if (!deletedRow) throw new Error("You don't have permission to delete this listing");
+
+    const { destroyAssets } = await import("./cloudinary.server");
+    const deleted = await destroyAssets((row.image_public_ids as string[] | null) ?? []);
+    return { id: data.id, imagesDeleted: deleted };
   });
