@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/site";
+import { LANDINGS } from "@/lib/seo-landing";
 
 const BASE_URL = SITE_URL;
 
@@ -20,6 +21,11 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/properties", changefreq: "daily", priority: "0.9" },
           { path: "/agents", changefreq: "weekly", priority: "0.8" },
         ];
+
+        entries.push({ path: "/rwanda", changefreq: "weekly", priority: "0.8" });
+        for (const l of LANDINGS) {
+          entries.push({ path: `/rwanda/${l.slug}`, changefreq: "daily", priority: "0.9" });
+        }
 
         const { data: properties } = await supabase
           .from("properties")
