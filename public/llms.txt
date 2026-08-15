@@ -9,6 +9,11 @@ Visitors browse listings for free, filter by city, price, category and bedrooms,
 - [Home](/): Featured and latest property listings across every category.
 - [All properties](/properties): Full searchable listing directory with city, price, type and bedroom filters.
 - [Find an agent](/agents): Directory of verified property agents with profiles and achievements.
+- [Property guides](/rwanda): Curated entry points for common searches (houses for sale in Kigali, land in Rwanda, cars, commercial space).
+- [Houses for sale in Kigali](/rwanda/houses-for-sale-in-kigali): Active Kigali sale listings with RWF prices.
+- [Houses for rent in Kigali](/rwanda/houses-for-rent-in-kigali): Available Kigali rental houses.
+- [Land for sale in Rwanda](/rwanda/land-for-sale-in-rwanda): Plots with size in square metres.
+- [Cars for sale in Rwanda](/rwanda/cars-for-sale-in-rwanda): Vehicles listed by agents and dealers.
 - [Become an agent](/register): Create a free agent account to publish listings.
 
 ## Optional

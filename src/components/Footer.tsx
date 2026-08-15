@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, MessageCircle } from "lucide-react";
 import logoUrl from "@/assets/ibyungura-logo.png";
+import { LANDINGS } from "@/lib/seo-landing";
 
 export function Footer() {
   return (
@@ -21,6 +22,18 @@ export function Footer() {
             <li><Link to="/properties" search={{ type: "rent" } as never} className="hover:text-foreground">For rent</Link></li>
             <li><Link to="/properties" search={{ category: "land" } as never} className="hover:text-foreground">Land</Link></li>
             <li><Link to="/properties" search={{ category: "car" } as never} className="hover:text-foreground">Vehicles</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="mb-3 text-sm font-bold">Popular searches</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            {LANDINGS.slice(0, 5).map((l) => (
+              <li key={l.slug}>
+                <Link to="/rwanda/$slug" params={{ slug: l.slug }} className="hover:text-foreground">{l.h1}</Link>
+              </li>
+            ))}
+            <li><Link to="/rwanda" className="hover:text-foreground">All property guides</Link></li>
           </ul>
         </div>
 

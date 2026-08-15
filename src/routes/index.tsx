@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { rankVerifiedFirst } from "@/lib/plans";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SITE_URL } from "@/lib/site";
+import { LANDINGS } from "@/lib/seo-landing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -143,6 +144,22 @@ function Index() {
             <p className="mt-1 text-sm text-muted-foreground">Be the first to add one — sign up as an agent.</p>
           </div>
         )}
+      </section>
+
+      <section className="mx-auto max-w-[1760px] px-6 pb-10 lg:px-10">
+        <h2 className="mb-4 text-2xl font-bold">Popular searches</h2>
+        <div className="flex flex-wrap gap-2">
+          {LANDINGS.map((l) => (
+            <Link
+              key={l.slug}
+              to="/rwanda/$slug"
+              params={{ slug: l.slug }}
+              className="rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-brand hover:text-foreground"
+            >
+              {l.h1}
+            </Link>
+          ))}
+        </div>
       </section>
     </SiteShell>
   );
