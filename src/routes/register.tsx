@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 import { uploadSignupAvatar } from "@/lib/cloudinary";
+import { PhoneField } from "@/components/PhoneField";
+import { DEFAULT_DIAL, joinPhone } from "@/lib/phone";
 
 const schema = z.object({
   full_name: z.string().trim().min(1).max(100),
@@ -26,10 +28,10 @@ const schema = z.object({
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "Become a Listing Agent | LoyalityReal250" },
-      { name: "description", content: "Create a free LoyalityReal250 agent account to list houses, land, commercial property and vehicles, and reach buyers and renters across Rwanda." },
-      { property: "og:title", content: "Become a Listing Agent | LoyalityReal250" },
-      { property: "og:description", content: "Create a free agent account and start listing properties on LoyalityReal250." },
+      { title: "Become a Listing Agent | Ibyungura.com" },
+      { name: "description", content: "Create a free Ibyungura.com agent account to list houses, land, commercial property and vehicles, and reach buyers and renters across Rwanda." },
+      { property: "og:title", content: "Become a Listing Agent | Ibyungura.com" },
+      { property: "og:description", content: "Create a free agent account and start listing properties on Ibyungura.com." },
       { property: "og:url", content: "https://dwell-discover-dot.lovable.app/register" },
     ],
     links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/register" }],
@@ -45,6 +47,7 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [dial, setDial] = useState(DEFAULT_DIAL);
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<File | null>(null);
 
@@ -76,6 +79,7 @@ function RegisterPage() {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    const phone = joinPhone(dial, form.phone);
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: form.email,
@@ -84,7 +88,7 @@ function RegisterPage() {
         emailRedirectTo: window.location.origin,
         data: {
           full_name: form.full_name,
-          phone: form.phone,
+          phone,
           address: form.address,
           agency_name: form.agency_name,
           bio: form.bio,
@@ -101,7 +105,7 @@ function RegisterPage() {
   return (
     <SiteShell>
       <div className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="text-3xl font-bold">Become a LoyalityReal250 agent</h1>
+        <h1 className="text-3xl font-bold">Become Ibyungura.com agent</h1>
         <p className="mt-1 text-sm text-muted-foreground">Create your agent account and start listing properties.</p>
         <form onSubmit={submit} className="mt-8 grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
@@ -139,7 +143,11 @@ function RegisterPage() {
               </button>
             </div>
           </div>
-          <div><Label htmlFor="reg-phone">Phone</Label><Input id="reg-phone" value={form.phone} onChange={set("phone")} className="mt-1 rounded-xl" /></div>
+          <div>
+            <Label htmlFor="reg-phone">Phone (WhatsApp)</Label>
+            <PhoneField id="reg-phone" dial={dial} local={form.phone} onDialChange={setDial} onLocalChange={(v) => setForm((f) => ({ ...f, phone: v }))} />
+            <p className="mt-1 text-[11px] text-muted-foreground">Choose your country — we save the number with its country code so WhatsApp works.</p>
+          </div>
           <div><Label htmlFor="reg-agency">Agency name</Label><Input id="reg-agency" value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label htmlFor="reg-address">Office address</Label><Input id="reg-address" value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label htmlFor="reg-bio">Bio</Label><Textarea id="reg-bio" value={form.bio} onChange={set("bio")} rows={4} className="mt-1 rounded-xl" /></div>
