@@ -17,19 +17,25 @@ See `.env.example` for the full list. Two groups matter:
 
 | Variable | Scope | Required for |
 | --- | --- | --- |
-| `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` | browser | all data access |
-| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | server | SSR + authenticated server functions |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` | browser | optional public backend overrides |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | server | optional public backend overrides for SSR + authenticated server functions |
 | `SUPABASE_SERVICE_ROLE_KEY` | server | privileged admin operations only |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | server | **all image uploads** |
 
-Server variables must **not** be prefixed with `VITE_` — that would ship them to the browser.
+The backend URL, publishable key and project identifier are public connection
+values. The app includes safe defaults for its Lovable Cloud backend, so a
+GitHub-synced deployment works without duplicating those values in Vercel.
+Environment variables can still override them when deploying against another
+backend. Private values such as `SUPABASE_SERVICE_ROLE_KEY` and Cloudinary
+credentials must **never** use the `VITE_` prefix.
 
 ## Deploying to Vercel
 
 1. Open **Project Settings → Environment Variables**.
-2. Add every variable from the table above. Tick **Production**, **Preview** and
-   **Development** for each one, otherwise preview deployments fail while
-   production works (or vice-versa).
+2. Add the server-only variables your deployment uses. Property and profile
+   image uploads require the Cloudinary credentials. Tick **Production**,
+   **Preview** and **Development** for each one, otherwise preview deployments
+   fail while production works (or vice-versa).
 3. For Cloudinary you can either add the three individual variables, or a single
    `CLOUDINARY_URL` in the form `cloudinary://<api_key>:<api_secret>@<cloud_name>`
    (copyable straight from the Cloudinary dashboard).
