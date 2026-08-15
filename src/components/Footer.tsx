@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Mail, MessageCircle } from "lucide-react";
-import logoAsset from "@/assets/ibyungura-logo.png.asset.json";
+import logoUrl from "@/assets/ibyungura-logo.png";
 
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-border bg-secondary">
       <div className="mx-auto grid max-w-[1760px] gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">
         <div className="sm:col-span-2 lg:col-span-1">
-          <img src={logoAsset.url} alt="Ibyungura.com — dreams into reality" className="h-14 w-auto object-contain" />
+          <img src={logoUrl} alt="Ibyungura.com — dreams into reality" width={990} height={280} loading="lazy" className="h-14 w-auto object-contain" />
           <p className="mt-4 max-w-xs text-sm text-muted-foreground">
             Houses, land, commercial space and vehicles for sale or rent across Rwanda — listed by trusted local agents.
           </p>
