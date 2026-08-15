@@ -337,6 +337,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_agent: { Args: { _agent_id: string }; Returns: undefined }
       admin_set_plan: {
         Args: {
           _agent_id: string
@@ -366,6 +367,12 @@ export type Database = {
         Returns: boolean
       }
       listing_quota_reached: { Args: { _user_id: string }; Returns: boolean }
+      non_admin_profile_ids: {
+        Args: never
+        Returns: {
+          id: string
+        }[]
+      }
       profile_contacts: {
         Args: never
         Returns: {
