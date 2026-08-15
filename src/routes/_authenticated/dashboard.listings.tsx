@@ -32,7 +32,8 @@ type Form = {
   bedrooms: string;
   bathrooms: string;
   area_sqm: string;
-  amenities: string;
+  amenities: string[];
+  features: { label: string; value: string }[];
   images: string[];
   image_public_ids: string[];
   status: "active" | "sold" | "rented";
@@ -41,7 +42,7 @@ type Form = {
 const emptyForm = (): Form => ({
   title: "", description: "", price: "", property_type: "sale", category: "house",
   location: "", city: "", bedrooms: "0", bathrooms: "0", area_sqm: "0",
-  amenities: "", images: [], image_public_ids: [], status: "active",
+  amenities: [], features: [], images: [], image_public_ids: [], status: "active",
 });
 
 function ListingsPage() {
@@ -50,6 +51,7 @@ function ListingsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(emptyForm());
   const [uploading, setUploading] = useState(false);
+  const [amenityDraft, setAmenityDraft] = useState("");
 
   const { data: listings } = useQuery({
     queryKey: ["my-listings", user?.id],
@@ -122,7 +124,8 @@ function ListingsPage() {
       bedrooms: parseInt(form.bedrooms, 10) || 0,
       bathrooms: parseInt(form.bathrooms, 10) || 0,
       area_sqm: parseFloat(form.area_sqm) || 0,
-      amenities: form.amenities.split(",").map((s) => s.trim()).filter(Boolean),
+      amenities: form.amenities.map((s) => s.trim()).filter(Boolean),
+      features: form.features.filter((f) => f.label.trim()).map((f) => ({ label: f.label.trim(), value: f.value.trim() })),
       images: form.images,
       image_public_ids: form.image_public_ids,
       status: form.status,
@@ -157,7 +160,8 @@ function ListingsPage() {
       bedrooms: String((l as { bedrooms: number }).bedrooms),
       bathrooms: String((l as { bathrooms: number }).bathrooms),
       area_sqm: String((l as { area_sqm: number }).area_sqm),
-      amenities: (x.amenities as string[]).join(", "),
+      amenities: (x.amenities as string[]) ?? [],
+      features: ((l as unknown as { features?: { label: string; value: string }[] }).features ?? []).filter(Boolean),
       images: x.images, image_public_ids: (l as { image_public_ids?: string[] }).image_public_ids ?? [],
       status: x.status,
     });
@@ -201,7 +205,84 @@ function ListingsPage() {
               <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
               <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
               <div><Label>Area (m²)</Label><Input type="number" value={form.area_sqm} onChange={(e) => setForm({ ...form, area_sqm: e.target.value })} /></div>
-              <div className="md:col-span-2"><Label>Amenities (comma separated)</Label><Input value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} placeholder="Pool, Garage, Garden" /></div>
+
+              {/* Custom details — agents add their own fields */}
+              <div className="md:col-span-2 rounded-2xl border border-border p-4">
+                <div className="flex items-center justify-between">
+                  <Label>Other details</Label>
+                  <Button
+                    type="button" variant="outline" size="sm" className="rounded-full"
+                    onClick={() => setForm((f) => ({ ...f, features: [...f.features, { label: "", value: "" }] }))}
+                  >
+                    <Plus className="mr-1 h-3.5 w-3.5" /> Add detail
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Add anything else buyers should know — Parking, Floors, Year, Fuel type…</p>
+                {form.features.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {form.features.map((ft, i) => (
+                      <div key={i} className="flex gap-2">
+                        <Input
+                          placeholder="Label (e.g. Parking)"
+                          value={ft.label}
+                          onChange={(e) => setForm((f) => ({ ...f, features: f.features.map((x, j) => j === i ? { ...x, label: e.target.value } : x) }))}
+                        />
+                        <Input
+                          placeholder="Value (e.g. 2 cars)"
+                          value={ft.value}
+                          onChange={(e) => setForm((f) => ({ ...f, features: f.features.map((x, j) => j === i ? { ...x, value: e.target.value } : x) }))}
+                        />
+                        <Button type="button" variant="outline" size="icon" aria-label="Remove detail" className="shrink-0 rounded-full text-destructive"
+                          onClick={() => setForm((f) => ({ ...f, features: f.features.filter((_, j) => j !== i) }))}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Amenities as chips */}
+              <div className="md:col-span-2 rounded-2xl border border-border p-4">
+                <Label>Amenities</Label>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    placeholder="Pool, Garage, Garden…"
+                    value={amenityDraft}
+                    onChange={(e) => setAmenityDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const v = amenityDraft.trim();
+                        if (v && !form.amenities.includes(v)) setForm((f) => ({ ...f, amenities: [...f.amenities, v] }));
+                        setAmenityDraft("");
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button" variant="outline" className="shrink-0 rounded-full"
+                    onClick={() => {
+                      const v = amenityDraft.trim();
+                      if (v && !form.amenities.includes(v)) setForm((f) => ({ ...f, amenities: [...f.amenities, v] }));
+                      setAmenityDraft("");
+                    }}
+                  >
+                    <Plus className="mr-1 h-3.5 w-3.5" /> Add
+                  </Button>
+                </div>
+                {form.amenities.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {form.amenities.map((a, i) => (
+                      <span key={a} className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-sm">
+                        {a}
+                        <button type="button" aria-label={`Remove ${a}`} onClick={() => setForm((f) => ({ ...f, amenities: f.amenities.filter((_, j) => j !== i) }))}>
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="md:col-span-2">
                 <Label>Images (max 10)</Label>
                 <label className="mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-6 hover:bg-muted">

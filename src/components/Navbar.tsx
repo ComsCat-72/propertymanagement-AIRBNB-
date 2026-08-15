@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, User as UserIcon, LogOut, LayoutDashboard, Shield, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-// import logoAsset from "@/assets/byungura-logo.png.asset.json";
+import logoAsset from "@/assets/ibyungura-logo.png.asset.json";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -119,8 +119,8 @@ export function Navbar() {
       <div className="mx-auto hidden h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:flex lg:px-10">
         {/* /* Logo */ }
 
-        <Link to="/" className="flex shrink-0 items-center" aria-label="byungura.com home">
-          {/* <img src={logoAsset.url} alt="byungura.com — opening doors to your future" className="h-11 w-auto object-contain" /> */}
+        <Link to="/" className="flex shrink-0 items-center" aria-label="Ibyungura.com home">
+          <img src={logoAsset.url} alt="Ibyungura.com — dreams into reality" className="h-11 w-auto object-contain" />
         </Link>
 
         {/* Center tabs (desktop only) */}
@@ -211,11 +211,11 @@ export function Navbar() {
 
       {/* Mobile search pill — Airbnb-style single row */}
       <div className="lg:hidden">
-        <div className="mx-auto max-w-[1760px] px-4 pb-3 pt-3 sm:px-6">
+        <div className="mx-auto flex max-w-[1760px] items-center gap-2 px-4 pb-3 pt-3 sm:px-6">
           <Popover open={openMobile} onOpenChange={setOpenMobile}>
             <PopoverTrigger asChild>
               <button
-                className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-background px-6 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.06)]"
+                className="flex h-12 min-w-0 flex-1 items-center justify-center gap-3 rounded-full border border-border bg-background px-5 shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.06)]"
                 aria-label="Start your search"
               >
                 <Search className="h-4 w-4 shrink-0" strokeWidth={2.5} />
@@ -254,6 +254,59 @@ export function Navbar() {
               </button>
             </PopoverContent>
           </Popover>
+
+          {/* Mobile account menu — same actions as desktop, including sign out */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="Open account menu"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-border bg-background shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+              >
+                {user && profile?.profile_photo_url ? (
+                  <img src={cldUrl(profile.profile_photo_url, 96)} alt="" className="h-9 w-9 rounded-full object-cover" />
+                ) : user ? (
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-brand text-brand-foreground">
+                    <UserIcon className="h-4 w-4" />
+                  </span>
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {user ? (
+                <>
+                  <div className="px-2 py-1.5 text-sm font-semibold">{profile?.full_name || user.email}</div>
+                  <DropdownMenuSeparator />
+                  {isAgent && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/dashboard" })}>
+                      <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}>
+                      <Shield className="mr-2 h-4 w-4" /> Admin
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => navigate({ to: "/dashboard/profile" })}>
+                    <UserIcon className="mr-2 h-4 w-4" /> Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/" }); }}>
+                    <LogOut className="mr-2 h-4 w-4" /> Sign out
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/login", search: { next: undefined } })}>Log in</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/register" })}>Sign up</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate({ to: "/agents", search: { q: "", city: "", agency: "" } })}>Find an agent</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/properties" })}>Browse homes</DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
+import { formatPhone, whatsappLink } from "@/lib/phone";
 
 export const Route = createFileRoute("/agents/$id")({
   loader: async ({ params }) => {
@@ -128,10 +129,7 @@ function AgentDetail() {
 
   if (!data?.agent) return <SiteShell><div className="p-10">Agent not found.</div></SiteShell>;
   const a = data.agent;
-  const waPhone = (a.phone || "").replace(/[^\d]/g, "");
-  const waLink = waPhone
-    ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Hi ${a.full_name}, I found your profile on LoyalityReal250 and would like to chat.`)}`
-    : "";
+  const waLink = whatsappLink(a.phone, `Hi ${a.full_name}, I found your profile on Ibyungura.com and would like to chat.`);
 
   return (
     <SiteShell>
@@ -150,7 +148,7 @@ function AgentDetail() {
             {a.agency_name && <p className="mt-1 text-muted-foreground">{a.agency_name}</p>}
             {a.bio && <p className="mt-3 max-w-2xl text-sm">{a.bio}</p>}
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-              {a.phone && <span className="flex items-center gap-1.5"><Phone className="h-4 w-4 text-brand" /> {a.phone}</span>}
+              {a.phone && <span className="flex items-center gap-1.5"><Phone className="h-4 w-4 text-brand" /> {formatPhone(a.phone)}</span>}
               {a.agency_name && <span className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-brand" /> {a.agency_name}</span>}
             </div>
             {waLink && (

@@ -6,7 +6,7 @@ import { BottomNav } from "./BottomNav";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans">
+    <div className="flex min-h-screen w-full max-w-full flex-col overflow-x-hidden bg-background font-sans">
       <Navbar />
       <main className="flex-1 pb-20 lg:pb-0">{children}</main>
       <Footer />
