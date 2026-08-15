@@ -16,7 +16,7 @@ function AdminAgents() {
   const { data } = useQuery({
     queryKey: ["admin-agents"],
     queryFn: async () => {
-      const [{ data }, { data: contacts }] = await Promise.all([
+      const [{ data }, { data: contacts }, { data: allowed }] = await Promise.all([
         supabase
           .from("profiles")
           .select(
@@ -26,11 +26,16 @@ function AdminAgents() {
           .order("created_at", { ascending: false }),
         // email is admin/owner-only and only available through this protected lookup
         supabase.rpc("profile_contacts"),
+        // hide admin accounts from the agents list
+        supabase.rpc("non_admin_profile_ids"),
       ]);
       const emails = new Map(
         ((contacts as { id: string; email: string | null }[] | null) ?? []).map((c) => [c.id, c.email ?? ""]),
       );
-      return (data ?? []).map((a) => ({ ...a, email: emails.get(a.id) ?? "" }));
+      const allowedIds = new Set(((allowed as { id: string }[] | null) ?? []).map((r) => r.id));
+      return (data ?? [])
+        .filter((a) => allowedIds.has(a.id))
+        .map((a) => ({ ...a, email: emails.get(a.id) ?? "" }));
     },
   });
   useEffect(() => {
@@ -58,8 +63,8 @@ function AdminAgents() {
     qc.invalidateQueries({ queryKey: ["admin-agents"] });
   };
   const del = async (id: string) => {
-    if (!confirm("Delete this agent and all their data?")) return;
-    const { error } = await supabase.from("profiles").delete().eq("id", id);
+    if (!confirm("Delete this agent and all their data? This cannot be undone.")) return;
+    const { error } = await supabase.rpc("admin_delete_agent", { _agent_id: id });
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: ["admin-agents"] });
