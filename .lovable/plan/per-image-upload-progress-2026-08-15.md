@@ -4,7 +4,7 @@ Show a real percentage bar for every photo while it uploads — profile photos (
 
 ## What changes for you
 
-- **Listing images**: choose several photos at once and each one appears immediately as a tile with a thumbnail preview, a progress bar and a live percentage. Uploads run in parallel (up to 3 at a time), tiles turn into the finished image when done, and a failed tile shows an error with a Retry button.
+- **Listing images**: choose several photos at once and each one appears immediately as a tile with a thumbnail preview, a progress bar and a live percentage. Uploads run in parallel (up to 5 at a time), tiles turn into the finished image when done, and a failed tile shows an error with a Retry button.
 - **Profile photo (dashboard + registration)**: after cropping, a circular/rectangular preview shows a progress overlay with the percentage until the photo lands.
 - Saving is blocked while uploads are still running so nothing is lost.
 
