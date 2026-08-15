@@ -173,3 +173,61 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
+
+/* ---------- Glass toast notifications ---------- */
+@keyframes toast-glass-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes toast-glass-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.96); }
+}
+
+.toast-glass {
+  background: color-mix(in oklab, var(--color-background) 62%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 12%, transparent) !important;
+  color: var(--color-foreground) !important;
+  border-radius: 1rem !important;
+  box-shadow:
+    0 1px 0 color-mix(in oklab, white 40%, transparent) inset,
+    0 12px 40px -12px color-mix(in oklab, black 45%, transparent) !important;
+  animation: toast-glass-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+  position: relative;
+}
+.toast-glass[data-removed="true"],
+.toast-glass[data-swiping="false"][data-mounted="false"] {
+  animation: toast-glass-out 200ms ease forwards;
+}
+.toast-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--color-brand);
+}
+.toast-glass::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  transform-origin: left;
+  background: color-mix(in oklab, var(--color-brand) 55%, transparent);
+  animation: toast-progress var(--toast-duration, 4000ms) linear forwards;
+}
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+.toast-glass-success::before { background: var(--color-brand); }
+.toast-glass-success::after  { background: color-mix(in oklab, var(--color-brand) 55%, transparent); }
+.toast-glass-error::before   { background: var(--color-destructive); }
+.toast-glass-error::after    { background: color-mix(in oklab, var(--color-destructive) 55%, transparent); }
+.toast-glass-warning::before,
+.toast-glass-warning::after  { background: var(--color-gold, #D6A84A); }
+.toast-glass-info::before    { background: var(--color-foreground); }
+.toast-glass-info::after     { background: color-mix(in oklab, var(--color-foreground) 40%, transparent); }
