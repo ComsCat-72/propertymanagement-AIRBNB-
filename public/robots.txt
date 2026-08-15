@@ -2,6 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /admin
+Disallow: /login
+Disallow: /register
 Disallow: /reset-password
 
-Sitemap: https://dwell-discover-dot.lovable.app/sitemap.xml
+Sitemap: https://www.ibyungura.com/sitemap.xml

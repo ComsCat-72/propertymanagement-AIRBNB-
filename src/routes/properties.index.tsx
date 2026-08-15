@@ -8,6 +8,7 @@ import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SITE_URL } from "@/lib/site";
 
 interface SearchParams {
   city?: string;
@@ -22,13 +23,16 @@ interface SearchParams {
 export const Route = createFileRoute("/properties/")({
   head: () => ({
     meta: [
-      { title: "All Properties for Sale & Rent | LoyalityReal250" },
-      { name: "description", content: "Search every LoyalityReal250 listing — houses, apartments, land, commercial property and vehicles — filtered by city, price, type and bedrooms." },
-      { property: "og:title", content: "All Properties for Sale & Rent | LoyalityReal250" },
-      { property: "og:description", content: "Search every LoyalityReal250 listing by city, price, type and bedrooms." },
-      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/properties" },
+      { title: "All Properties for Sale & Rent | Ibyungura.com" },
+      { name: "description", content: "Search every Ibyungura.com listing — houses, apartments, land, commercial property and vehicles — filtered by city, price, type and bedrooms." },
+      { property: "og:title", content: "All Properties for Sale & Rent | Ibyungura.com" },
+      { property: "og:description", content: "Search every Ibyungura.com listing by city, price, type and bedrooms." },
+      { property: "og:url", content: `${SITE_URL}/properties` },
+      { property: "og:image", content: `${SITE_URL}/og-cover.jpg` },
+      { name: "twitter:image", content: `${SITE_URL}/og-cover.jpg` },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/properties" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/properties` }],
   }),
   validateSearch: (s: Record<string, unknown>): SearchParams => ({
     city: (s.city as string) || "",

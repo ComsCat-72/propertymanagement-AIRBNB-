@@ -11,6 +11,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
 import { formatPhone, whatsappLink } from "@/lib/phone";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/properties/$id")({
   loader: async ({ params }) => {
@@ -23,11 +24,11 @@ export const Route = createFileRoute("/properties/$id")({
   },
   head: ({ params, loaderData }) => {
     const s = loaderData?.seo;
-    const url = `https://dwell-discover-dot.lovable.app/properties/${params.id}`;
-    const title = s ? `${s.title} — ${s.city ?? "Rwanda"} | LoyalityReal250` : "Property listing | LoyalityReal250";
+    const url = `${SITE_URL}/properties/${params.id}`;
+    const title = s ? `${s.title} — ${s.city ?? "Rwanda"} | Ibyungura.com` : "Property listing | Ibyungura.com";
     const raw = s
       ? `${s.title} for ${s.property_type === "rent" ? "rent" : "sale"} in ${s.location || s.city || "Rwanda"}. ${s.description ?? ""}`.trim()
-      : "View this property listing on LoyalityReal250, with photos, price and direct contact to the listing agent.";
+      : "View this property listing on Ibyungura.com, with photos, price and direct contact to the listing agent.";
     const description = raw.length > 157 ? `${raw.slice(0, 157)}…` : raw;
     const image = s?.images?.[0];
     return {

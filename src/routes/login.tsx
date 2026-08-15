@@ -7,17 +7,19 @@ import { SiteShell } from "@/components/SiteShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Agent Log In | LoyalityReal250" },
-      { name: "description", content: "Log in to your LoyalityReal250 agent account to publish listings, manage your profile and track enquiries from buyers and renters." },
-      { property: "og:title", content: "Agent Log In | LoyalityReal250" },
-      { property: "og:description", content: "Log in to manage your LoyalityReal250 listings and profile." },
-      { property: "og:url", content: "https://dwell-discover-dot.lovable.app/login" },
+      { title: "Agent Log In | Ibyungura.com" },
+      { name: "description", content: "Log in to your Ibyungura.com agent account to publish listings, manage your profile and track enquiries from buyers and renters." },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Agent Log In | Ibyungura.com" },
+      { property: "og:description", content: "Log in to manage your Ibyungura.com listings and profile." },
+      { property: "og:url", content: `${SITE_URL}/login` },
     ],
-    links: [{ rel: "canonical", href: "https://dwell-discover-dot.lovable.app/login" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/login` }],
   }),
   validateSearch: (s: Record<string, unknown>) => ({
     next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,

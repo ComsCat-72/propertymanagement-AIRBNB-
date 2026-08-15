@@ -10,6 +10,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
 import { formatPhone, whatsappLink } from "@/lib/phone";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/agents/$id")({
   loader: async ({ params }) => {
@@ -22,11 +23,11 @@ export const Route = createFileRoute("/agents/$id")({
   },
   head: ({ params, loaderData }) => {
     const s = loaderData?.seo;
-    const url = `https://dwell-discover-dot.lovable.app/agents/${params.id}`;
-    const title = s ? `${s.full_name} — Property Agent | LoyalityReal250` : "Property agent | LoyalityReal250";
+    const url = `${SITE_URL}/agents/${params.id}`;
+    const title = s ? `${s.full_name} — Property Agent | Ibyungura.com` : "Property agent | Ibyungura.com";
     const raw = s
-      ? `${s.full_name}${s.agency_name ? ` of ${s.agency_name}` : ""} is a property agent on LoyalityReal250. ${s.bio ?? "View their listings, achievements and contact details."}`.trim()
-      : "View this LoyalityReal250 agent's profile, achievements and active property listings.";
+      ? `${s.full_name}${s.agency_name ? ` of ${s.agency_name}` : ""} is a property agent on Ibyungura.com. ${s.bio ?? "View their listings, achievements and contact details."}`.trim()
+      : "View this Ibyungura.com agent's profile, achievements and active property listings.";
     const description = raw.length > 157 ? `${raw.slice(0, 157)}…` : raw;
     const image = s?.profile_photo_url;
     return {

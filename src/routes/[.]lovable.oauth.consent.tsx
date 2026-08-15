@@ -75,7 +75,7 @@ function Consent() {
       <main className="mx-auto max-w-md px-6 py-16">
         <h1 className="text-3xl font-bold">Connect {clientName}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This lets {clientName} read and manage your LoyalityReal250 listings and account as you.
+          This lets {clientName} read and manage your Ibyungura.com listings and account as you.
         </p>
         {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
         <div className="mt-8 flex gap-3">
