@@ -192,6 +192,7 @@ export type Database = {
           city: string
           created_at: string
           description: string
+          features: Json
           id: string
           image_public_ids: string[]
           images: string[]
@@ -213,6 +214,7 @@ export type Database = {
           city?: string
           created_at?: string
           description?: string
+          features?: Json
           id?: string
           image_public_ids?: string[]
           images?: string[]
@@ -234,6 +236,7 @@ export type Database = {
           city?: string
           created_at?: string
           description?: string
+          features?: Json
           id?: string
           image_public_ids?: string[]
           images?: string[]
