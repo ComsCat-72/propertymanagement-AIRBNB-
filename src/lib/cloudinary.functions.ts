@@ -26,13 +26,36 @@ async function sign(params: Record<string, string | number>, secret: string) {
 }
 
 function readEnv() {
-  const cloudName = process.env["CLOUDINARY_CLOUD_NAME"];
-  const apiKey = process.env["CLOUDINARY_API_KEY"];
-  const apiSecret = process.env["CLOUDINARY_API_SECRET"];
-  if (!cloudName || !apiKey || !apiSecret) {
-    throw new Error("Image storage is not configured");
+  let cloudName = process.env["CLOUDINARY_CLOUD_NAME"];
+  let apiKey = process.env["CLOUDINARY_API_KEY"];
+  let apiSecret = process.env["CLOUDINARY_API_SECRET"];
+
+  // Fallback: standard `CLOUDINARY_URL` form — cloudinary://<api_key>:<api_secret>@<cloud_name>
+  const url = process.env["CLOUDINARY_URL"];
+  if (url && (!cloudName || !apiKey || !apiSecret)) {
+    const match = /^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/.exec(url.trim());
+    if (match) {
+      apiKey = apiKey || match[1];
+      apiSecret = apiSecret || match[2];
+      cloudName = cloudName || match[3];
+    }
   }
-  return { cloudName, apiKey, apiSecret };
+
+  const missing = [
+    !cloudName && "CLOUDINARY_CLOUD_NAME",
+    !apiKey && "CLOUDINARY_API_KEY",
+    !apiSecret && "CLOUDINARY_API_SECRET",
+  ].filter(Boolean) as string[];
+
+  if (missing.length) {
+    throw new Error(
+      `Image storage is not configured on this deployment — missing environment ${
+        missing.length > 1 ? "variables" : "variable"
+      }: ${missing.join(", ")}. Add ${missing.length > 1 ? "them" : "it"} to your hosting provider's environment settings (or set CLOUDINARY_URL) and redeploy.`,
+    );
+  }
+
+  return { cloudName: cloudName!, apiKey: apiKey!, apiSecret: apiSecret! };
 }
 
 /** Signature for signed-in agents: listing images or profile photos. */
