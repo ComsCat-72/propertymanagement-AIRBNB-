@@ -330,7 +330,7 @@ function ListingsPage() {
                   <Upload className="h-4 w-4" /><span className="text-sm">{uploading ? "Uploading…" : "Click to upload"}</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => upload(e.target.files)} />
                 </label>
-                {form.images.length > 0 && (
+                {(form.images.length > 0 || tasks.length > 0) && (
                   <div className="mt-3 grid grid-cols-4 gap-2">
                     {form.images.map((src, i) => (
                       <div key={i} className="relative aspect-square overflow-hidden rounded-lg">
@@ -348,11 +348,16 @@ function ListingsPage() {
                         </button>
                       </div>
                     ))}
+                    {tasks.map((t) => (
+                      <UploadProgressTile key={t.id} task={t} onRetry={retryTask} onDismiss={t.status === "error" ? dismissTask : undefined} />
+                    ))}
                   </div>
                 )}
               </div>
             </div>
-            <Button onClick={save} className="mt-4 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">{form.id ? "Update" : "Create"} listing</Button>
+            <Button onClick={save} disabled={uploading} className="mt-4 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
+              {uploading ? "Uploading photos…" : `${form.id ? "Update" : "Create"} listing`}
+            </Button>
           </DialogContent>
         </Dialog>
       </div>
