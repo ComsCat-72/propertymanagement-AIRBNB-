@@ -116,13 +116,6 @@ export function Navbar() {
     >
       {/* Top row — hidden on mobile (mobile uses search pill + bottom nav) */}
       <div className="mx-auto hidden h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:flex lg:px-10">
-        {/* Wordmark (no logo image in the navbar) */}
-        <Link to="/" className="flex shrink-0 items-center" aria-label="Ibyungura.com home">
-          <span className="font-display text-xl font-extrabold tracking-tight">
-            ibyungura<span className="text-gold">.com</span>
-          </span>
-        </Link>
-
         {/* Center tabs (desktop only) */}
         <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 text-sm font-semibold text-muted-foreground">
           <Link
