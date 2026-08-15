@@ -161,7 +161,7 @@ function ListingsPage() {
       bathrooms: String((l as { bathrooms: number }).bathrooms),
       area_sqm: String((l as { area_sqm: number }).area_sqm),
       amenities: (x.amenities as string[]) ?? [],
-      features: ((l as { features?: { label: string; value: string }[] }).features ?? []).filter(Boolean),
+      features: ((l as unknown as { features?: { label: string; value: string }[] }).features ?? []).filter(Boolean),
       images: x.images, image_public_ids: (l as { image_public_ids?: string[] }).image_public_ids ?? [],
       status: x.status,
     });
