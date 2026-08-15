@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/byungura-logo.png.asset.json";
 
 export function Footer() {
   return (
