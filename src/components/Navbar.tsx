@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, User as UserIcon, LogOut, LayoutDashboard, Shield, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/ibyungura-logo.png.asset.json";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -117,10 +116,11 @@ export function Navbar() {
     >
       {/* Top row — hidden on mobile (mobile uses search pill + bottom nav) */}
       <div className="mx-auto hidden h-16 max-w-[1760px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:flex lg:px-10">
-        {/* /* Logo */ }
-
+        {/* Wordmark (no logo image in the navbar) */}
         <Link to="/" className="flex shrink-0 items-center" aria-label="Ibyungura.com home">
-          <img src={logoAsset.url} alt="Ibyungura.com — dreams into reality" className="h-11 w-auto object-contain" />
+          <span className="font-display text-xl font-extrabold tracking-tight">
+            ibyungura<span className="text-gold">.com</span>
+          </span>
         </Link>
 
         {/* Center tabs (desktop only) */}
