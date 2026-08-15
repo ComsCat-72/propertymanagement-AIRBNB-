@@ -3,7 +3,7 @@ import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/site";
 
-const BASE_URL = `${SITE_URL}`;
+const BASE_URL = SITE_URL;
 
 interface SitemapEntry {
   path: string;
@@ -19,8 +19,6 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/", changefreq: "daily", priority: "1.0" },
           { path: "/properties", changefreq: "daily", priority: "0.9" },
           { path: "/agents", changefreq: "weekly", priority: "0.8" },
-          { path: "/register", changefreq: "monthly", priority: "0.5" },
-          { path: "/login", changefreq: "monthly", priority: "0.3" },
         ];
 
         const { data: properties } = await supabase

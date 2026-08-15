@@ -14,6 +14,7 @@ export const Route = createFileRoute("/login")({
     meta: [
       { title: "Agent Log In | Ibyungura.com" },
       { name: "description", content: "Log in to your Ibyungura.com agent account to publish listings, manage your profile and track enquiries from buyers and renters." },
+      { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Agent Log In | Ibyungura.com" },
       { property: "og:description", content: "Log in to manage your Ibyungura.com listings and profile." },
       { property: "og:url", content: `${SITE_URL}/login` },

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/reset-password")({
     meta: [
       { title: "Reset Your Password | Ibyungura.com" },
       { name: "description", content: "Set a new password for your Ibyungura.com agent account using the secure reset link sent to your email address." },
-      { name: "robots", content: "noindex" },
+      { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Reset Your Password | Ibyungura.com" },
       { property: "og:description", content: "Set a new password for your Ibyungura.com agent account." },
       { property: "og:url", content: `${SITE_URL}/reset-password` },

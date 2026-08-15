@@ -31,6 +31,7 @@ export const Route = createFileRoute("/register")({
     meta: [
       { title: "Become a Listing Agent | Ibyungura.com" },
       { name: "description", content: "Create a free Ibyungura.com agent account to list houses, land, commercial property and vehicles, and reach buyers and renters across Rwanda." },
+      { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Become a Listing Agent | Ibyungura.com" },
       { property: "og:description", content: "Create a free agent account and start listing properties on Ibyungura.com." },
       { property: "og:url", content: `${SITE_URL}/register` },
