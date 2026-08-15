@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
+import { formatPhone, whatsappLink } from "@/lib/phone";
 
 export const Route = createFileRoute("/agents/$id")({
   loader: async ({ params }) => {
