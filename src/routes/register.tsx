@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PhotoCropper, safeStorageName } from "@/components/PhotoCropper";
 import { uploadSignupAvatar } from "@/lib/cloudinary";
+import { UploadProgressOverlay } from "@/components/UploadProgressTile";
 import { PhoneField } from "@/components/PhoneField";
 import { DEFAULT_DIAL, joinPhone } from "@/lib/phone";
 import { SITE_URL } from "@/lib/site";
@@ -48,6 +49,8 @@ function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [percent, setPercent] = useState(0);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [dial, setDial] = useState(DEFAULT_DIAL);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -67,13 +70,18 @@ function RegisterPage() {
     const src = pending;
     setPending(null);
     setUploading(true);
+    setPercent(0);
+    const localPreview = URL.createObjectURL(blob);
+    setPreviewUrl(localPreview);
     const name = safeStorageName(src.name).replace(/\.[a-z]+$/, ".jpg");
     try {
-      const { url } = await uploadSignupAvatar(blob, name);
+      const { url } = await uploadSignupAvatar(blob, name, setPercent);
       setForm((f) => ({ ...f, profile_photo_url: url }));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     }
+    URL.revokeObjectURL(localPreview);
+    setPreviewUrl(null);
     setUploading(false);
   };
 
@@ -113,11 +121,14 @@ function RegisterPage() {
           <div className="md:col-span-2">
             <Label>Profile photo *</Label>
             <div className="mt-2 flex items-center gap-4">
-              {form.profile_photo_url ? (
-                <img src={form.profile_photo_url} alt="Profile" className="h-28 w-24 rounded-md border border-border object-cover shadow-sm" />
-              ) : (
-                <span className="grid h-28 w-24 place-items-center rounded-md border border-dashed border-border bg-muted text-[10px] text-muted-foreground">Passport photo</span>
-              )}
+              <div className="relative h-28 w-24 shrink-0">
+                {previewUrl || form.profile_photo_url ? (
+                  <img src={previewUrl ?? form.profile_photo_url} alt="Profile" className="h-full w-full rounded-md border border-border object-cover shadow-sm" />
+                ) : (
+                  <span className="grid h-full w-full place-items-center rounded-md border border-dashed border-border bg-muted text-[10px] text-muted-foreground">Passport photo</span>
+                )}
+                {uploading && <UploadProgressOverlay percent={percent} />}
+              </div>
               <input
                 ref={fileRef}
                 type="file"
@@ -129,7 +140,7 @@ function RegisterPage() {
                   e.target.value = "";
                 }}
               />
-              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} className="rounded-full">
+              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading} className="rounded-full">
                 <Upload className="mr-2 h-4 w-4" />{uploading ? "Uploading…" : form.profile_photo_url ? "Change photo" : "Upload photo"}
               </Button>
             </div>
@@ -153,8 +164,8 @@ function RegisterPage() {
           <div><Label htmlFor="reg-agency">Agency name</Label><Input id="reg-agency" value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label htmlFor="reg-address">Office address</Label><Input id="reg-address" value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label htmlFor="reg-bio">Bio</Label><Textarea id="reg-bio" value={form.bio} onChange={set("bio")} rows={4} className="mt-1 rounded-xl" /></div>
-          <Button disabled={loading} type="submit" className="md:col-span-2 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
-            {loading ? "Creating…" : "Create agent account"}
+          <Button disabled={loading || uploading} type="submit" className="md:col-span-2 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
+            {uploading ? "Uploading photo…" : loading ? "Creating…" : "Create agent account"}
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
