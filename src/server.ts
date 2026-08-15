@@ -1,4 +1,3 @@
-import "./lib/env-bridge";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
