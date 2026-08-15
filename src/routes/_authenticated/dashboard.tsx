@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { GRACE_DAYS, graceEndsAt, planStatus } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: DashboardLayout,
 });
 

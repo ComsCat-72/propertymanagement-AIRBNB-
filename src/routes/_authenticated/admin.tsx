@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login", search: { next: undefined } });
