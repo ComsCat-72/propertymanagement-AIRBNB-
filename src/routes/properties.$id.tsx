@@ -1,15 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Phone, BedDouble, Bath, Maximize, Building2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { formatPrice } from "@/lib/format";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
+import { formatPhone, whatsappLink } from "@/lib/phone";
 
 export const Route = createFileRoute("/properties/$id")({
   loader: async ({ params }) => {
@@ -80,6 +81,15 @@ export const Route = createFileRoute("/properties/$id")({
 
 function PropertyDetail() {
   const { id } = Route.useParams();
+  const [api, setApi] = useState<CarouselApi>();
+  const [slide, setSlide] = useState(0);
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setSlide(api.selectedScrollSnap());
+    onSelect();
+    api.on("select", onSelect);
+    return () => { api.off("select", onSelect); };
+  }, [api]);
   const { data, isLoading } = useQuery({
     queryKey: ["property", id],
     queryFn: async () => {
@@ -112,13 +122,13 @@ function PropertyDetail() {
     id: string; title: string; description: string; price: number;
     property_type: "sale" | "rent"; category: string; location: string; city: string;
     bedrooms: number; bathrooms: number; area_sqm: number; amenities: string[]; images: string[];
+    features?: { label: string; value: string }[] | null;
     agent: { id: string; full_name: string; phone: string | null; agency_name: string | null; profile_photo_url: string | null; bio: string | null; is_verified: boolean | null; verified_expires_at: string | null };
   };
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600"];
 
-  const waPhone = (p.agent.phone || "").replace(/[^\d]/g, "");
-  const waMessage = encodeURIComponent(`Hi ${p.agent.full_name}, I'm interested in "${p.title}" on LoyalityReal250.`);
-  const waLink = waPhone ? `https://wa.me/${waPhone}?text=${waMessage}` : "";
+  const waLink = whatsappLink(p.agent.phone, `Hi ${p.agent.full_name}, I'm interested in "${p.title}" on Ibyungura.com.`);
+  const features = Array.isArray(p.features) ? p.features.filter((f) => f && f.label) : [];
 
   return (
     <SiteShell>
@@ -127,7 +137,7 @@ function PropertyDetail() {
         <p className="mt-1 text-sm text-muted-foreground">{p.city}{p.location ? `, ${p.location}` : ""} · <span className="capitalize">{p.category}</span> · For {p.property_type}</p>
 
         <div className="mt-4 md:hidden">
-          <Carousel opts={{ loop: true }} className="relative overflow-hidden rounded-2xl">
+          <Carousel opts={{ loop: true }} setApi={setApi} className="relative overflow-hidden rounded-2xl">
             <CarouselContent>
               {imgs.map((src, i) => (
                 <CarouselItem key={i}>
@@ -135,17 +145,22 @@ function PropertyDetail() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="absolute bottom-2 right-3 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white">{imgs.length} photos</div>
+            <div className="absolute bottom-2 right-3 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white">
+              {slide + 1} / {imgs.length}
+            </div>
           </Carousel>
         </div>
 
-        <div className="mt-6 hidden h-[480px] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl md:grid">
+        <div className="relative mt-6 hidden h-[480px] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl md:grid">
           <img src={cldUrl(imgs[0], 1200)} alt="" className="col-span-2 row-span-2 h-full w-full object-cover" />
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-full w-full bg-muted">
               {imgs[i] && <img src={cldUrl(imgs[i], 600)} alt="" className="h-full w-full object-cover" />}
             </div>
           ))}
+          <div className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+            {imgs.length} photo{imgs.length === 1 ? "" : "s"}
+          </div>
         </div>
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
@@ -155,6 +170,15 @@ function PropertyDetail() {
               <span className="flex items-center gap-2 text-sm"><Bath className="h-5 w-5" /> {p.bathrooms} bathrooms</span>
               <span className="flex items-center gap-2 text-sm"><Maximize className="h-5 w-5" /> {p.area_sqm} m²</span>
             </div>
+            {features.length > 0 && (
+              <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border py-6 text-sm">
+                {features.map((f, i) => (
+                  <span key={i} className="flex items-center gap-2">
+                    <span className="font-semibold">{f.label}:</span> {f.value}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="border-b border-border py-6">
               <h2 className="text-xl font-bold">About this property</h2>
               <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">{p.description || "No description provided."}</p>
@@ -190,7 +214,7 @@ function PropertyDetail() {
                   </div>
                 </div>
                 <div className="mt-4 space-y-2 text-sm">
-                  <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-brand" /> {p.agent.phone || "—"}</p>
+                  <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-brand" /> {formatPhone(p.agent.phone) || "—"}</p>
                   {p.agent.agency_name && <p className="flex items-center gap-2"><Building2 className="h-4 w-4 text-brand" /> {p.agent.agency_name}</p>}
                 </div>
                 {p.agent.phone && (
