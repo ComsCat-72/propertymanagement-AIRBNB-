@@ -51,17 +51,14 @@ function AgentsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["agents-directory"],
     queryFn: async () => {
-      const [{ data }, { data: allowed }] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id, full_name, agency_name, profile_photo_url, bio, is_verified, verified_expires_at")
-          .eq("status", "active")
-          .order("created_at", { ascending: false }),
-        // admins are not agents — keep them out of the public directory
-        supabase.rpc("non_admin_profile_ids"),
-      ]);
-      const allowedIds = new Set(((allowed as { id: string }[] | null) ?? []).map((r) => r.id));
-      const rows = (data ?? []).filter((a) => allowedIds.has(a.id));
+      // admins are not agents — keep them out of the public directory
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, full_name, agency_name, profile_photo_url, bio, is_verified, verified_expires_at")
+        .eq("status", "active")
+        .eq("is_public_agent", true)
+        .order("created_at", { ascending: false });
+      const rows = data ?? [];
       // Verified agents surface first in the directory.
       return rows
         .map((a, i) => ({ a, i, v: isVerified(a) ? 1 : 0 }))

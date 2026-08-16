@@ -129,6 +129,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_public_agent: boolean
           is_verified: boolean
           phone: string | null
           photo_public_id: string
@@ -149,6 +150,7 @@ export type Database = {
           email?: string
           full_name?: string
           id: string
+          is_public_agent?: boolean
           is_verified?: boolean
           phone?: string | null
           photo_public_id?: string
@@ -169,6 +171,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          is_public_agent?: boolean
           is_verified?: boolean
           phone?: string | null
           photo_public_id?: string
