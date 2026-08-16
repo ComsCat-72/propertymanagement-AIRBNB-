@@ -55,7 +55,6 @@ function AgentsPage() {
       const { data } = await supabase
         .from("profiles")
         .select("id, full_name, agency_name, profile_photo_url, bio, is_verified, verified_expires_at")
-        .eq("status", "active")
         .eq("is_public_agent", true)
         .order("created_at", { ascending: false });
       const rows = data ?? [];
