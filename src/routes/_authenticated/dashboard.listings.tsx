@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, Upload, X } from "lucide-react";
+import { Pencil, Trash2, Plus, Upload, X, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -326,6 +326,7 @@ function ListingsPage() {
               </div>
               <div className="md:col-span-2">
                 <Label>Images (max 10)</Label>
+                <p className="mt-1 text-xs text-muted-foreground">The first photo is the cover shown on listings. Click the star on any photo to make it the cover.</p>
                 <label className="mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-6 hover:bg-muted">
                   <Upload className="h-4 w-4" /><span className="text-sm">{uploading ? "Uploading…" : "Click to upload"}</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => upload(e.target.files)} />
@@ -335,6 +336,27 @@ function ListingsPage() {
                     {form.images.map((src, i) => (
                       <div key={i} className="relative aspect-square overflow-hidden rounded-lg">
                         <img src={cldUrl(src, 320)} alt="" className="h-full w-full object-cover" />
+                        {i === 0 ? (
+                          <span className="absolute left-1 top-1 rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-brand-foreground">Cover</span>
+                        ) : (
+                          <button
+                            type="button"
+                            aria-label="Set as cover photo"
+                            title="Set as cover photo"
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                images: [f.images[i], ...f.images.filter((_, j) => j !== i)],
+                                image_public_ids: f.image_public_ids.length === f.images.length
+                                  ? [f.image_public_ids[i], ...f.image_public_ids.filter((_, j) => j !== i)]
+                                  : f.image_public_ids,
+                              }))
+                            }
+                            className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
+                          >
+                            <Star className="h-3 w-3" />
+                          </button>
+                        )}
                         <button type="button" aria-label="Remove image" onClick={() => {
                           const removed = form.image_public_ids[i];
                           if (removed) void deleteUploads({ data: { publicIds: [removed] } }).catch(() => {});
