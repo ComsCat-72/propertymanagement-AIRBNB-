@@ -41,6 +41,13 @@ export type Database = {
             foreignKeyName: "listing_views_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
+            referencedRelation: "non_admin_profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_views_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -82,6 +89,13 @@ export type Database = {
           plan?: Database["public"]["Enums"]["subscription_plan"] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "monetization_events_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "non_admin_profile_directory"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "monetization_events_agent_id_fkey"
             columns: ["agent_id"]
@@ -253,6 +267,13 @@ export type Database = {
             foreignKeyName: "properties_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
+            referencedRelation: "non_admin_profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -306,6 +327,13 @@ export type Database = {
             foreignKeyName: "upgrade_requests_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
+            referencedRelation: "non_admin_profile_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "upgrade_requests_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -334,7 +362,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      non_admin_profile_directory: {
+        Row: {
+          id: string | null
+        }
+        Insert: {
+          id?: string | null
+        }
+        Update: {
+          id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_delete_agent: { Args: { _agent_id: string }; Returns: undefined }
