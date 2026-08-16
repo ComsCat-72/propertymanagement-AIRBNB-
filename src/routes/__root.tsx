@@ -79,6 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "xQJq_Sj5nB_kBNSGCIaJQBfBEXqFhGwLMf3xUnHi-ew" },
       { title: "Ibyungura.com — Find your next home" },
       { name: "description", content: "Browse houses, apartments, land, and commercial properties for sale or rent on Ibyungura.com." },
       { name: "author", content: "Ibyungura.com" },
