@@ -424,6 +424,17 @@ function ListingsPage() {
               <div className="md:col-span-2">
                 <Label>Images (max 10)</Label>
                 <p className="mt-1 text-xs text-muted-foreground">Drag photos to reorder — the first one is the cover shown on listings. Or click the star to make a photo the cover.</p>
+                <div className="mt-2 rounded-xl bg-muted/60 p-3">
+                  <p className="text-xs font-semibold">Photo standards — at least {MIN_PHOTOS} photos to publish</p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[11px] text-muted-foreground">
+                    {PHOTO_CHECKLIST.map((c) => <li key={c}>{c}</li>)}
+                  </ul>
+                </div>
+                {form.images.length < MIN_PHOTOS && (
+                  <p className="mt-2 text-xs font-semibold text-destructive">
+                    {MIN_PHOTOS - form.images.length} more photo{MIN_PHOTOS - form.images.length === 1 ? "" : "s"} needed before this listing can be Active.
+                  </p>
+                )}
                 <label className="mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-6 hover:bg-muted">
                   <Upload className="h-4 w-4" /><span className="text-sm">{uploading ? "Uploading…" : "Click to upload"}</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => upload(e.target.files)} />
