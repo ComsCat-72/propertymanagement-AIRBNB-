@@ -177,8 +177,8 @@ export function Navbar() {
                     <Shield className="mr-2 h-4 w-4" /> Admin
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => navigate({ to: "/dashboard/profile" })}>
-                  <UserIcon className="mr-2 h-4 w-4" /> Profile
+                <DropdownMenuItem onClick={() => navigate({ to: isAgent || isAdmin ? "/dashboard/profile" : "/account" })}>
+                  <UserIcon className="mr-2 h-4 w-4" /> {isAgent || isAdmin ? "Profile" : "My account"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/" }); }}>
@@ -288,8 +288,8 @@ export function Navbar() {
                       <Shield className="mr-2 h-4 w-4" /> Admin
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => navigate({ to: "/dashboard/profile" })}>
-                    <UserIcon className="mr-2 h-4 w-4" /> Profile
+                  <DropdownMenuItem onClick={() => navigate({ to: isAgent || isAdmin ? "/dashboard/profile" : "/account" })}>
+                    <UserIcon className="mr-2 h-4 w-4" /> {isAgent || isAdmin ? "Profile" : "My account"}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/" }); }}>
