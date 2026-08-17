@@ -1,40 +1,25 @@
-# Fix Google sign-in error 400: redirect_uri_mismatch
+# One-tap Google sign-in (native prompt)
 
-## What the error means
+Replace the current custom "Save homes & review agents" card and full redirect flow with Google's real One Tap prompt — the small panel that appears top-right showing the visitor's own Google account and a "Continue as <name>" button, exactly like the reference.
 
-This one is not an app-code error. Google rejects the sign-in because the callback URL your backend sends to Google is not listed in the Google Cloud OAuth client you configured. Google requires an exact string match.
+## What changes for visitors
 
-Nothing in your GitHub repo needs to change for this.
+- A few seconds after landing, Google's own prompt slides in at the top-right showing their signed-in Google account.
+- Tapping "Continue as ..." signs them into Ibyungura instantly, on the same page — no redirect to Google, no page reload.
+- Dismissing it hides it (Google itself suppresses it for a cooldown period; we also keep our own dismissal flag).
+- Never shown to already signed-in users.
+- The existing "Continue with Google" buttons on login/register stay as the fallback for anyone who dismisses or blocks the prompt.
 
-## Fix
+## How it works technically
 
-1. Open the backend auth settings: Users → Authentication Settings → Sign In Methods → Google.
-2. Expand the Google provider and copy the **Callback URL (redirect URI)** shown there, exactly as displayed (no trailing slash added or removed).
-3. Go to Google Cloud Console → APIs & Services → Credentials → your OAuth 2.0 Client ID (Web application).
-4. Under **Authorized redirect URIs**, paste that callback URL and save.
-5. Under **Authorized JavaScript origins**, add the origins your users start from:
-   - https://www.ibyungura.com
-   - https://ibyungura.com
-   - your Vercel deployment origin (e.g. https://your-project.vercel.app)
-6. Save in Google Cloud Console. Changes can take a few minutes to propagate.
+- Load Google Identity Services (`https://accounts.google.com/gsi/client`) from the root route head.
+- Rewrite `src/components/GoogleOneTap.tsx` to:
+  - initialize `google.accounts.id` with the web Client ID, `auto_select: false`, `cancel_on_tap_outside: false`, `use_fedcm_for_prompt: true`;
+  - on credential callback, call `supabase.auth.signInWithIdToken({ provider: "google", token: credential, nonce })` with a generated + SHA-256 hashed nonce;
+  - on success show a toast and refresh auth state in place;
+  - render nothing itself (Google renders the panel), and skip entirely when no Client ID is configured or the user is authenticated.
+- Client ID comes from a `VITE_GOOGLE_CLIENT_ID` env value so it works on both Lovable and the Vercel deployment.
 
-Important: the redirect URI registered with Google is the **backend auth callback**, not `/auth/callback` in your app. Your app's `/auth/callback` route is where the backend sends the user afterwards, and it does not belong in the Google redirect URI list.
+## What is needed from you
 
-## Also check the app-side allow-list
-
-In the backend auth settings, make sure the redirect allow-list includes:
-- https://www.ibyungura.com/**
-- https://ibyungura.com/**
-- https://your-vercel-domain.vercel.app/**
-
-Otherwise sign-in completes at Google but the user gets dropped on the app origin instead of `/auth/callback`.
-
-## Alternative: skip your own credentials
-
-If you would rather not manage a Google Cloud OAuth client, switch the Google provider to Lovable-managed credentials in the backend auth settings. Then no redirect URI setup is needed on the Lovable-hosted domains, and only your self-hosted Vercel origin needs to be added to the redirect allow-list.
-
-## Validation
-
-- Open the hosted login page, click Continue with Google.
-- The Google account chooser should appear with no 400 error.
-- After consent you should land on `/auth/callback` and then `/account` (client) or `/dashboard` (agent).
+The Google **Web Client ID** (the one already used for Google login in the backend), plus your site origins (`https://www.ibyungura.com`, `https://ibyungura.com`, and the preview domain) added to **Authorized JavaScript origins** in the Google Cloud OAuth client. Without the Client ID the prompt cannot render and the app quietly falls back to the existing button.
