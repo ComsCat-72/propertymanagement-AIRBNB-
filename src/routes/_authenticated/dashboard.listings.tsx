@@ -16,6 +16,8 @@ import { logEvent } from "@/lib/events";
 import { uploadListingImage, cldUrl } from "@/lib/cloudinary";
 import { deleteUploads, deletePropertyWithImages } from "@/lib/cloudinary.functions";
 import { UploadProgressTile, type UploadTask } from "@/components/UploadProgressTile";
+import { Switch } from "@/components/ui/switch";
+import { fieldsFor, hasRooms, MIN_PHOTOS, PHOTO_CHECKLIST, RWANDA_PROVINCES, type Attributes } from "@/lib/listing-schema";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -38,12 +40,18 @@ type Form = {
   images: string[];
   image_public_ids: string[];
   status: "active" | "sold" | "rented";
+  attributes: Attributes;
+  negotiable: boolean;
+  province: string;
+  district: string;
+  sector: string;
 };
 
 const emptyForm = (): Form => ({
   title: "", description: "", price: "", property_type: "sale", category: "house",
   location: "", city: "", bedrooms: "0", bathrooms: "0", area_sqm: "0",
   amenities: [], features: [], images: [], image_public_ids: [], status: "active",
+  attributes: {}, negotiable: false, province: "", district: "", sector: "",
 });
 
 function ListingsPage() {
@@ -171,6 +179,10 @@ function ListingsPage() {
       return;
     }
     if (!form.title || !form.city || !form.location) { toast.error("Title, city, and location are required"); return; }
+    if (form.status === "active" && form.images.length < MIN_PHOTOS) {
+      toast.error(`Add at least ${MIN_PHOTOS} photos before publishing this listing.`);
+      return;
+    }
     const payload = {
       agent_id: user.id,
       title: form.title.trim(),
@@ -188,6 +200,11 @@ function ListingsPage() {
       images: form.images,
       image_public_ids: form.image_public_ids,
       status: form.status,
+      attributes: form.attributes,
+      negotiable: form.negotiable,
+      province: form.province,
+      district: form.district,
+      sector: form.sector,
     };
     const { error } = form.id
       ? await supabase.from("properties").update(payload as never).eq("id", form.id)
@@ -223,6 +240,11 @@ function ListingsPage() {
       features: ((l as unknown as { features?: { label: string; value: string }[] }).features ?? []).filter(Boolean),
       images: x.images, image_public_ids: (l as { image_public_ids?: string[] }).image_public_ids ?? [],
       status: x.status,
+      attributes: ((l as unknown as { attributes?: Attributes }).attributes ?? {}) as Attributes,
+      negotiable: (l as unknown as { negotiable?: boolean }).negotiable ?? false,
+      province: (l as unknown as { province?: string }).province ?? "",
+      district: (l as unknown as { district?: string }).district ?? "",
+      sector: (l as unknown as { sector?: string }).sector ?? "",
     });
     setOpen(true);
   };
