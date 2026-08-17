@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SITE_URL } from "@/lib/site";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -90,6 +91,13 @@ function LoginPage() {
             {loading ? "Logging in…" : "Log in"}
           </Button>
         </form>
+        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+        </div>
+        <GoogleSignInButton />
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          Google sign-in creates a free browsing account — save homes and review agents.
+        </p>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           New agent? <Link to="/register" className="font-semibold text-brand underline">Create an account</Link>
         </p>

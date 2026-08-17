@@ -3,6 +3,7 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { CookieBanner } from "./CookieBanner";
 import { BottomNav } from "./BottomNav";
+import { GoogleOneTap } from "./GoogleOneTap";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <Footer />
       <CookieBanner />
       <BottomNav />
+      <GoogleOneTap />
     </div>
   );
 }
