@@ -1,41 +1,40 @@
-Plan: Fix Google OAuth on Vercel / GitHub-hosted copy
+# Fix Google sign-in error 400: redirect_uri_mismatch
 
-Goal
-Stop the "Unsupported provider: missing OAuth secret" error on the hosted Vercel project so Google sign-in works there the same way it works on the Lovable preview.
+## What the error means
 
-Root cause
-The error is returned by Supabase Auth when the Google provider is enabled but has no OAuth client secret configured. The frontend code already has a dual-mode fallback that uses Lovable's broker on Lovable/ibyungura.com hosts and falls back to direct Supabase Google OAuth on any other host (e.g., the raw Vercel URL). The fallback path is the one hitting the missing-secret error.
+This one is not an app-code error. Google rejects the sign-in because the callback URL your backend sends to Google is not listed in the Google Cloud OAuth client you configured. Google requires an exact string match.
 
-No new code is required in GitHub for this specific error. The existing code just needs to be verified and the backend provider secret needs to be supplied.
+Nothing in your GitHub repo needs to change for this.
 
-Code to verify in your GitHub repo
+## Fix
 
-1. src/components/GoogleSignInButton.tsx
-Must contain the dual-mode logic and the direct Supabase fallback. The current file already has this.
+1. Open the backend auth settings: Users → Authentication Settings → Sign In Methods → Google.
+2. Expand the Google provider and copy the **Callback URL (redirect URI)** shown there, exactly as displayed (no trailing slash added or removed).
+3. Go to Google Cloud Console → APIs & Services → Credentials → your OAuth 2.0 Client ID (Web application).
+4. Under **Authorized redirect URIs**, paste that callback URL and save.
+5. Under **Authorized JavaScript origins**, add the origins your users start from:
+   - https://www.ibyungura.com
+   - https://ibyungura.com
+   - your Vercel deployment origin (e.g. https://your-project.vercel.app)
+6. Save in Google Cloud Console. Changes can take a few minutes to propagate.
 
-2. src/routes/auth.callback.tsx
-Must exist as a public, client-only route that listens for the Supabase session and redirects the user after Google OAuth returns. The current file already has this.
+Important: the redirect URI registered with Google is the **backend auth callback**, not `/auth/callback` in your app. Your app's `/auth/callback` route is where the backend sends the user afterwards, and it does not belong in the Google redirect URI list.
 
-3. src/routes/login.tsx
-Must import and render <GoogleSignInButton />. The current file already does this.
+## Also check the app-side allow-list
 
-Backend configuration steps (this is the actual fix)
+In the backend auth settings, make sure the redirect allow-list includes:
+- https://www.ibyungura.com/**
+- https://ibyungura.com/**
+- https://your-vercel-domain.vercel.app/**
 
-1. Open the Lovable Cloud backend authentication settings.
-2. Navigate to Users → Authentication Settings → Sign In Methods → Google.
-3. Choose either:
-   - Managed Google OAuth (Lovable Cloud handles the secret): this should be the fastest fix.
-   - Or your own Google OAuth credentials from Google Cloud Console, then paste the Client ID and Client Secret into the Google provider form.
-4. If using your own credentials, add the hosted Vercel URL(s) to the Authorized redirect URIs in Google Cloud Console:
-   - https://www.ibyungura.com/auth/callback
-   - https://dwell-discover-dot.lovable.app/auth/callback
-   - any raw Vercel deployment URL you use
-5. Save the backend settings.
-6. Redeploy the Vercel project so the new provider config is active.
+Otherwise sign-in completes at Google but the user gets dropped on the app origin instead of `/auth/callback`.
 
-Validation
-- Visit the hosted login page and click the Google button.
-- Confirm the Google consent screen loads and, after consent, the user lands on /auth/callback then /account (for client role) or /dashboard (for agent role).
+## Alternative: skip your own credentials
 
-Note
-If you are on the raw Vercel deployment URL (e.g., something.vercel.app) rather than www.ibyungura.com, the brokerAvailable() function will intentionally fall back to direct Supabase OAuth. That is correct; the only requirement is that the Google provider secret is configured in the backend.
+If you would rather not manage a Google Cloud OAuth client, switch the Google provider to Lovable-managed credentials in the backend auth settings. Then no redirect URI setup is needed on the Lovable-hosted domains, and only your self-hosted Vercel origin needs to be added to the redirect allow-list.
+
+## Validation
+
+- Open the hosted login page, click Continue with Google.
+- The Google account chooser should appear with no 400 error.
+- After consent you should land on `/auth/callback` and then `/account` (client) or `/dashboard` (agent).
