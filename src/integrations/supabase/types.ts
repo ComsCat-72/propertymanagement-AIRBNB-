@@ -391,7 +391,7 @@ export type Database = {
     }
     Enums: {
       account_status: "active" | "suspended"
-      app_role: "admin" | "agent"
+      app_role: "admin" | "agent" | "client"
       property_category:
         | "house"
         | "apartment"
@@ -400,7 +400,12 @@ export type Database = {
         | "villa"
         | "car"
         | "motorcycle"
-      property_status: "active" | "sold" | "rented"
+      property_status:
+        | "active"
+        | "sold"
+        | "rented"
+        | "draft"
+        | "under_negotiation"
       property_type: "sale" | "rent"
       subscription_plan: "free" | "tier1" | "tier2"
     }
@@ -531,7 +536,7 @@ export const Constants = {
   public: {
     Enums: {
       account_status: ["active", "suspended"],
-      app_role: ["admin", "agent"],
+      app_role: ["admin", "agent", "client"],
       property_category: [
         "house",
         "apartment",
@@ -541,7 +546,13 @@ export const Constants = {
         "car",
         "motorcycle",
       ],
-      property_status: ["active", "sold", "rented"],
+      property_status: [
+        "active",
+        "sold",
+        "rented",
+        "draft",
+        "under_negotiation",
+      ],
       property_type: ["sale", "rent"],
       subscription_plan: ["free", "tier1", "tier2"],
     },
