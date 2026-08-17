@@ -21,6 +21,7 @@ import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as RwandaSlugRouteImport } from './routes/rwanda.$slug'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AgentsIdRouteImport } from './routes/agents.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -97,6 +98,11 @@ const RwandaSlugRoute = RwandaSlugRouteImport.update({
 const PropertiesIdRoute = PropertiesIdRouteImport.update({
   id: '/properties/$id',
   path: '/properties/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentsIdRoute = AgentsIdRouteImport.update({
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agents/$id': typeof AgentsIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents/': typeof AgentsIndexRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/agents/$id': typeof AgentsIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents': typeof AgentsIndexRoute
@@ -276,6 +284,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agents/$id': typeof AgentsIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents/': typeof AgentsIndexRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/agents/$id'
+    | '/auth/callback'
     | '/properties/$id'
     | '/rwanda/$slug'
     | '/agents/'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/agents/$id'
+    | '/auth/callback'
     | '/properties/$id'
     | '/rwanda/$slug'
     | '/agents'
@@ -370,6 +381,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/agents/$id'
+    | '/auth/callback'
     | '/properties/$id'
     | '/rwanda/$slug'
     | '/agents/'
@@ -401,6 +413,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgentsIdRoute: typeof AgentsIdRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
   RwandaSlugRoute: typeof RwandaSlugRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
@@ -495,6 +508,13 @@ declare module '@tanstack/react-router' {
       path: '/properties/$id'
       fullPath: '/properties/$id'
       preLoaderRoute: typeof PropertiesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agents/$id': {
@@ -692,6 +712,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AgentsIdRoute: AgentsIdRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   PropertiesIdRoute: PropertiesIdRoute,
   RwandaSlugRoute: RwandaSlugRoute,
   AgentsIndexRoute: AgentsIndexRoute,
