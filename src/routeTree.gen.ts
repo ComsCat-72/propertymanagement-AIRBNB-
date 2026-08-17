@@ -21,9 +21,11 @@ import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as RwandaSlugRouteImport } from './routes/rwanda.$slug'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AgentsIdRouteImport } from './routes/agents.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
@@ -99,6 +101,11 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   path: '/properties/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentsIdRoute = AgentsIdRouteImport.update({
   id: '/agents/$id',
   path: '/agents/$id',
@@ -112,6 +119,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -211,9 +223,11 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agents/$id': typeof AgentsIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents/': typeof AgentsIndexRoute
@@ -242,7 +256,9 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/agents/$id': typeof AgentsIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents': typeof AgentsIndexRoute
@@ -273,9 +289,11 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agents/$id': typeof AgentsIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/rwanda/$slug': typeof RwandaSlugRoute
   '/agents/': typeof AgentsIndexRoute
@@ -306,9 +324,11 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/account'
     | '/admin'
     | '/dashboard'
     | '/agents/$id'
+    | '/auth/callback'
     | '/properties/$id'
     | '/rwanda/$slug'
     | '/agents/'
@@ -337,7 +357,9 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/account'
     | '/agents/$id'
+    | '/auth/callback'
     | '/properties/$id'
     | '/rwanda/$slug'
     | '/agents'
@@ -367,9 +389,11 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/agents/$id'
+    | '/auth/callback'
     | '/properties/$id'
     | '/rwanda/$slug'
     | '/agents/'
@@ -401,6 +425,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgentsIdRoute: typeof AgentsIdRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
   RwandaSlugRoute: typeof RwandaSlugRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
@@ -497,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agents/$id': {
       id: '/agents/$id'
       path: '/agents/$id'
@@ -516,6 +548,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/.well-known/oauth-protected-resource': {
@@ -668,11 +707,13 @@ const AuthenticatedDashboardRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
 }
@@ -692,6 +733,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AgentsIdRoute: AgentsIdRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   PropertiesIdRoute: PropertiesIdRoute,
   RwandaSlugRoute: RwandaSlugRoute,
   AgentsIndexRoute: AgentsIndexRoute,

@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { SiteShell } from "@/components/SiteShell";
 import { useAuth } from "@/lib/auth";
 import { GRACE_DAYS, graceEndsAt, planStatus } from "@/lib/plans";
@@ -10,7 +11,14 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function DashboardLayout() {
   const { pathname } = useLocation();
-  const { profile } = useAuth();
+  const { profile, isAgent, isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Visitors who signed in with Google are clients, not agents — send them to their account area.
+  useEffect(() => {
+    if (!loading && !isAgent && !isAdmin) navigate({ to: "/account", replace: true });
+  }, [loading, isAgent, isAdmin, navigate]);
+
   const status = planStatus(profile);
   const graceEnd = graceEndsAt(profile);
   const tabs = [

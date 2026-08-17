@@ -25,6 +25,11 @@ const schema = z.object({
   agency_name: z.string().trim().max(120),
   bio: z.string().trim().max(800),
   profile_photo_url: z.string().trim().min(1, "Please upload a profile photo").max(500),
+  social_instagram: z.string().trim().max(200),
+  social_facebook: z.string().trim().max(200),
+  social_tiktok: z.string().trim().max(200),
+  social_linkedin: z.string().trim().max(200),
+  whatsapp_business: z.string().trim().max(40),
 });
 
 export const Route = createFileRoute("/register")({
@@ -46,6 +51,7 @@ function RegisterPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     full_name: "", email: "", password: "", phone: "", address: "", agency_name: "", bio: "", profile_photo_url: "",
+    social_instagram: "", social_facebook: "", social_tiktok: "", social_linkedin: "", whatsapp_business: "",
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -103,6 +109,11 @@ function RegisterPage() {
           agency_name: form.agency_name,
           bio: form.bio,
           profile_photo_url: form.profile_photo_url,
+          social_instagram: form.social_instagram,
+          social_facebook: form.social_facebook,
+          social_tiktok: form.social_tiktok,
+          social_linkedin: form.social_linkedin,
+          whatsapp_business: form.whatsapp_business,
         },
       },
     });
@@ -164,6 +175,15 @@ function RegisterPage() {
           <div><Label htmlFor="reg-agency">Agency name</Label><Input id="reg-agency" value={form.agency_name} onChange={set("agency_name")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label htmlFor="reg-address">Office address</Label><Input id="reg-address" value={form.address} onChange={set("address")} className="mt-1 rounded-xl" /></div>
           <div className="md:col-span-2"><Label htmlFor="reg-bio">Bio</Label><Textarea id="reg-bio" value={form.bio} onChange={set("bio")} rows={4} className="mt-1 rounded-xl" /></div>
+          <div className="md:col-span-2 mt-2">
+            <h2 className="text-sm font-bold">Social links <span className="font-normal text-muted-foreground">(optional)</span></h2>
+            <p className="text-xs text-muted-foreground">Shown on your public profile so buyers can check you out.</p>
+          </div>
+          <div><Label htmlFor="reg-ig">Instagram</Label><Input id="reg-ig" value={form.social_instagram} onChange={set("social_instagram")} placeholder="@yourhandle" className="mt-1 rounded-xl" /></div>
+          <div><Label htmlFor="reg-fb">Facebook</Label><Input id="reg-fb" value={form.social_facebook} onChange={set("social_facebook")} placeholder="facebook.com/yourpage" className="mt-1 rounded-xl" /></div>
+          <div><Label htmlFor="reg-tt">TikTok</Label><Input id="reg-tt" value={form.social_tiktok} onChange={set("social_tiktok")} placeholder="@yourhandle" className="mt-1 rounded-xl" /></div>
+          <div><Label htmlFor="reg-li">LinkedIn</Label><Input id="reg-li" value={form.social_linkedin} onChange={set("social_linkedin")} placeholder="linkedin.com/in/you" className="mt-1 rounded-xl" /></div>
+          <div className="md:col-span-2"><Label htmlFor="reg-wab">WhatsApp Business number</Label><Input id="reg-wab" value={form.whatsapp_business} onChange={set("whatsapp_business")} placeholder="+250 7XX XXX XXX" className="mt-1 rounded-xl" /></div>
           <Button disabled={loading || uploading} type="submit" className="md:col-span-2 rounded-full bg-brand text-brand-foreground hover:bg-brand/90">
             {uploading ? "Uploading photo…" : loading ? "Creating…" : "Create agent account"}
           </Button>

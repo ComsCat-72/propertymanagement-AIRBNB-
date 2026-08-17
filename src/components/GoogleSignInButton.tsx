@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const GoogleMark = () => (
@@ -12,6 +13,31 @@ const GoogleMark = () => (
   </svg>
 );
 
+/** Hosts served by Lovable, where the Lovable auth broker is available. */
+function brokerAvailable() {
+  const h = window.location.hostname;
+  return (
+    h === "localhost" ||
+    h === "127.0.0.1" ||
+    h.endsWith("lovable.app") ||
+    h.endsWith("lovableproject.com") ||
+    h.endsWith("lovable.dev") ||
+    h.endsWith("ibyungura.com")
+  );
+}
+
+/** Direct Supabase OAuth — used on self-hosted deployments (Vercel, custom hosts). */
+async function directGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: { prompt: "select_account" },
+    },
+  });
+  return error;
+}
+
 export function GoogleSignInButton({ className, label = "Continue with Google" }: { className?: string; label?: string }) {
   const [loading, setLoading] = useState(false);
   return (
@@ -20,8 +46,26 @@ export function GoogleSignInButton({ className, label = "Continue with Google" }
       disabled={loading}
       onClick={async () => {
         setLoading(true);
-        const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-        if (result?.error) { setLoading(false); toast.error(result.error.message ?? "Google sign-in failed"); }
+        try {
+          sessionStorage.setItem("ibyungura.auth.next", window.location.pathname);
+        } catch { /* storage may be blocked */ }
+
+        if (!brokerAvailable()) {
+          const error = await directGoogle();
+          if (error) { setLoading(false); toast.error(error.message); }
+          return;
+        }
+
+        try {
+          const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+          if (result?.error) {
+            const error = await directGoogle();
+            if (error) { setLoading(false); toast.error(error.message); }
+          }
+        } catch {
+          const error = await directGoogle();
+          if (error) { setLoading(false); toast.error(error.message); }
+        }
       }}
       className={cn(
         "flex h-11 w-full items-center justify-center gap-3 rounded-full border border-border bg-background text-sm font-semibold transition hover:bg-muted disabled:opacity-60",
