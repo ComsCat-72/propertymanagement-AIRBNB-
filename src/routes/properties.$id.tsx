@@ -12,6 +12,9 @@ import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
 import { formatPhone, whatsappLink } from "@/lib/phone";
 import { SITE_URL } from "@/lib/site";
+import { Lightbox } from "@/components/Lightbox";
+import { describeAttributes, hasRooms } from "@/lib/listing-schema";
+import { logInquiry } from "@/lib/inquiries";
 
 export const Route = createFileRoute("/properties/$id")({
   loader: async ({ params }) => {
@@ -84,6 +87,7 @@ function PropertyDetail() {
   const { id } = Route.useParams();
   const [api, setApi] = useState<CarouselApi>();
   const [slide, setSlide] = useState(0);
+  const [lightbox, setLightbox] = useState<number | null>(null);
   useEffect(() => {
     if (!api) return;
     const onSelect = () => setSlide(api.selectedScrollSnap());
@@ -124,25 +128,34 @@ function PropertyDetail() {
     property_type: "sale" | "rent"; category: string; location: string; city: string;
     bedrooms: number; bathrooms: number; area_sqm: number; amenities: string[]; images: string[];
     features?: { label: string; value: string }[] | null;
+    attributes?: Record<string, string | number | boolean> | null;
+    negotiable?: boolean | null;
+    province?: string | null; district?: string | null; sector?: string | null;
     agent: { id: string; full_name: string; phone: string | null; agency_name: string | null; profile_photo_url: string | null; bio: string | null; is_verified: boolean | null; verified_expires_at: string | null };
   };
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1600"];
 
   const waLink = whatsappLink(p.agent.phone, `Hi ${p.agent.full_name}, I'm interested in "${p.title}" on Ibyungura.com.`);
   const features = Array.isArray(p.features) ? p.features.filter((f) => f && f.label) : [];
+  const specs = describeAttributes(p.category, p.attributes);
+  const area = [p.sector, p.district, p.province].filter(Boolean).join(", ");
 
   return (
     <SiteShell>
       <div className="mx-auto max-w-[1280px] px-6 py-8 lg:px-10">
         <h1 className="text-2xl font-bold sm:text-3xl">{p.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{p.city}{p.location ? `, ${p.location}` : ""} · <span className="capitalize">{p.category}</span> · For {p.property_type}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {p.city}{p.location ? `, ${p.location}` : ""}{area ? ` · ${area}` : ""} · <span className="capitalize">{p.category}</span> · For {p.property_type}
+        </p>
 
         <div className="mt-4 md:hidden">
           <Carousel opts={{ loop: true }} setApi={setApi} className="relative overflow-hidden rounded-2xl">
             <CarouselContent>
               {imgs.map((src, i) => (
                 <CarouselItem key={i}>
-                  <img src={cldUrl(src, 1000)} alt="" className="h-72 w-full object-cover" />
+                  <button type="button" onClick={() => setLightbox(i)} aria-label={`Open photo ${i + 1} full screen`} className="block w-full">
+                    <img src={cldUrl(src, 1000)} alt="" className="h-72 w-full object-cover" />
+                  </button>
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -153,24 +166,50 @@ function PropertyDetail() {
         </div>
 
         <div className="relative mt-6 hidden h-[480px] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl md:grid">
-          <img src={cldUrl(imgs[0], 1200)} alt="" className="col-span-2 row-span-2 h-full w-full object-cover" />
+          <button type="button" onClick={() => setLightbox(0)} aria-label="Open photo 1 full screen" className="col-span-2 row-span-2 h-full w-full">
+            <img src={cldUrl(imgs[0], 1200)} alt="" className="h-full w-full object-cover" />
+          </button>
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-full w-full bg-muted">
-              {imgs[i] && <img src={cldUrl(imgs[i], 600)} alt="" className="h-full w-full object-cover" />}
+              {imgs[i] && (
+                <button type="button" onClick={() => setLightbox(i)} aria-label={`Open photo ${i + 1} full screen`} className="h-full w-full">
+                  <img src={cldUrl(imgs[i], 600)} alt="" className="h-full w-full object-cover" />
+                </button>
+              )}
             </div>
           ))}
-          <div className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+          <button
+            type="button"
+            onClick={() => setLightbox(0)}
+            className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white hover:bg-black"
+          >
             {imgs.length} photo{imgs.length === 1 ? "" : "s"}
-          </div>
+          </button>
         </div>
+        <Lightbox images={imgs} index={lightbox} onClose={() => setLightbox(null)} onIndexChange={setLightbox} />
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
           <div>
-            <div className="flex items-center gap-6 border-b border-border pb-6">
-              <span className="flex items-center gap-2 text-sm"><BedDouble className="h-5 w-5" /> {p.bedrooms} bedrooms</span>
-              <span className="flex items-center gap-2 text-sm"><Bath className="h-5 w-5" /> {p.bathrooms} bathrooms</span>
-              <span className="flex items-center gap-2 text-sm"><Maximize className="h-5 w-5" /> {p.area_sqm} m²</span>
-            </div>
+            {hasRooms(p.category) && (
+              <div className="flex flex-wrap items-center gap-6 border-b border-border pb-6">
+                <span className="flex items-center gap-2 text-sm"><BedDouble className="h-5 w-5" /> {p.bedrooms} bedrooms</span>
+                <span className="flex items-center gap-2 text-sm"><Bath className="h-5 w-5" /> {p.bathrooms} bathrooms</span>
+                <span className="flex items-center gap-2 text-sm"><Maximize className="h-5 w-5" /> {p.area_sqm} m²</span>
+              </div>
+            )}
+            {specs.length > 0 && (
+              <div className="border-b border-border py-6">
+                <h2 className="text-xl font-bold">Details</h2>
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {specs.map((s) => (
+                    <div key={s.label} className="rounded-xl border border-border px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</p>
+                      <p className="text-sm font-semibold">{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {features.length > 0 && (
               <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border py-6 text-sm">
                 {features.map((f, i) => (
@@ -202,6 +241,7 @@ function PropertyDetail() {
                 <span className="text-2xl font-extrabold">{formatPrice(p.price, p.property_type)}</span>
                 <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">For {p.property_type}</span>
               </div>
+              {p.negotiable && <p className="mt-1 text-xs font-semibold text-gold">Price negotiable</p>}
               <div className="mt-6 border-t border-border pt-6">
                 <div className="flex items-center gap-3">
                   {p.agent.profile_photo_url ? (
@@ -219,12 +259,12 @@ function PropertyDetail() {
                   {p.agent.agency_name && <p className="flex items-center gap-2"><Building2 className="h-4 w-4 text-brand" /> {p.agent.agency_name}</p>}
                 </div>
                 {p.agent.phone && (
-                  <a href={`tel:${p.agent.phone}`} className="mt-5 block">
+                  <a href={`tel:${p.agent.phone}`} onClick={() => void logInquiry(p.agent.id, p.id, "call")} className="mt-5 block">
                     <Button className="w-full rounded-full bg-brand font-semibold text-brand-foreground hover:bg-brand/90">Call Agent</Button>
                   </a>
                 )}
                 {waLink && (
-                  <a href={waLink} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+                  <a href={waLink} target="_blank" rel="noopener noreferrer" onClick={() => void logInquiry(p.agent.id, p.id, "whatsapp")} className="mt-2 block">
                     <Button className="w-full rounded-full bg-[#25D366] font-semibold text-white hover:bg-[#20b357]">
                       <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp Agent
                     </Button>

@@ -14,6 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_inquiries: {
+        Row: {
+          agent_id: string
+          channel: string
+          client_id: string
+          created_at: string
+          id: string
+          property_id: string | null
+        }
+        Insert: {
+          agent_id: string
+          channel?: string
+          client_id: string
+          created_at?: string
+          id?: string
+          property_id?: string | null
+        }
+        Update: {
+          agent_id?: string
+          channel?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          property_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_inquiries_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_inquiries_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_inquiries_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_reviews: {
+        Row: {
+          accuracy: number
+          agent_id: string
+          client_id: string
+          comment: string
+          communication: number
+          created_at: string
+          id: string
+          professionalism: number
+          property_id: string | null
+          recommends: boolean
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accuracy: number
+          agent_id: string
+          client_id: string
+          comment?: string
+          communication: number
+          created_at?: string
+          id?: string
+          professionalism: number
+          property_id?: string | null
+          recommends?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accuracy?: number
+          agent_id?: string
+          client_id?: string
+          comment?: string
+          communication?: number
+          created_at?: string
+          id?: string
+          professionalism?: number
+          property_id?: string | null
+          recommends?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_reviews_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_reviews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_views: {
         Row: {
           agent_id: string
@@ -129,6 +245,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          is_independent: boolean
           is_public_agent: boolean
           is_verified: boolean
           phone: string | null
@@ -136,9 +253,15 @@ export type Database = {
           plan: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at: string | null
           profile_photo_url: string | null
+          social_facebook: string
+          social_instagram: string
+          social_linkedin: string
+          social_tiktok: string
+          specializations: string[]
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
           verified_expires_at: string | null
+          whatsapp_business: string
         }
         Insert: {
           achievements?: string
@@ -150,6 +273,7 @@ export type Database = {
           email?: string
           full_name?: string
           id: string
+          is_independent?: boolean
           is_public_agent?: boolean
           is_verified?: boolean
           phone?: string | null
@@ -157,9 +281,15 @@ export type Database = {
           plan?: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at?: string | null
           profile_photo_url?: string | null
+          social_facebook?: string
+          social_instagram?: string
+          social_linkedin?: string
+          social_tiktok?: string
+          specializations?: string[]
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           verified_expires_at?: string | null
+          whatsapp_business?: string
         }
         Update: {
           achievements?: string
@@ -171,6 +301,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          is_independent?: boolean
           is_public_agent?: boolean
           is_verified?: boolean
           phone?: string | null
@@ -178,9 +309,15 @@ export type Database = {
           plan?: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at?: string | null
           profile_photo_url?: string | null
+          social_facebook?: string
+          social_instagram?: string
+          social_linkedin?: string
+          social_tiktok?: string
+          specializations?: string[]
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           verified_expires_at?: string | null
+          whatsapp_business?: string
         }
         Relationships: []
       }
@@ -189,20 +326,25 @@ export type Database = {
           agent_id: string
           amenities: string[]
           area_sqm: number
+          attributes: Json
           bathrooms: number
           bedrooms: number
           category: Database["public"]["Enums"]["property_category"]
           city: string
           created_at: string
           description: string
+          district: string
           features: Json
           id: string
           image_public_ids: string[]
           images: string[]
           is_featured: boolean
           location: string
+          negotiable: boolean
           price: number
           property_type: Database["public"]["Enums"]["property_type"]
+          province: string
+          sector: string
           status: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at: string
@@ -211,20 +353,25 @@ export type Database = {
           agent_id: string
           amenities?: string[]
           area_sqm?: number
+          attributes?: Json
           bathrooms?: number
           bedrooms?: number
           category?: Database["public"]["Enums"]["property_category"]
           city?: string
           created_at?: string
           description?: string
+          district?: string
           features?: Json
           id?: string
           image_public_ids?: string[]
           images?: string[]
           is_featured?: boolean
           location?: string
+          negotiable?: boolean
           price?: number
           property_type?: Database["public"]["Enums"]["property_type"]
+          province?: string
+          sector?: string
           status?: Database["public"]["Enums"]["property_status"]
           title: string
           updated_at?: string
@@ -233,20 +380,25 @@ export type Database = {
           agent_id?: string
           amenities?: string[]
           area_sqm?: number
+          attributes?: Json
           bathrooms?: number
           bedrooms?: number
           category?: Database["public"]["Enums"]["property_category"]
           city?: string
           created_at?: string
           description?: string
+          district?: string
           features?: Json
           id?: string
           image_public_ids?: string[]
           images?: string[]
           is_featured?: boolean
           location?: string
+          negotiable?: boolean
           price?: number
           property_type?: Database["public"]["Enums"]["property_type"]
+          province?: string
+          sector?: string
           status?: Database["public"]["Enums"]["property_status"]
           title?: string
           updated_at?: string
@@ -255,6 +407,42 @@ export type Database = {
           {
             foreignKeyName: "properties_agent_id_fkey"
             columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_properties: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_properties_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_properties_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -391,7 +579,7 @@ export type Database = {
     }
     Enums: {
       account_status: "active" | "suspended"
-      app_role: "admin" | "agent"
+      app_role: "admin" | "agent" | "client"
       property_category:
         | "house"
         | "apartment"
@@ -400,7 +588,12 @@ export type Database = {
         | "villa"
         | "car"
         | "motorcycle"
-      property_status: "active" | "sold" | "rented"
+      property_status:
+        | "active"
+        | "sold"
+        | "rented"
+        | "draft"
+        | "under_negotiation"
       property_type: "sale" | "rent"
       subscription_plan: "free" | "tier1" | "tier2"
     }
@@ -531,7 +724,7 @@ export const Constants = {
   public: {
     Enums: {
       account_status: ["active", "suspended"],
-      app_role: ["admin", "agent"],
+      app_role: ["admin", "agent", "client"],
       property_category: [
         "house",
         "apartment",
@@ -541,7 +734,13 @@ export const Constants = {
         "car",
         "motorcycle",
       ],
-      property_status: ["active", "sold", "rented"],
+      property_status: [
+        "active",
+        "sold",
+        "rented",
+        "draft",
+        "under_negotiation",
+      ],
       property_type: ["sale", "rent"],
       subscription_plan: ["free", "tier1", "tier2"],
     },

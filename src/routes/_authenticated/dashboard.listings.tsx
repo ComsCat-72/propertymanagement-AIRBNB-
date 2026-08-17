@@ -16,6 +16,8 @@ import { logEvent } from "@/lib/events";
 import { uploadListingImage, cldUrl } from "@/lib/cloudinary";
 import { deleteUploads, deletePropertyWithImages } from "@/lib/cloudinary.functions";
 import { UploadProgressTile, type UploadTask } from "@/components/UploadProgressTile";
+import { Switch } from "@/components/ui/switch";
+import { fieldsFor, hasRooms, MIN_PHOTOS, PHOTO_CHECKLIST, RWANDA_PROVINCES, type Attributes } from "@/lib/listing-schema";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -38,12 +40,18 @@ type Form = {
   images: string[];
   image_public_ids: string[];
   status: "active" | "sold" | "rented";
+  attributes: Attributes;
+  negotiable: boolean;
+  province: string;
+  district: string;
+  sector: string;
 };
 
 const emptyForm = (): Form => ({
   title: "", description: "", price: "", property_type: "sale", category: "house",
   location: "", city: "", bedrooms: "0", bathrooms: "0", area_sqm: "0",
   amenities: [], features: [], images: [], image_public_ids: [], status: "active",
+  attributes: {}, negotiable: false, province: "", district: "", sector: "",
 });
 
 function ListingsPage() {
@@ -171,6 +179,10 @@ function ListingsPage() {
       return;
     }
     if (!form.title || !form.city || !form.location) { toast.error("Title, city, and location are required"); return; }
+    if (form.status === "active" && form.images.length < MIN_PHOTOS) {
+      toast.error(`Add at least ${MIN_PHOTOS} photos before publishing this listing.`);
+      return;
+    }
     const payload = {
       agent_id: user.id,
       title: form.title.trim(),
@@ -188,6 +200,11 @@ function ListingsPage() {
       images: form.images,
       image_public_ids: form.image_public_ids,
       status: form.status,
+      attributes: form.attributes,
+      negotiable: form.negotiable,
+      province: form.province,
+      district: form.district,
+      sector: form.sector,
     };
     const { error } = form.id
       ? await supabase.from("properties").update(payload as never).eq("id", form.id)
@@ -223,6 +240,11 @@ function ListingsPage() {
       features: ((l as unknown as { features?: { label: string; value: string }[] }).features ?? []).filter(Boolean),
       images: x.images, image_public_ids: (l as { image_public_ids?: string[] }).image_public_ids ?? [],
       status: x.status,
+      attributes: ((l as unknown as { attributes?: Attributes }).attributes ?? {}) as Attributes,
+      negotiable: (l as unknown as { negotiable?: boolean }).negotiable ?? false,
+      province: (l as unknown as { province?: string }).province ?? "",
+      district: (l as unknown as { district?: string }).district ?? "",
+      sector: (l as unknown as { sector?: string }).sector ?? "",
     });
     setOpen(true);
   };
@@ -250,7 +272,7 @@ function ListingsPage() {
                 </select>
               </div>
               <div><Label>Category</Label>
-                <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as never })}>
+                <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as never, attributes: {} })}>
                   <option value="house">House</option><option value="apartment">Apartment</option><option value="land">Land</option><option value="commercial">Commercial</option><option value="villa">Villa</option><option value="car">Car</option><option value="motorcycle">Motorcycle</option>
                 </select>
               </div>
@@ -261,9 +283,66 @@ function ListingsPage() {
               </div>
               <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
               <div><Label>Location *</Label><Input required placeholder="Neighborhood, street, or landmark" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
-              <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
-              <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
-              <div><Label>Area (m²)</Label><Input type="number" value={form.area_sqm} onChange={(e) => setForm({ ...form, area_sqm: e.target.value })} /></div>
+              <div><Label>Province</Label>
+                <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })}>
+                  <option value="">Not specified</option>
+                  {RWANDA_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div><Label>District</Label><Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} placeholder="Gasabo" /></div>
+              <div><Label>Sector</Label><Input value={form.sector} onChange={(e) => setForm({ ...form, sector: e.target.value })} placeholder="Kimironko" /></div>
+              <div className="flex items-end gap-3 pb-1">
+                <Switch id="negotiable" checked={form.negotiable} onCheckedChange={(v) => setForm({ ...form, negotiable: v })} />
+                <Label htmlFor="negotiable">Price is negotiable</Label>
+              </div>
+              {hasRooms(form.category) && (
+                <>
+                  <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
+                  <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
+                  <div><Label>Area (m²)</Label><Input type="number" value={form.area_sqm} onChange={(e) => setForm({ ...form, area_sqm: e.target.value })} /></div>
+                </>
+              )}
+
+              {/* Category-specific specs */}
+              <div className="md:col-span-2 rounded-2xl border border-border p-4">
+                <Label>Specifications</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Fields adapt to the category you picked — buyers filter and compare with these.</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {fieldsFor(form.category).map((fd) => {
+                    const val = form.attributes[fd.key];
+                    const set = (v: string | number | boolean) =>
+                      setForm((f) => ({ ...f, attributes: { ...f.attributes, [fd.key]: v } }));
+                    return (
+                      <div key={fd.key}>
+                        <Label className="text-xs">{fd.label}{fd.suffix ? ` (${fd.suffix})` : ""}</Label>
+                        {fd.type === "select" ? (
+                          <select
+                            className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                            value={String(val ?? "")}
+                            onChange={(e) => set(e.target.value)}
+                          >
+                            <option value="">Not specified</option>
+                            {fd.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        ) : fd.type === "boolean" ? (
+                          <div className="mt-2 flex items-center gap-3">
+                            <Switch checked={!!val} onCheckedChange={(v) => set(v)} aria-label={fd.label} />
+                            <span className="text-sm text-muted-foreground">{val ? "Yes" : "No"}</span>
+                          </div>
+                        ) : (
+                          <Input
+                            className="mt-1"
+                            type={fd.type === "number" ? "number" : "text"}
+                            placeholder={fd.placeholder}
+                            value={String(val ?? "")}
+                            onChange={(e) => set(fd.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Custom details — agents add their own fields */}
               <div className="md:col-span-2 rounded-2xl border border-border p-4">
@@ -345,6 +424,17 @@ function ListingsPage() {
               <div className="md:col-span-2">
                 <Label>Images (max 10)</Label>
                 <p className="mt-1 text-xs text-muted-foreground">Drag photos to reorder — the first one is the cover shown on listings. Or click the star to make a photo the cover.</p>
+                <div className="mt-2 rounded-xl bg-muted/60 p-3">
+                  <p className="text-xs font-semibold">Photo standards — at least {MIN_PHOTOS} photos to publish</p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4 text-[11px] text-muted-foreground">
+                    {PHOTO_CHECKLIST.map((c) => <li key={c}>{c}</li>)}
+                  </ul>
+                </div>
+                {form.images.length < MIN_PHOTOS && (
+                  <p className="mt-2 text-xs font-semibold text-destructive">
+                    {MIN_PHOTOS - form.images.length} more photo{MIN_PHOTOS - form.images.length === 1 ? "" : "s"} needed before this listing can be Active.
+                  </p>
+                )}
                 <label className="mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-6 hover:bg-muted">
                   <Upload className="h-4 w-4" /><span className="text-sm">{uploading ? "Uploading…" : "Click to upload"}</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => upload(e.target.files)} />
