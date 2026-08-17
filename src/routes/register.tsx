@@ -15,6 +15,7 @@ import { UploadProgressOverlay } from "@/components/UploadProgressTile";
 import { PhoneField } from "@/components/PhoneField";
 import { DEFAULT_DIAL, joinPhone } from "@/lib/phone";
 import { SITE_URL } from "@/lib/site";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 const schema = z.object({
   full_name: z.string().trim().min(1).max(100),
@@ -188,6 +189,13 @@ function RegisterPage() {
             {uploading ? "Uploading photo…" : loading ? "Creating…" : "Create agent account"}
           </Button>
         </form>
+        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+        </div>
+        <GoogleSignInButton label="Continue with Google" />
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          Google sign-in creates a free browsing account — save homes and review agents.
+        </p>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account? <Link to="/login" search={{ next: undefined }} className="font-semibold text-brand underline">Log in</Link>
         </p>
