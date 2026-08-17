@@ -1,11 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, ChevronLeft, ChevronRight, BedDouble, Bath, Maximize, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { formatPrice } from "@/lib/format";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
 import { whatsappLink } from "@/lib/phone";
+import { useAuth } from "@/lib/auth";
+import { useSavedIds, useToggleSaved } from "@/lib/saved";
 
 export interface PropertyCardData {
   id: string;
@@ -31,7 +34,10 @@ export interface PropertyCardData {
 
 export function PropertyCard({ p }: { p: PropertyCardData }) {
   const [idx, setIdx] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const { user } = useAuth();
+  const { data: savedIds } = useSavedIds(user?.id);
+  const toggle = useToggleSaved(user?.id);
+  const liked = (savedIds ?? []).includes(p.id);
   const imgs = p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800"];
   const verified = isVerified(p.agent);
   const waHref = whatsappLink(p.agent?.phone, `Hi ${p.agent?.full_name ?? ""}, I'm interested in "${p.title}" on Ibyungura.com.`);
@@ -43,7 +49,14 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
           <img src={cldUrl(imgs[idx], 800)} alt={p.title} className="h-full w-full object-cover transition group-hover:scale-105" />
         </Link>
           <button
-            onClick={(e) => { e.preventDefault(); setLiked(!liked); }}
+            onClick={(e) => {
+              e.preventDefault();
+              if (!user) { toast.info("Sign in to save homes to your account"); return; }
+              toggle.mutate(
+                { propertyId: p.id, saved: liked },
+                { onError: (err) => toast.error(err instanceof Error ? err.message : "Could not save") },
+              );
+            }}
             aria-label={liked ? `Remove ${p.title} from favourites` : `Save ${p.title} to favourites`}
             aria-pressed={liked}
             className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-black/20 backdrop-blur-sm transition hover:scale-110"
