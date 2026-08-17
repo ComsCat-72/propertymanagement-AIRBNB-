@@ -39,7 +39,7 @@ type Form = {
   features: { label: string; value: string }[];
   images: string[];
   image_public_ids: string[];
-  status: "active" | "sold" | "rented";
+  status: "active" | "under_negotiation" | "sold" | "rented" | "draft";
   attributes: Attributes;
   negotiable: boolean;
   province: string;
