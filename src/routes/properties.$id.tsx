@@ -241,6 +241,7 @@ function PropertyDetail() {
                 <span className="text-2xl font-extrabold">{formatPrice(p.price, p.property_type)}</span>
                 <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">For {p.property_type}</span>
               </div>
+              {p.negotiable && <p className="mt-1 text-xs font-semibold text-gold">Price negotiable</p>}
               <div className="mt-6 border-t border-border pt-6">
                 <div className="flex items-center gap-3">
                   {p.agent.profile_photo_url ? (
@@ -258,12 +259,12 @@ function PropertyDetail() {
                   {p.agent.agency_name && <p className="flex items-center gap-2"><Building2 className="h-4 w-4 text-brand" /> {p.agent.agency_name}</p>}
                 </div>
                 {p.agent.phone && (
-                  <a href={`tel:${p.agent.phone}`} className="mt-5 block">
+                  <a href={`tel:${p.agent.phone}`} onClick={() => void logInquiry(p.agent.id, p.id, "call")} className="mt-5 block">
                     <Button className="w-full rounded-full bg-brand font-semibold text-brand-foreground hover:bg-brand/90">Call Agent</Button>
                   </a>
                 )}
                 {waLink && (
-                  <a href={waLink} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+                  <a href={waLink} target="_blank" rel="noopener noreferrer" onClick={() => void logInquiry(p.agent.id, p.id, "whatsapp")} className="mt-2 block">
                     <Button className="w-full rounded-full bg-[#25D366] font-semibold text-white hover:bg-[#20b357]">
                       <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp Agent
                     </Button>

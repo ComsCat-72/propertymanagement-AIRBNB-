@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { Phone, Building2, Award, MessageCircle } from "lucide-react";
+import { Phone, Building2, Award, MessageCircle, Instagram, Facebook, Linkedin, Music2, BadgeCheck, Home, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/SiteShell";
 import { PropertyCard, type PropertyCardData } from "@/components/PropertyCard";
@@ -11,6 +11,8 @@ import { isVerified } from "@/lib/plans";
 import { cldUrl } from "@/lib/cloudinary";
 import { formatPhone, whatsappLink } from "@/lib/phone";
 import { SITE_URL } from "@/lib/site";
+import { AgentReviews } from "@/components/AgentReviews";
+import { logInquiry } from "@/lib/inquiries";
 
 export const Route = createFileRoute("/agents/$id")({
   loader: async ({ params }) => {
@@ -82,10 +84,15 @@ function AgentDetail() {
     queryFn: async () => {
       const { data: agent } = await supabase
         .from("profiles")
-        .select("id, full_name, agency_name, bio, profile_photo_url, achievements, phone, status, is_verified, verified_expires_at")
+        .select("id, full_name, agency_name, bio, profile_photo_url, achievements, phone, status, is_verified, verified_expires_at, created_at, specializations, is_independent, social_instagram, social_facebook, social_tiktok, social_linkedin, whatsapp_business")
         .eq("id", id)
         .maybeSingle();
-      return { agent };
+      const { count: activeCount } = await supabase
+        .from("properties")
+        .select("id", { count: "exact", head: true })
+        .eq("agent_id", id)
+        .eq("status", "active");
+      return { agent, activeCount: activeCount ?? 0 };
     },
   });
 
@@ -129,8 +136,24 @@ function AgentDetail() {
   }, [id, qc]);
 
   if (!data?.agent) return <SiteShell><div className="p-10">Agent not found.</div></SiteShell>;
-  const a = data.agent;
+  const a = data.agent as typeof data.agent & {
+    created_at?: string;
+    specializations?: string[] | null;
+    is_independent?: boolean | null;
+    social_instagram?: string | null;
+    social_facebook?: string | null;
+    social_tiktok?: string | null;
+    social_linkedin?: string | null;
+    whatsapp_business?: string | null;
+  };
   const waLink = whatsappLink(a.phone, `Hi ${a.full_name}, I found your profile on Ibyungura.com and would like to chat.`);
+  const socials = [
+    { href: a.social_instagram, Icon: Instagram, label: "Instagram" },
+    { href: a.social_facebook, Icon: Facebook, label: "Facebook" },
+    { href: a.social_tiktok, Icon: Music2, label: "TikTok" },
+    { href: a.social_linkedin, Icon: Linkedin, label: "LinkedIn" },
+  ].filter((s) => !!s.href) as { href: string; Icon: typeof Instagram; label: string }[];
+  const memberSince = a.created_at ? new Date(a.created_at).getFullYear() : null;
 
   return (
     <SiteShell>
@@ -147,13 +170,42 @@ function AgentDetail() {
               {isVerified(a) && <VerifiedBadge />}
             </div>
             {a.agency_name && <p className="mt-1 text-muted-foreground">{a.agency_name}</p>}
+            {a.is_independent && !a.agency_name && <p className="mt-1 text-muted-foreground">Independent agent</p>}
             {a.bio && <p className="mt-3 max-w-2xl text-sm">{a.bio}</p>}
+            {(a.specializations?.length ?? 0) > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {a.specializations!.map((s) => (
+                  <span key={s} className="rounded-full bg-muted px-3 py-1 text-xs font-semibold">{s}</span>
+                ))}
+              </div>
+            )}
+            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5"><Home className="h-4 w-4 text-brand" /> {data.activeCount} active listing{data.activeCount === 1 ? "" : "s"}</span>
+              {memberSince && <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-brand" /> Member since {memberSince}</span>}
+              {isVerified(a) && <span className="flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-brand" /> Verified agent</span>}
+            </div>
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
               {a.phone && <span className="flex items-center gap-1.5"><Phone className="h-4 w-4 text-brand" /> {formatPhone(a.phone)}</span>}
               {a.agency_name && <span className="flex items-center gap-1.5"><Building2 className="h-4 w-4 text-brand" /> {a.agency_name}</span>}
             </div>
+            {socials.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {socials.map(({ href, Icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${a.full_name} on ${label}`}
+                    className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:bg-muted"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            )}
             {waLink && (
-              <a href={waLink} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#20b357]">
+              <a href={waLink} target="_blank" rel="noopener noreferrer" onClick={() => void logInquiry(a.id, null, "whatsapp")} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#20b357]">
                 <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
               </a>
             )}
@@ -166,6 +218,8 @@ function AgentDetail() {
             <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{(a as { achievements: string }).achievements}</p>
           </div>
         )}
+
+        <AgentReviews agentId={a.id} />
 
         <h2 className="mt-10 text-2xl font-bold">Listings by {a.full_name}</h2>
         {listingsLoading ? (
