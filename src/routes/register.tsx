@@ -15,6 +15,7 @@ import { UploadProgressOverlay } from "@/components/UploadProgressTile";
 import { PhoneField } from "@/components/PhoneField";
 import { DEFAULT_DIAL, joinPhone } from "@/lib/phone";
 import { SITE_URL } from "@/lib/site";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 const schema = z.object({
   full_name: z.string().trim().min(1).max(100),
