@@ -116,3 +116,18 @@ export const SPECIALIZATIONS = [
   "Property management",
   "Diaspora clients",
 ];
+
+/** Quick-pick amenity suggestions per category — agents can still type their own. */
+export const AMENITY_SUGGESTIONS: Record<ListingCategory, string[]> = {
+  house: ["Water tank", "Backup generator", "Solar power", "Security fence", "Garden", "Garage", "Borehole", "CCTV"],
+  apartment: ["Lift", "Backup generator", "Water tank", "Parking bay", "Balcony", "Security guard", "Gym", "Wi-Fi ready"],
+  villa: ["Swimming pool", "Garden", "Servant quarters", "Security fence", "Solar power", "Garage", "CCTV", "Backup generator"],
+  land: ["Fenced", "Water connection", "Electricity nearby", "Tarmac access", "Survey done", "Corner plot"],
+  commercial: ["Backup generator", "Lift", "Parking", "Air conditioning", "Loading bay", "CCTV", "Fibre internet"],
+  car: ["Air conditioning", "Reverse camera", "Alloy wheels", "Leather seats", "Sunroof", "Bluetooth", "New tyres"],
+  motorcycle: ["Helmet included", "Crash bars", "New tyres", "Top box", "Electric start"],
+};
+
+export function amenitySuggestions(category: string): string[] {
+  return AMENITY_SUGGESTIONS[category as ListingCategory] ?? AMENITY_SUGGESTIONS.house;
+}

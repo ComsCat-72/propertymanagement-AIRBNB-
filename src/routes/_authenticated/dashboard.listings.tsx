@@ -17,7 +17,7 @@ import { uploadListingImage, cldUrl } from "@/lib/cloudinary";
 import { deleteUploads, deletePropertyWithImages } from "@/lib/cloudinary.functions";
 import { UploadProgressTile, type UploadTask } from "@/components/UploadProgressTile";
 import { Switch } from "@/components/ui/switch";
-import { fieldsFor, hasRooms, MIN_PHOTOS, PHOTO_CHECKLIST, RWANDA_PROVINCES, type Attributes } from "@/lib/listing-schema";
+import { amenitySuggestions, fieldsFor, hasRooms, MIN_PHOTOS, PHOTO_CHECKLIST, RWANDA_PROVINCES, type Attributes } from "@/lib/listing-schema";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listings")({
   component: ListingsPage,
@@ -278,7 +278,7 @@ function ListingsPage() {
               </div>
               <div><Label>Status</Label>
                 <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as never })}>
-                  <option value="active">Active</option><option value="sold">Sold</option><option value="rented">Rented</option>
+                  <option value="active">Active</option><option value="under_negotiation">Under negotiation</option><option value="sold">Sold</option><option value="rented">Rented</option><option value="draft">Draft</option>
                 </select>
               </div>
               <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
@@ -383,6 +383,20 @@ function ListingsPage() {
               {/* Amenities as chips */}
               <div className="md:col-span-2 rounded-2xl border border-border p-4">
                 <Label>Amenities</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {amenitySuggestions(form.category)
+                    .filter((a) => !form.amenities.includes(a))
+                    .map((a) => (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, amenities: [...f.amenities, a] }))}
+                        className="rounded-full border border-dashed border-border px-3 py-1 text-xs text-muted-foreground transition hover:border-brand hover:text-brand"
+                      >
+                        + {a}
+                      </button>
+                    ))}
+                </div>
                 <div className="mt-2 flex gap-2">
                   <Input
                     placeholder="Pool, Garage, Garden…"
