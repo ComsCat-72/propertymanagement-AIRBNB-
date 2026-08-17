@@ -272,7 +272,7 @@ function ListingsPage() {
                 </select>
               </div>
               <div><Label>Category</Label>
-                <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as never })}>
+                <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as never, attributes: {} })}>
                   <option value="house">House</option><option value="apartment">Apartment</option><option value="land">Land</option><option value="commercial">Commercial</option><option value="villa">Villa</option><option value="car">Car</option><option value="motorcycle">Motorcycle</option>
                 </select>
               </div>
@@ -283,9 +283,66 @@ function ListingsPage() {
               </div>
               <div><Label>City</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
               <div><Label>Location *</Label><Input required placeholder="Neighborhood, street, or landmark" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
-              <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
-              <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
-              <div><Label>Area (m²)</Label><Input type="number" value={form.area_sqm} onChange={(e) => setForm({ ...form, area_sqm: e.target.value })} /></div>
+              <div><Label>Province</Label>
+                <select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })}>
+                  <option value="">Not specified</option>
+                  {RWANDA_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div><Label>District</Label><Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} placeholder="Gasabo" /></div>
+              <div><Label>Sector</Label><Input value={form.sector} onChange={(e) => setForm({ ...form, sector: e.target.value })} placeholder="Kimironko" /></div>
+              <div className="flex items-end gap-3 pb-1">
+                <Switch id="negotiable" checked={form.negotiable} onCheckedChange={(v) => setForm({ ...form, negotiable: v })} />
+                <Label htmlFor="negotiable">Price is negotiable</Label>
+              </div>
+              {hasRooms(form.category) && (
+                <>
+                  <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} /></div>
+                  <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} /></div>
+                  <div><Label>Area (m²)</Label><Input type="number" value={form.area_sqm} onChange={(e) => setForm({ ...form, area_sqm: e.target.value })} /></div>
+                </>
+              )}
+
+              {/* Category-specific specs */}
+              <div className="md:col-span-2 rounded-2xl border border-border p-4">
+                <Label>Specifications</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Fields adapt to the category you picked — buyers filter and compare with these.</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {fieldsFor(form.category).map((fd) => {
+                    const val = form.attributes[fd.key];
+                    const set = (v: string | number | boolean) =>
+                      setForm((f) => ({ ...f, attributes: { ...f.attributes, [fd.key]: v } }));
+                    return (
+                      <div key={fd.key}>
+                        <Label className="text-xs">{fd.label}{fd.suffix ? ` (${fd.suffix})` : ""}</Label>
+                        {fd.type === "select" ? (
+                          <select
+                            className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                            value={String(val ?? "")}
+                            onChange={(e) => set(e.target.value)}
+                          >
+                            <option value="">Not specified</option>
+                            {fd.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        ) : fd.type === "boolean" ? (
+                          <div className="mt-2 flex items-center gap-3">
+                            <Switch checked={!!val} onCheckedChange={(v) => set(v)} aria-label={fd.label} />
+                            <span className="text-sm text-muted-foreground">{val ? "Yes" : "No"}</span>
+                          </div>
+                        ) : (
+                          <Input
+                            className="mt-1"
+                            type={fd.type === "number" ? "number" : "text"}
+                            placeholder={fd.placeholder}
+                            value={String(val ?? "")}
+                            onChange={(e) => set(fd.type === "number" ? (e.target.value === "" ? "" : Number(e.target.value)) : e.target.value)}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Custom details — agents add their own fields */}
               <div className="md:col-span-2 rounded-2xl border border-border p-4">
