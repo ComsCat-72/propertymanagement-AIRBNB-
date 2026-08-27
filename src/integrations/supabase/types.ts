@@ -63,6 +63,56 @@ export type Database = {
           },
         ]
       }
+      agent_pages: {
+        Row: {
+          agent_id: string
+          ai_chat_enabled: boolean
+          banner_public_id: string
+          banner_url: string
+          created_at: string
+          slot_minutes: number
+          slug: string
+          tagline: string
+          updated_at: string
+          viewing_fee_rwf: number
+          viewings_enabled: boolean
+        }
+        Insert: {
+          agent_id: string
+          ai_chat_enabled?: boolean
+          banner_public_id?: string
+          banner_url?: string
+          created_at?: string
+          slot_minutes?: number
+          slug: string
+          tagline?: string
+          updated_at?: string
+          viewing_fee_rwf?: number
+          viewings_enabled?: boolean
+        }
+        Update: {
+          agent_id?: string
+          ai_chat_enabled?: boolean
+          banner_public_id?: string
+          banner_url?: string
+          created_at?: string
+          slot_minutes?: number
+          slug?: string
+          tagline?: string
+          updated_at?: string
+          viewing_fee_rwf?: number
+          viewings_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_pages_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_reviews: {
         Row: {
           accuracy: number
@@ -123,6 +173,314 @@ export type Database = {
           },
           {
             foreignKeyName: "agent_reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_subscriptions: {
+        Row: {
+          agent_id: string
+          category: string
+          city: string
+          created_at: string
+          id: string
+          max_price: number | null
+          subscriber_id: string
+        }
+        Insert: {
+          agent_id: string
+          category?: string
+          city?: string
+          created_at?: string
+          id?: string
+          max_price?: number | null
+          subscriber_id: string
+        }
+        Update: {
+          agent_id?: string
+          category?: string
+          city?: string
+          created_at?: string
+          id?: string
+          max_price?: number | null
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_subscriptions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_subscriptions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buyer_leads: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          category: string
+          city: string
+          client_id: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          id: string
+          last_active_at: string
+          listing_type: string
+          max_sales: number
+          price_rwf: number
+          score: number
+          sold_count: number
+          status: string
+          summary: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string
+          city?: string
+          client_id?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          last_active_at?: string
+          listing_type?: string
+          max_sales?: number
+          price_rwf?: number
+          score?: number
+          sold_count?: number
+          status?: string
+          summary?: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string
+          city?: string
+          client_id?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          last_active_at?: string
+          listing_type?: string
+          max_sales?: number
+          price_rwf?: number
+          score?: number
+          sold_count?: number
+          status?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          agent_id: string
+          client_contact: string
+          client_name: string
+          closed_on: string
+          commission_pct: number
+          created_at: string
+          deal_type: string
+          deal_value: number
+          id: string
+          notes: string
+          property_id: string | null
+          property_location: string
+          property_title: string
+          reference: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          client_contact?: string
+          client_name?: string
+          closed_on?: string
+          commission_pct?: number
+          created_at?: string
+          deal_type?: string
+          deal_value?: number
+          id?: string
+          notes?: string
+          property_id?: string | null
+          property_location?: string
+          property_title?: string
+          reference?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          client_contact?: string
+          client_name?: string
+          closed_on?: string
+          commission_pct?: number
+          created_at?: string
+          deal_type?: string
+          deal_value?: number
+          id?: string
+          notes?: string
+          property_id?: string | null
+          property_location?: string
+          property_title?: string
+          reference?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_purchases: {
+        Row: {
+          admin_note: string
+          agent_id: string
+          amount_rwf: number
+          created_at: string
+          id: string
+          lead_id: string
+          payment_reference: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string
+          agent_id: string
+          amount_rwf?: number
+          created_at?: string
+          id?: string
+          lead_id: string
+          payment_reference?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string
+          agent_id?: string
+          amount_rwf?: number
+          created_at?: string
+          id?: string
+          lead_id?: string
+          payment_reference?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_purchases_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_purchases_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_boosts: {
+        Row: {
+          admin_note: string
+          agent_id: string
+          amount_rwf: number
+          created_at: string
+          days: number
+          ends_at: string | null
+          id: string
+          payment_reference: string
+          property_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          starts_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string
+          agent_id: string
+          amount_rwf?: number
+          created_at?: string
+          days?: number
+          ends_at?: string | null
+          id?: string
+          payment_reference?: string
+          property_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string
+          agent_id?: string
+          amount_rwf?: number
+          created_at?: string
+          days?: number
+          ends_at?: string | null
+          id?: string
+          payment_reference?: string
+          property_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_boosts_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_boosts_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
@@ -207,6 +565,47 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          title: string
+          type: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          url?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_limits: {
         Row: {
           label: string
@@ -242,17 +641,20 @@ export type Database = {
           bio: string | null
           cancel_at_period_end: boolean
           created_at: string
+          deals_closed: number
           email: string
           full_name: string
           id: string
           is_independent: boolean
           is_public_agent: boolean
           is_verified: boolean
+          leads_opt_out: boolean
           phone: string | null
           photo_public_id: string
           plan: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at: string | null
           profile_photo_url: string | null
+          show_deal_count: boolean
           social_facebook: string
           social_instagram: string
           social_linkedin: string
@@ -270,17 +672,20 @@ export type Database = {
           bio?: string | null
           cancel_at_period_end?: boolean
           created_at?: string
+          deals_closed?: number
           email?: string
           full_name?: string
           id: string
           is_independent?: boolean
           is_public_agent?: boolean
           is_verified?: boolean
+          leads_opt_out?: boolean
           phone?: string | null
           photo_public_id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at?: string | null
           profile_photo_url?: string | null
+          show_deal_count?: boolean
           social_facebook?: string
           social_instagram?: string
           social_linkedin?: string
@@ -298,17 +703,20 @@ export type Database = {
           bio?: string | null
           cancel_at_period_end?: boolean
           created_at?: string
+          deals_closed?: number
           email?: string
           full_name?: string
           id?: string
           is_independent?: boolean
           is_public_agent?: boolean
           is_verified?: boolean
+          leads_opt_out?: boolean
           phone?: string | null
           photo_public_id?: string
           plan?: Database["public"]["Enums"]["subscription_plan"]
           plan_expires_at?: string | null
           profile_photo_url?: string | null
+          show_deal_count?: boolean
           social_facebook?: string
           social_instagram?: string
           social_linkedin?: string
@@ -523,6 +931,105 @@ export type Database = {
         }
         Relationships: []
       }
+      viewing_bookings: {
+        Row: {
+          agent_id: string
+          client_id: string
+          client_name: string
+          client_phone: string
+          created_at: string
+          id: string
+          note: string
+          property_id: string | null
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          client_id: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          note?: string
+          property_id?: string | null
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          client_id?: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          note?: string
+          property_id?: string | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viewing_bookings_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viewing_bookings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viewing_bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viewing_slots: {
+        Row: {
+          agent_id: string
+          created_at: string
+          end_minute: number
+          id: string
+          start_minute: number
+          weekday: number
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          end_minute?: number
+          id?: string
+          start_minute?: number
+          weekday: number
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          end_minute?: number
+          id?: string
+          start_minute?: number
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viewing_slots_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -541,6 +1048,11 @@ export type Database = {
         Args: { _agent_id: string; _days?: number; _verified: boolean }
         Returns: undefined
       }
+      approve_lead_purchase: {
+        Args: { _purchase_id: string }
+        Returns: undefined
+      }
+      approve_listing_boost: { Args: { _boost_id: string }; Returns: undefined }
       approve_upgrade_request: {
         Args: { _request_id: string }
         Returns: undefined
@@ -550,12 +1062,22 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_plan"]
       }
+      expire_listing_boosts: { Args: never; Returns: undefined }
+      generate_buyer_leads: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      lead_contact: {
+        Args: { _lead_id: string }
+        Returns: {
+          email: string
+          name: string
+          phone: string
+        }[]
       }
       listing_quota_reached: { Args: { _user_id: string }; Returns: boolean }
       non_admin_profile_ids: {
@@ -572,10 +1094,19 @@ export type Database = {
           id: string
         }[]
       }
+      reject_lead_purchase: {
+        Args: { _note: string; _purchase_id: string }
+        Returns: undefined
+      }
+      reject_listing_boost: {
+        Args: { _boost_id: string; _note: string }
+        Returns: undefined
+      }
       reject_upgrade_request: {
         Args: { _note: string; _request_id: string }
         Returns: undefined
       }
+      retire_buyer_lead: { Args: { _lead_id: string }; Returns: undefined }
     }
     Enums: {
       account_status: "active" | "suspended"

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { NotificationsBell } from "@/components/NotificationsBell";
 import { cldUrl } from "@/lib/cloudinary";
 import {
   DropdownMenu,
@@ -150,6 +151,7 @@ export function Navbar() {
           >
             <Globe className="h-4 w-4" />
           </button>
+          {user && <NotificationsBell />}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

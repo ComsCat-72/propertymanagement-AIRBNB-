@@ -24,6 +24,11 @@ function DashboardLayout() {
   const tabs = [
     { to: "/dashboard", label: "Overview" },
     { to: "/dashboard/listings", label: "My Listings" },
+    { to: "/dashboard/boosts", label: "Boosts" },
+    { to: "/dashboard/leads", label: "Leads" },
+    { to: "/dashboard/deals", label: "Deals" },
+    { to: "/dashboard/viewings", label: "Viewings" },
+    { to: "/dashboard/page", label: "My page" },
     { to: "/dashboard/analytics", label: "Analytics" },
     { to: "/dashboard/billing", label: "Billing" },
     { to: "/dashboard/profile", label: "Profile" },

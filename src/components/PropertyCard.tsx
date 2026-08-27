@@ -22,6 +22,7 @@ export interface PropertyCardData {
   bathrooms: number;
   area_sqm: number;
   images: string[];
+  is_featured?: boolean | null;
   agent?: {
     id: string;
     full_name: string;
@@ -87,6 +88,9 @@ export function PropertyCard({ p }: { p: PropertyCardData }) {
             </>
           )}
           <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold capitalize">{p.category}</span>
+          {p.is_featured && (
+            <span className="pointer-events-none absolute right-14 top-3 z-10 rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-navy">Featured</span>
+          )}
           {verified && (
             <span className="pointer-events-none absolute left-3 top-11 z-10 rounded-full bg-background/95 px-1.5 py-0.5">
               <VerifiedBadge size="sm" />
