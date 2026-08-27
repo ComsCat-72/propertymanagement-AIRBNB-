@@ -21,6 +21,7 @@ function AdminLayout() {
     { to: "/admin/agents", label: "Agents" },
     { to: "/admin/listings", label: "Listings" },
     { to: "/admin/billing", label: "Billing" },
+    { to: "/admin/growth", label: "Boosts & leads" },
     { to: "/admin/activity", label: "Activity" },
   ] as const;
   return (

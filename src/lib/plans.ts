@@ -74,9 +74,11 @@ export function maxListings(plan: PlanKey, limits?: PlanLimit[]): number | null 
  * Ranking algorithm: listings from verified agents surface first,
  * ties broken by the incoming (recency / price) order.
  */
-export function rankVerifiedFirst<T extends { agent?: { is_verified?: boolean | null; verified_expires_at?: string | null } | null }>(rows: T[]): T[] {
+export function rankVerifiedFirst<
+  T extends { is_featured?: boolean | null; agent?: { is_verified?: boolean | null; verified_expires_at?: string | null } | null },
+>(rows: T[]): T[] {
   return rows
-    .map((row, i) => ({ row, i, v: isVerified(row.agent) ? 1 : 0 }))
-    .sort((a, b) => b.v - a.v || a.i - b.i)
+    .map((row, i) => ({ row, i, b: row.is_featured ? 1 : 0, v: isVerified(row.agent) ? 1 : 0 }))
+    .sort((a, b) => b.b - a.b || b.v - a.v || a.i - b.i)
     .map((x) => x.row);
 }

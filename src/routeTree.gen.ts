@@ -23,6 +23,7 @@ import { Route as RwandaSlugRouteImport } from './routes/rwanda.$slug'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AgentsIdRouteImport } from './routes/agents.$id'
+import { Route as AgentSlugRouteImport } from './routes/agent.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -31,16 +32,24 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSeedAdminsRouteImport } from './routes/api/public/seed-admins'
+import { Route as AuthenticatedDashboardViewingsRouteImport } from './routes/_authenticated/dashboard.viewings'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
+import { Route as AuthenticatedDashboardPageRouteImport } from './routes/_authenticated/dashboard.page'
 import { Route as AuthenticatedDashboardListingsRouteImport } from './routes/_authenticated/dashboard.listings'
+import { Route as AuthenticatedDashboardLeadsRouteImport } from './routes/_authenticated/dashboard.leads'
+import { Route as AuthenticatedDashboardDealsRouteImport } from './routes/_authenticated/dashboard.deals'
+import { Route as AuthenticatedDashboardBoostsRouteImport } from './routes/_authenticated/dashboard.boosts'
 import { Route as AuthenticatedDashboardBillingRouteImport } from './routes/_authenticated/dashboard.billing'
 import { Route as AuthenticatedDashboardAnalyticsRouteImport } from './routes/_authenticated/dashboard.analytics'
 import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authenticated/admin.listings'
+import { Route as AuthenticatedAdminGrowthRouteImport } from './routes/_authenticated/admin.growth'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin.billing'
 import { Route as AuthenticatedAdminAgentsRouteImport } from './routes/_authenticated/admin.agents'
 import { Route as AuthenticatedAdminActivityRouteImport } from './routes/_authenticated/admin.activity'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as AuthenticatedDealsIdInvoiceRouteImport } from './routes/_authenticated/deals.$id.invoice'
+import { Route as AuthenticatedDealsIdCertificateRouteImport } from './routes/_authenticated/deals.$id.certificate'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -111,6 +120,11 @@ const AgentsIdRoute = AgentsIdRouteImport.update({
   path: '/agents/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentSlugRoute = AgentSlugRouteImport.update({
+  id: '/agent/$slug',
+  path: '/agent/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -154,16 +168,46 @@ const ApiPublicSeedAdminsRoute = ApiPublicSeedAdminsRouteImport.update({
   path: '/api/public/seed-admins',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardViewingsRoute =
+  AuthenticatedDashboardViewingsRouteImport.update({
+    id: '/viewings',
+    path: '/viewings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardProfileRoute =
   AuthenticatedDashboardProfileRouteImport.update({
     id: '/profile',
     path: '/profile',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardPageRoute =
+  AuthenticatedDashboardPageRouteImport.update({
+    id: '/page',
+    path: '/page',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardListingsRoute =
   AuthenticatedDashboardListingsRouteImport.update({
     id: '/listings',
     path: '/listings',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardLeadsRoute =
+  AuthenticatedDashboardLeadsRouteImport.update({
+    id: '/leads',
+    path: '/leads',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardDealsRoute =
+  AuthenticatedDashboardDealsRouteImport.update({
+    id: '/deals',
+    path: '/deals',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardBoostsRoute =
+  AuthenticatedDashboardBoostsRouteImport.update({
+    id: '/boosts',
+    path: '/boosts',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardBillingRoute =
@@ -182,6 +226,12 @@ const AuthenticatedAdminListingsRoute =
   AuthenticatedAdminListingsRouteImport.update({
     id: '/listings',
     path: '/listings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminGrowthRoute =
+  AuthenticatedAdminGrowthRouteImport.update({
+    id: '/growth',
+    path: '/growth',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminBillingRoute =
@@ -213,6 +263,18 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDealsIdInvoiceRoute =
+  AuthenticatedDealsIdInvoiceRouteImport.update({
+    id: '/deals/$id/invoice',
+    path: '/deals/$id/invoice',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDealsIdCertificateRoute =
+  AuthenticatedDealsIdCertificateRouteImport.update({
+    id: '/deals/$id/certificate',
+    path: '/deals/$id/certificate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -226,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/agent/$slug': typeof AgentSlugRoute
   '/agents/$id': typeof AgentsIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -238,14 +301,22 @@ export interface FileRoutesByFullPath {
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
+  '/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
+  '/dashboard/boosts': typeof AuthenticatedDashboardBoostsRoute
+  '/dashboard/deals': typeof AuthenticatedDashboardDealsRoute
+  '/dashboard/leads': typeof AuthenticatedDashboardLeadsRoute
   '/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
+  '/dashboard/page': typeof AuthenticatedDashboardPageRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/api/public/seed-admins': typeof ApiPublicSeedAdminsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/deals/$id/certificate': typeof AuthenticatedDealsIdCertificateRoute
+  '/deals/$id/invoice': typeof AuthenticatedDealsIdInvoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -257,6 +328,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/agent/$slug': typeof AgentSlugRoute
   '/agents/$id': typeof AgentsIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -269,14 +341,22 @@ export interface FileRoutesByTo {
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
+  '/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
+  '/dashboard/boosts': typeof AuthenticatedDashboardBoostsRoute
+  '/dashboard/deals': typeof AuthenticatedDashboardDealsRoute
+  '/dashboard/leads': typeof AuthenticatedDashboardLeadsRoute
   '/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
+  '/dashboard/page': typeof AuthenticatedDashboardPageRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/api/public/seed-admins': typeof ApiPublicSeedAdminsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/deals/$id/certificate': typeof AuthenticatedDealsIdCertificateRoute
+  '/deals/$id/invoice': typeof AuthenticatedDealsIdInvoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -292,6 +372,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/agent/$slug': typeof AgentSlugRoute
   '/agents/$id': typeof AgentsIdRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -304,14 +385,22 @@ export interface FileRoutesById {
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/agents': typeof AuthenticatedAdminAgentsRoute
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
+  '/_authenticated/admin/growth': typeof AuthenticatedAdminGrowthRoute
   '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/_authenticated/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/_authenticated/dashboard/billing': typeof AuthenticatedDashboardBillingRoute
+  '/_authenticated/dashboard/boosts': typeof AuthenticatedDashboardBoostsRoute
+  '/_authenticated/dashboard/deals': typeof AuthenticatedDashboardDealsRoute
+  '/_authenticated/dashboard/leads': typeof AuthenticatedDashboardLeadsRoute
   '/_authenticated/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
+  '/_authenticated/dashboard/page': typeof AuthenticatedDashboardPageRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/_authenticated/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/api/public/seed-admins': typeof ApiPublicSeedAdminsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/deals/$id/certificate': typeof AuthenticatedDealsIdCertificateRoute
+  '/_authenticated/deals/$id/invoice': typeof AuthenticatedDealsIdInvoiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -327,6 +416,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/dashboard'
+    | '/agent/$slug'
     | '/agents/$id'
     | '/auth/callback'
     | '/properties/$id'
@@ -339,14 +429,22 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/billing'
+    | '/admin/growth'
     | '/admin/listings'
     | '/dashboard/analytics'
     | '/dashboard/billing'
+    | '/dashboard/boosts'
+    | '/dashboard/deals'
+    | '/dashboard/leads'
     | '/dashboard/listings'
+    | '/dashboard/page'
     | '/dashboard/profile'
+    | '/dashboard/viewings'
     | '/api/public/seed-admins'
     | '/admin/'
     | '/dashboard/'
+    | '/deals/$id/certificate'
+    | '/deals/$id/invoice'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -358,6 +456,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/account'
+    | '/agent/$slug'
     | '/agents/$id'
     | '/auth/callback'
     | '/properties/$id'
@@ -370,14 +469,22 @@ export interface FileRouteTypes {
     | '/admin/activity'
     | '/admin/agents'
     | '/admin/billing'
+    | '/admin/growth'
     | '/admin/listings'
     | '/dashboard/analytics'
     | '/dashboard/billing'
+    | '/dashboard/boosts'
+    | '/dashboard/deals'
+    | '/dashboard/leads'
     | '/dashboard/listings'
+    | '/dashboard/page'
     | '/dashboard/profile'
+    | '/dashboard/viewings'
     | '/api/public/seed-admins'
     | '/admin'
     | '/dashboard'
+    | '/deals/$id/certificate'
+    | '/deals/$id/invoice'
   id:
     | '__root__'
     | '/'
@@ -392,6 +499,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/agent/$slug'
     | '/agents/$id'
     | '/auth/callback'
     | '/properties/$id'
@@ -404,14 +512,22 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/agents'
     | '/_authenticated/admin/billing'
+    | '/_authenticated/admin/growth'
     | '/_authenticated/admin/listings'
     | '/_authenticated/dashboard/analytics'
     | '/_authenticated/dashboard/billing'
+    | '/_authenticated/dashboard/boosts'
+    | '/_authenticated/dashboard/deals'
+    | '/_authenticated/dashboard/leads'
     | '/_authenticated/dashboard/listings'
+    | '/_authenticated/dashboard/page'
     | '/_authenticated/dashboard/profile'
+    | '/_authenticated/dashboard/viewings'
     | '/api/public/seed-admins'
     | '/_authenticated/admin/'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/deals/$id/certificate'
+    | '/_authenticated/deals/$id/invoice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -424,6 +540,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  AgentSlugRoute: typeof AgentSlugRoute
   AgentsIdRoute: typeof AgentsIdRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
@@ -536,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/$slug': {
+      id: '/agent/$slug'
+      path: '/agent/$slug'
+      fullPath: '/agent/$slug'
+      preLoaderRoute: typeof AgentSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -592,6 +716,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSeedAdminsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard/viewings': {
+      id: '/_authenticated/dashboard/viewings'
+      path: '/viewings'
+      fullPath: '/dashboard/viewings'
+      preLoaderRoute: typeof AuthenticatedDashboardViewingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/profile': {
       id: '/_authenticated/dashboard/profile'
       path: '/profile'
@@ -599,11 +730,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardProfileRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/page': {
+      id: '/_authenticated/dashboard/page'
+      path: '/page'
+      fullPath: '/dashboard/page'
+      preLoaderRoute: typeof AuthenticatedDashboardPageRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/listings': {
       id: '/_authenticated/dashboard/listings'
       path: '/listings'
       fullPath: '/dashboard/listings'
       preLoaderRoute: typeof AuthenticatedDashboardListingsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/leads': {
+      id: '/_authenticated/dashboard/leads'
+      path: '/leads'
+      fullPath: '/dashboard/leads'
+      preLoaderRoute: typeof AuthenticatedDashboardLeadsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/deals': {
+      id: '/_authenticated/dashboard/deals'
+      path: '/deals'
+      fullPath: '/dashboard/deals'
+      preLoaderRoute: typeof AuthenticatedDashboardDealsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/boosts': {
+      id: '/_authenticated/dashboard/boosts'
+      path: '/boosts'
+      fullPath: '/dashboard/boosts'
+      preLoaderRoute: typeof AuthenticatedDashboardBoostsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/billing': {
@@ -625,6 +784,13 @@ declare module '@tanstack/react-router' {
       path: '/listings'
       fullPath: '/admin/listings'
       preLoaderRoute: typeof AuthenticatedAdminListingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/growth': {
+      id: '/_authenticated/admin/growth'
+      path: '/growth'
+      fullPath: '/admin/growth'
+      preLoaderRoute: typeof AuthenticatedAdminGrowthRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/billing': {
@@ -662,6 +828,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/deals/$id/invoice': {
+      id: '/_authenticated/deals/$id/invoice'
+      path: '/deals/$id/invoice'
+      fullPath: '/deals/$id/invoice'
+      preLoaderRoute: typeof AuthenticatedDealsIdInvoiceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/deals/$id/certificate': {
+      id: '/_authenticated/deals/$id/certificate'
+      path: '/deals/$id/certificate'
+      fullPath: '/deals/$id/certificate'
+      preLoaderRoute: typeof AuthenticatedDealsIdCertificateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -669,6 +849,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminActivityRoute: typeof AuthenticatedAdminActivityRoute
   AuthenticatedAdminAgentsRoute: typeof AuthenticatedAdminAgentsRoute
   AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
+  AuthenticatedAdminGrowthRoute: typeof AuthenticatedAdminGrowthRoute
   AuthenticatedAdminListingsRoute: typeof AuthenticatedAdminListingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -677,6 +858,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminActivityRoute: AuthenticatedAdminActivityRoute,
   AuthenticatedAdminAgentsRoute: AuthenticatedAdminAgentsRoute,
   AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
+  AuthenticatedAdminGrowthRoute: AuthenticatedAdminGrowthRoute,
   AuthenticatedAdminListingsRoute: AuthenticatedAdminListingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
@@ -687,8 +869,13 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAnalyticsRoute: typeof AuthenticatedDashboardAnalyticsRoute
   AuthenticatedDashboardBillingRoute: typeof AuthenticatedDashboardBillingRoute
+  AuthenticatedDashboardBoostsRoute: typeof AuthenticatedDashboardBoostsRoute
+  AuthenticatedDashboardDealsRoute: typeof AuthenticatedDashboardDealsRoute
+  AuthenticatedDashboardLeadsRoute: typeof AuthenticatedDashboardLeadsRoute
   AuthenticatedDashboardListingsRoute: typeof AuthenticatedDashboardListingsRoute
+  AuthenticatedDashboardPageRoute: typeof AuthenticatedDashboardPageRoute
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
+  AuthenticatedDashboardViewingsRoute: typeof AuthenticatedDashboardViewingsRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
@@ -696,8 +883,13 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardAnalyticsRoute: AuthenticatedDashboardAnalyticsRoute,
     AuthenticatedDashboardBillingRoute: AuthenticatedDashboardBillingRoute,
+    AuthenticatedDashboardBoostsRoute: AuthenticatedDashboardBoostsRoute,
+    AuthenticatedDashboardDealsRoute: AuthenticatedDashboardDealsRoute,
+    AuthenticatedDashboardLeadsRoute: AuthenticatedDashboardLeadsRoute,
     AuthenticatedDashboardListingsRoute: AuthenticatedDashboardListingsRoute,
+    AuthenticatedDashboardPageRoute: AuthenticatedDashboardPageRoute,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
+    AuthenticatedDashboardViewingsRoute: AuthenticatedDashboardViewingsRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   }
 
@@ -710,12 +902,16 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+  AuthenticatedDealsIdCertificateRoute: typeof AuthenticatedDealsIdCertificateRoute
+  AuthenticatedDealsIdInvoiceRoute: typeof AuthenticatedDealsIdInvoiceRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+  AuthenticatedDealsIdCertificateRoute: AuthenticatedDealsIdCertificateRoute,
+  AuthenticatedDealsIdInvoiceRoute: AuthenticatedDealsIdInvoiceRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -732,6 +928,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  AgentSlugRoute: AgentSlugRoute,
   AgentsIdRoute: AgentsIdRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   PropertiesIdRoute: PropertiesIdRoute,
